@@ -67,6 +67,7 @@ export class AuthController {
       session,
       body.email,
     );
+
     try {
       await this.MailerService.sendVerificationEmail(email);
     } catch (err) {

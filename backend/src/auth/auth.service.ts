@@ -5,10 +5,7 @@ import { timeUuid } from 'src/Utils/uuid';
 import { logger } from 'src/Utils/log';
 import type { LoginForm, RegForm } from './auth.interface';
 import type { UserInfo } from 'src/user/user.interface';
-import { isEmail } from 'src/Utils';
-import fs from 'fs-extra';
-import Handlebars from 'handlebars';
-import mjml2html from 'mjml';
+import { emailTemplate, isEmail } from 'src/Utils';
 
 @Injectable()
 export class AuthService {
@@ -188,7 +185,7 @@ export class AuthService {
     const email = {
       to: receiver, // 发给谁？
       subject: 'Nyancy | 邮箱验证', // 邮件标题
-      html: await this.emailTemplate('code', verifyCode),
+      html: await emailTemplate('code', verifyCode),
     };
     return email;
   }
@@ -237,7 +234,7 @@ export class AuthService {
     const email = {
       to: receiver,
       subject: 'Nyancy | 邮箱验证',
-      html: await this.emailTemplate('link', t_uuid),
+      html: await emailTemplate('link', t_uuid),
     };
     return email;
   }
@@ -392,13 +389,5 @@ export class AuthService {
     } else {
       return true;
     }
-  }
-
-  // 邮箱模板
-  async emailTemplate(type: 'code' | 'link', v: string) {
-    const file = `template/email/${type}.mjml`;
-    const template = Handlebars.compile(await fs.readFile(file, 'utf8'));
-    const output = mjml2html(template({ v, year: new Date().getFullYear() }));
-    return output.html;
   }
 }

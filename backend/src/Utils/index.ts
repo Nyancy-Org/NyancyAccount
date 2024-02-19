@@ -1,4 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import fs from 'fs-extra';
+import Handlebars from 'handlebars';
+import mjml2html from 'mjml';
 
 export const randomString = (length: number) => {
   const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
@@ -60,4 +63,15 @@ export function isEmail(email: string) {
       },
       HttpStatus.EXPECTATION_FAILED,
     );
+}
+
+// 邮箱模板
+export async function emailTemplate(
+  type: 'code' | 'link' | 'changeEmail',
+  v: string,
+) {
+  const file = `template/email/${type}.mjml`;
+  const template = Handlebars.compile(await fs.readFile(file, 'utf8'));
+  const output = mjml2html(template({ v, year: new Date().getFullYear() }));
+  return output.html;
 }
