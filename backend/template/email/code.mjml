@@ -43,7 +43,7 @@
         <mj-divider border-color="#85b6c9"></mj-divider>
 
         <mj-text css-class="footer" align="center" font-family="MiSans">
-          Copyright © 2024 Lazy All Rights Reserved.
+          Copyright © {{ year }} Lazy All Rights Reserved.
         </mj-text>
       </mj-column>
     </mj-section>

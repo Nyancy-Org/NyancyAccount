@@ -398,7 +398,7 @@ export class AuthService {
   async emailTemplate(type: 'code' | 'link', v: string) {
     const file = `template/email/${type}.mjml`;
     const template = Handlebars.compile(await fs.readFile(file, 'utf8'));
-    const output = mjml2html(template({ v }));
+    const output = mjml2html(template({ v, year: new Date().getFullYear() }));
     return output.html;
   }
 }
