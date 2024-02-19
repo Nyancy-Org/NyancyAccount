@@ -35,7 +35,7 @@ export class dbConnect implements NestMiddleware {
           status: false,
           code: HttpStatus.INTERNAL_SERVER_ERROR,
           msg: ':(',
-          time: new Date().getTime(),
+          time: Date.now(),
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

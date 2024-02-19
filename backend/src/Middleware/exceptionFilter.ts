@@ -34,7 +34,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     response.status(status).json({
       code: status,
       msg: resp.msg || resp.error,
-      time: new Date().getTime(),
+      time: Date.now(),
       path: request.originalUrl,
     });
 
