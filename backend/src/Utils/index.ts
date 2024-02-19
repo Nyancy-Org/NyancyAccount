@@ -1,3 +1,5 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
 export const randomString = (length: number) => {
   const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
   const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -47,4 +49,15 @@ export async function isSafeData(body: { [propName: string]: any }) {
       }
     }
   }
+}
+
+// 校验邮箱格式
+export function isEmail(email: string) {
+  if (!/^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z]{2,6})$/.test(email))
+    throw new HttpException(
+      {
+        msg: '请输入正确的邮箱地址！',
+      },
+      HttpStatus.EXPECTATION_FAILED,
+    );
 }

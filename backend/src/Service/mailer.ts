@@ -13,7 +13,7 @@ export class MailerService {
     );
   }
 
-  async sendVerificationEmail(email: nodemailer.SendMailOptions) {
+  async sendVerificationEmail(email: any) {
     const mailOptions: nodemailer.SendMailOptions = {
       from: config.smtpConfig.auth.user,
       ...email,

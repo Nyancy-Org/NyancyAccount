@@ -11,6 +11,7 @@ import { RateLimiterModule, RateLimiterGuard } from 'nestjs-rate-limiter';
 import { dbConnect } from './Middleware/protocol';
 
 import { MainModule } from './main/main.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -39,18 +40,16 @@ import { MainModule } from './main/main.module';
       customResponseSchema: (req) => {
         throw new HttpException(
           {
-            status: false,
-            code: HttpStatus.TOO_MANY_REQUESTS,
             msg: `你的操作太快了，请等待${Math.round(
               req.msBeforeNext / 1000,
             )}秒后重试`,
-            time: new Date().getTime(),
           },
           HttpStatus.TOO_MANY_REQUESTS,
         );
       },
     }),
     MainModule,
+    AuthModule,
   ],
   providers: [
     {
