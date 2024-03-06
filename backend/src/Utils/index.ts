@@ -66,10 +66,7 @@ export function isEmail(email: string) {
 }
 
 // 邮箱模板
-export async function emailTemplate(
-  type: 'code' | 'link' | 'changeEmail',
-  v: string,
-) {
+export async function emailTemplate(type: string, v: string) {
   const file = `template/email/${type}.mjml`;
   const template = Handlebars.compile(await fs.readFile(file, 'utf8'));
   const output = mjml2html(template({ v, year: new Date().getFullYear() }));

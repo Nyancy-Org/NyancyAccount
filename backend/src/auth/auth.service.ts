@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { timeUuid } from 'src/Utils/uuid';
 import { logger } from 'src/Utils/log';
 import type { LoginForm, RegForm } from './auth.interface';
+import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/user/user.interface';
 import { emailTemplate, isEmail } from 'src/Utils';
 
@@ -118,7 +119,7 @@ export class AuthService {
     await this.checkUserName({ username: body.username });
 
     // 验证验证码
-    await this.verifyEmailCode(session, body.email, body.code);
+    await this.verifyEmailCode(session, body.email, body.code, 'reg');
 
     // 开始注册
     // 插入新用户
@@ -170,13 +171,21 @@ export class AuthService {
   }
 
   // 创建验证邮箱验证码
-  async createVerifyEmailCode(session: Record<string, any>, receiver: string) {
+  async createVerifyEmailCode(
+    session: Record<string, any>,
+    receiver: string,
+    type: string,
+  ) {
+    // 验证验证码类型
+    if (!type || MailCodeType.findIndex((i) => i === type) === -1)
+      throw new Error('未知的验证码类型');
+
     // 验证邮箱格式
     isEmail(receiver);
 
     // 生成6位数验证码
     const verifyCode = Math.random().toString().slice(3, 9).toUpperCase();
-    session['verifyCode'] = {
+    session[type] = {
       email: receiver,
       code: verifyCode,
       expire: Date.now() + 60 * 5000, // 5min之后过期
@@ -185,8 +194,9 @@ export class AuthService {
     const email = {
       to: receiver, // 发给谁？
       subject: 'Nyancy | 邮箱验证', // 邮件标题
-      html: await emailTemplate('code', verifyCode),
+      html: await emailTemplate(type, verifyCode),
     };
+
     return email;
   }
 
@@ -195,15 +205,20 @@ export class AuthService {
     session: Record<string, any>,
     email: string,
     code: string,
+    type: string,
   ) {
-    if (!session['verifyCode']) throw new Error('验证码不正确');
-    if (email !== session['verifyCode'].email) throw new Error('邮箱不对应！');
-    if (code != session['verifyCode'].code) throw new Error('验证码不正确');
-    if (Date.now() > session['verifyCode'].expire) {
-      session['verifyCode'] = null;
+    // 验证验证码类型
+    if (!type || MailCodeType.findIndex((i) => i === type) === -1)
+      throw new Error('未知的验证码类型');
+
+    if (!session[type]) throw new Error('验证码不正确');
+    if (email !== session[type].email) throw new Error('邮箱不对应！');
+    if (code != session[type].code) throw new Error('验证码不正确');
+    if (Date.now() > session[type].expire) {
+      session[type] = null;
       throw new Error('该验证码已过期，请重新获取');
     }
-    session['verifyCode'] = null;
+    session[type] = null;
     return {
       code: HttpStatus.OK,
       msg: '验证码验证成功！',
@@ -212,7 +227,11 @@ export class AuthService {
   }
 
   // 创建验证邮箱验证地址
-  async createVerifyEmail(receiver: string) {
+  async createVerifyEmail(receiver: string, type: string) {
+    // 验证验证码类型
+    if (!type || MailLinkType.findIndex((i) => i === type) === -1)
+      throw new Error('未知的验证码类型');
+
     // 验证邮箱格式
     isEmail(receiver);
 
@@ -234,13 +253,13 @@ export class AuthService {
     const email = {
       to: receiver,
       subject: 'Nyancy | 邮箱验证',
-      html: await emailTemplate('link', t_uuid),
+      html: await emailTemplate(type, t_uuid),
     };
     return email;
   }
 
   // 验证邮箱地址（适用于忘记密码）
-  async verifyEmail(body: RegForm) {
+  async verifyEmailLink(body: RegForm) {
     // 首先判断和数据库里面的是否相符
     const [dc] = await db.query(
       'select id from user where verifyToken=?',
@@ -293,7 +312,7 @@ export class AuthService {
     const thisEmail = dc.email;
 
     // 验证重置地址是否过期
-    await this.verifyEmail(body);
+    await this.verifyEmailLink(body);
 
     // OK，开始更新密码
     const r = await db.query('update user set password=? where email=?', [

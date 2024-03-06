@@ -50,22 +50,23 @@ export class AuthController {
     return this.AuthService.checkUserName(body);
   }
 
-  // 发送邮箱验证码（新用户注册，修改密码）
+  // 发送邮箱验证码
   @RateLimit({
-    keyPrefix: 'sendVerificationEmailCode',
+    keyPrefix: 'sendEmailCode',
     points: 1,
     duration: 60,
     blockDuration: 60,
   })
-  @Post('sendVerificationEmailCode')
+  @Post('sendEmailCode')
   @HttpCode(200)
   async sendVerificationEmailCode(
     @Session() session: Record<string, any>,
-    @Body() body: { email: string },
+    @Body() body: { email: string; type: string },
   ) {
     const email = await this.AuthService.createVerifyEmailCode(
       session,
       body.email,
+      body.type,
     );
 
     try {
@@ -81,17 +82,20 @@ export class AuthController {
     };
   }
 
-  // 发送邮箱验证地址（忘记密码）
+  // 发送邮箱验证地址
   @RateLimit({
-    keyPrefix: 'sendVerificationEmailCode',
+    keyPrefix: 'sendEmailLink',
     points: 1,
     duration: 60, // 间隔60s
     blockDuration: 60, // 如果60s内再次触发就是60s
   })
-  @Post('sendVerificationEmail')
+  @Post('sendEmailLink')
   @HttpCode(200)
-  async sendVerificationEmail(@Body() body: { email: string }) {
-    const email = await this.AuthService.createVerifyEmail(body.email);
+  async sendVerificationEmail(@Body() body: { email: string; type: string }) {
+    const email = await this.AuthService.createVerifyEmail(
+      body.email,
+      body.type,
+    );
 
     try {
       await this.MailerService.sendVerificationEmail(email);

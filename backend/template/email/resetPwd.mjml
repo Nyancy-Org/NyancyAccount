@@ -6,7 +6,7 @@
         text-indent: 2em;
       }
 
-      .code div {
+      .code {
         text-shadow: 0 0 11px #abd0e4;
       }
 
@@ -28,15 +28,15 @@
         <mj-text font-size="20px" color="#85b6c9" font-family="MiSans">
           验证码通知：
         </mj-text>
-        <mj-text css-class="indent" font-family="MiSans">
-          你本次操作的邮箱验证码为：
+        <mj-text css-class="indent" color="#dc4242" font-family="MiSans">
+          您正在进行重置密码操作，请点击下面链接继续前往验证：
         </mj-text>
-        <mj-text css-class="code" color="#3d5e78" align="center" font-size="50px" font-family="MiSans">
-          {{ v }}
-        </mj-text>
+        <mj-button css-class="code" font-family="MiSans" background-color="transparent" color="#3d5e78" href="http://127.0.0.1:1239/test/{{ v }}">
+          http://127.0.0.1:1239/test/{{ v }}
+        </mj-button>
 
         <mj-text css-class="indent" font-family="MiSans">
-          该验证码有效期为5分钟，若不是您本人进行此操作，请忽略此邮件。
+          该链接有效期为5分钟，请勿将此链接告诉任何人！如果您并没有访问过我们的网站，或没有进行上述操作，请忽略这封邮件。
         </mj-text>
 
         <mj-divider border-color="#85b6c9"></mj-divider>
