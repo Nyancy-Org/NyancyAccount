@@ -14,6 +14,7 @@ import { MainModule } from './main/main.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { Oauth2Module } from './oauth2/oauth2.module';
+import { SiteModule } from './site/site.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { Oauth2Module } from './oauth2/oauth2.module';
     AuthModule,
     UserModule,
     Oauth2Module,
+    SiteModule,
   ],
   providers: [
     {
