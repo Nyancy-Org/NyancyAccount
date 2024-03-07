@@ -30,10 +30,10 @@ export class isAdmin extends CheckAuthGuard implements CanActivate {
     if (!(await isAuthenticated)) {
       return false;
     }
-    const r = await db.query('select role from user where uuid=?', [
-      session.uuid,
+    const [r] = await db.query('select role from user where id=?', [
+      session.uid,
     ]);
-    if (r[0].role === 'admin') {
+    if (r.role === 'admin') {
       return true;
     }
 

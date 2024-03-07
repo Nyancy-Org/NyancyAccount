@@ -29,13 +29,10 @@ export class dbConnect implements NestMiddleware {
     try {
       conn = await db.getConnection();
     } catch (err) {
-      logger.error('数据库连接出错');
+      logger.error('数据库连接出错：' + err.message);
       throw new HttpException(
         {
-          status: false,
-          code: HttpStatus.INTERNAL_SERVER_ERROR,
           msg: ':(',
-          time: Date.now(),
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

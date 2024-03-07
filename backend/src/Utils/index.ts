@@ -55,7 +55,7 @@ export async function isSafeData(body: { [propName: string]: any }) {
 }
 
 // 校验邮箱格式
-export function isEmail(email: string) {
+export const isEmail = (email: string) => {
   if (!/^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z]{2,6})$/.test(email))
     throw new HttpException(
       {
@@ -63,7 +63,19 @@ export function isEmail(email: string) {
       },
       HttpStatus.EXPECTATION_FAILED,
     );
-}
+  return true;
+};
+
+export const validatePassword = (passwd: string) => {
+  if (!/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(passwd))
+    throw new HttpException(
+      {
+        msg: '密码格式不正确',
+      },
+      HttpStatus.EXPECTATION_FAILED,
+    );
+  return true;
+};
 
 // 邮箱模板
 export async function emailTemplate(type: string, v: string) {

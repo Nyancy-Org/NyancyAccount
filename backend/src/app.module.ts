@@ -12,6 +12,7 @@ import { dbConnect } from './Middleware/protocol';
 
 import { MainModule } from './main/main.module';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     MainModule,
     AuthModule,
+    UserModule,
   ],
   providers: [
     {
