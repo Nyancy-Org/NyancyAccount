@@ -14,18 +14,15 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
-      "@/*": [
-       "src/*"
-      ]
-     }
-  },
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
+      "@/*": ["src/*"]
     },
-    {
-      "path": "./tsconfig.app.json"
-    }
-  ]
+  },
+  "include": [
+    "env.d.ts", 
+    "src/**/*", 
+    "src/**/*.ts", 
+    "src/**/*.vue",
+    "src/**/*.d.ts", 
+    "./*.ts",
+  ],
 }
