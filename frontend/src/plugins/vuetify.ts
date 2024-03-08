@@ -15,11 +15,13 @@ import { createVuetify } from 'vuetify'
 export default createVuetify({
   defaults: {
     VCard: {
-      // variant: 'outlined'
       elevation: 0
     },
-    VButton: {
+    VBtn: {
       elevation: 0
+    },
+    VTextField: {
+      variant: 'outlined'
     }
   },
   theme: {
