@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import Footer from './components/Footer.vue'
+import Snackbar from './components/Snackbar.vue'
 </script>
 
 <template>
@@ -18,10 +19,13 @@ import Footer from './components/Footer.vue'
     </v-navigation-drawer> -->
     <v-main>
       <v-container class="h-100">
-        <RouterView />
+        <v-fade-transition>
+          <RouterView />
+        </v-fade-transition>
       </v-container>
     </v-main>
 
     <Footer></Footer>
+    <Snackbar />
   </v-app>
 </template>
