@@ -34,6 +34,13 @@ const login = async () => {
 
 <template>
   <v-form ref="form" fast-fail @submit.prevent>
+    <v-slide-y-reverse-transition leave-absolute>
+      <div v-if="step === 2 && formData.username" class="text-center mt-n3 my-4">
+        <v-chip prepend-icon="mdi-account-circle-outline">
+          {{ formData.username }}
+        </v-chip>
+      </div>
+    </v-slide-y-reverse-transition>
     <v-slide-x-transition leave-absolute>
       <v-text-field
         v-if="step === 1"
@@ -44,7 +51,7 @@ const login = async () => {
       <v-text-field
         v-if="step === 2"
         v-model="formData.password"
-        :rules="[(v) => (v.length === 0 ? '请输入密码' : true)]"
+        :rules="[(v) => (v.length === 0 ? false : true)]"
         label="密码"
         type="password"
       ></v-text-field>
