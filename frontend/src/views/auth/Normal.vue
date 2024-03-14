@@ -7,6 +7,7 @@
         color="warning"
         variant="tonal"
         stacked
+        to="/auth/register"
         >我还未拥有账号</v-btn
       >
     </v-col>

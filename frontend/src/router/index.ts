@@ -29,6 +29,14 @@ const router = createRouter({
             title: '登录',
             image: '069.png'
           }
+        },
+        {
+          path: 'register',
+          component: () => import('../views/auth/Register.vue'),
+          meta: {
+            title: '注册',
+            image: '054.png'
+          }
         }
       ]
     }

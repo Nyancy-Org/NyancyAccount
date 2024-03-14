@@ -3,6 +3,11 @@ export interface LoginForm {
   password: string
 }
 
+export interface RegForm extends LoginForm {
+  code: string
+  email: string
+}
+
 export interface NyaResponse {
   code: number
   msg: string
