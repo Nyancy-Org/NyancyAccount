@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
-import { indexStore } from '@/stores'
-import { RegForm } from '@/types'
-import { VForm } from 'vuetify/lib/components/index.mjs'
-import { checkEmailApi, sendEmailCodeApi, regApi, loginApi } from '@/apis/auth'
-import { useAuth } from '@/hooks/useAuth'
 import md5 from 'md5'
 import router from '@/router'
+import { useDisplay } from 'vuetify'
+import { indexStore } from '@/stores'
+import { RegForm } from '@/types'
+import type { VForm } from 'vuetify/lib/components/index.mjs'
+import { checkEmailApi, sendEmailCodeApi, regApi, loginApi } from '@/apis/auth'
+import { useAuth } from '@/hooks/useAuth'
 
 const emit = defineEmits<{
   update: [type: 'title' | 'image', arg: string]
   reset: []
 }>()
+const { xs } = useDisplay()
 const { showMsg } = indexStore()
 const { checkUName, checkPwd } = useAuth()
 
@@ -166,11 +168,12 @@ onUnmounted(() => emit('reset'))
           clearable
           validate-on="blur"
         ></v-text-field>
-        <v-row>
+        <v-row :no-gutters="xs">
           <v-col :sm="6" :cols="12">
             <v-text-field
               v-model="formData.password"
               :rules="[(v) => checkPwd(v)]"
+              clearable
               label="密码"
               type="password"
             ></v-text-field>
@@ -179,6 +182,7 @@ onUnmounted(() => emit('reset'))
             <v-text-field
               v-model="confirmPwd"
               :rules="[(v) => (v === formData.password ? true : '两次密码不一致')]"
+              clearable
               label="确认密码"
               type="password"
             ></v-text-field>
@@ -197,6 +201,7 @@ onUnmounted(() => emit('reset'))
       <div v-if="step === Step.CODE">
         <v-otp-input
           v-model="formData.code"
+          class="mb-1"
           :disabled="btnLoading"
           @finish="nextStep"
         ></v-otp-input>
@@ -240,14 +245,8 @@ onUnmounted(() => emit('reset'))
           <v-col cols="12" sm="6">
             <v-btn size="large" variant="text" color="warning" block @click="step--">上一步</v-btn>
           </v-col>
-          <v-col cols="12" sm="6">
-            <v-btn
-              v-if="step === Step.CODE && num === 0"
-              size="large"
-              variant="text"
-              color="primary"
-              block
-              @click="sendEmailCode"
+          <v-col cols="12" sm="6" v-if="step === Step.CODE && num === 0">
+            <v-btn size="large" variant="text" color="primary" block @click="sendEmailCode"
               >重新发送</v-btn
             >
           </v-col>

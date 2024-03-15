@@ -17,7 +17,7 @@ const reset = () =>
 
 <template>
   <v-row class="h-100" justify="center" align="center" no-gutters>
-    <v-col cols="12" md="6" sm="8" xs="12" align-self="center">
+    <v-col xl="4" md="6" sm="8" xs="12" align-self="center">
       <v-card>
         <v-btn
           v-if="$route.path === '/auth'"
