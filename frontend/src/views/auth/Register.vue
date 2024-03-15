@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { indexStore } from '@/stores'
 import { RegForm } from '@/types'
 import { VForm } from 'vuetify/lib/components/index.mjs'
-import { checkEmailApi, sendEmailCodeApi, regApi } from '@/apis/auth'
+import { checkEmailApi, sendEmailCodeApi, regApi, loginApi } from '@/apis/auth'
 import { useAuth } from '@/hooks/useAuth'
+import md5 from 'md5'
+import router from '@/router'
 
+const emit = defineEmits<{
+  update: [type: 'title' | 'image', arg: string]
+  reset: []
+}>()
 const { showMsg } = indexStore()
 const { checkUName, checkPwd } = useAuth()
 
@@ -25,27 +31,32 @@ const btnLoading = ref(false)
 const sendEmailCode = async () => {
   if (timer.value) clearInterval(timer.value)
   num.value = -1
+  btnLoading.value = true
   const { data, retryAfter } = await sendEmailCodeApi({
     email: formData.value.email,
     type: 'reg'
   })
+  btnLoading.value = false
   if (data.code !== 200) {
     sendStatus.value = data.msg
     showMsg(data.msg, 'red')
+    emit('update', 'image', '035.png')
   } else {
     sendStatus.value = ''
     showMsg(data.msg, 'green')
+    emit('update', 'image', '020.png')
   }
   num.value = retryAfter
   timer.value = setInterval(() => {
     num.value--
     if (num.value <= 0) {
       clearInterval(timer.value)
+      emit('update', 'image', '020.png')
     }
   }, 1000)
 }
 
-const step = ref<Step>(4)
+const step = ref<Step>(1)
 enum Step {
   UNAME = 1,
   EMAIL,
@@ -62,6 +73,7 @@ const STEP_ACTION = {
       const { valid } = await form.value.validate()
       if (!valid) return
       step.value++
+      emit('update', 'image', '015.png')
     } finally {
       btnLoading.value = false
     }
@@ -73,6 +85,7 @@ const STEP_ACTION = {
       await checkEmailApi(formData.value)
       step.value++
       sendEmailCode()
+      emit('update', 'image', '020.png')
     } finally {
       btnLoading.value = false
     }
@@ -82,7 +95,8 @@ const STEP_ACTION = {
     try {
       btnLoading.value = true
       const { msg } = await regApi(formData.value)
-      showMsg(msg, 'green')
+      emit('update', 'title', msg)
+      emit('update', 'image', '079.png')
       step.value++
     } finally {
       btnLoading.value = false
@@ -92,13 +106,26 @@ const STEP_ACTION = {
 }
 
 const nextStep = async () => await STEP_ACTION[step.value]()
+
+const toUserCenter = async () => {
+  btnLoading.value = true
+  try {
+    await loginApi(formData.value)
+    // 登陆后相关操作
+    router.replace('/user')
+  } finally {
+    btnLoading.value = false
+  }
+}
+
+onUnmounted(() => emit('reset'))
 </script>
 
 <template>
   <v-form ref="form" fast-fail @submit.prevent>
     <v-slide-y-reverse-transition leave-absolute>
       <div
-        v-if="step > Step.UNAME && formData.email"
+        v-if="step > Step.UNAME && step < Step.SUCCESS && formData.email"
         class="mt-n3 d-flex flex-wrap justify-center ga-3"
         :class="{ 'my-4': step !== Step.CODE }"
       >
@@ -168,7 +195,32 @@ const nextStep = async () => await STEP_ACTION[step.value]()
       ></v-text-field>
 
       <div v-if="step === Step.CODE">
-        <v-otp-input v-model="formData.code" @finish="nextStep"></v-otp-input>
+        <v-otp-input
+          v-model="formData.code"
+          :disabled="btnLoading"
+          @finish="nextStep"
+        ></v-otp-input>
+      </div>
+
+      <div v-if="step === Step.SUCCESS">
+        <v-card class="mx-auto" max-width="400" color="primary" variant="tonal">
+          <v-card-text>
+            <v-list-item class="w-100">
+              <v-list-item-title>{{ formData.username }}</v-list-item-title>
+
+              <v-list-item-subtitle>{{ formData.email }}</v-list-item-subtitle>
+
+              <template v-slot:append>
+                <v-avatar
+                  :image="`https://cdn.imlazy.ink:233/avatar/${md5(formData.email)}?s=100&r=R&d=`"
+                ></v-avatar>
+              </template>
+            </v-list-item>
+          </v-card-text>
+          <v-card-actions class="d-flex justify-center">
+            <v-btn @click="toUserCenter" :loading="btnLoading"> 前往用户中心 </v-btn>
+          </v-card-actions>
+        </v-card>
       </div>
     </v-slide-x-transition>
 
