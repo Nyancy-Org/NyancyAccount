@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
+type AppTheme = 'light' | 'dark' | 'auto'
 
 export const indexStore = defineStore('indexStore', () => {
-  const isDarkMode = useStorage<boolean>('isDarkMode', localStorage.isDarkMode === 'true')
-
+  const appTheme = useStorage<AppTheme>('AppTheme', 'auto')
   const snackbar = ref({
     show: false,
     text: '',
@@ -24,7 +24,7 @@ export const indexStore = defineStore('indexStore', () => {
   }
 
   return {
-    isDarkMode,
+    appTheme,
     snackbar,
     showMsg
   }

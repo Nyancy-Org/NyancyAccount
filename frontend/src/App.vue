@@ -2,6 +2,7 @@
 import { RouterView } from 'vue-router'
 import Footer from './components/Footer.vue'
 import Snackbar from './components/Snackbar.vue'
+import FloatingMenu from './components/FloatingMenu.vue'
 </script>
 
 <template>
@@ -19,13 +20,16 @@ import Snackbar from './components/Snackbar.vue'
     </v-navigation-drawer> -->
     <v-main>
       <v-container class="h-100">
-        <v-fade-transition>
-          <RouterView />
-        </v-fade-transition>
+        <RouterView v-slot="{ Component }">
+          <v-fade-transition>
+            <component :is="Component" />
+          </v-fade-transition>
+        </RouterView>
       </v-container>
     </v-main>
 
     <Footer></Footer>
     <Snackbar />
+    <FloatingMenu />
   </v-app>
 </template>

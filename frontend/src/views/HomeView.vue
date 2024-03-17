@@ -20,7 +20,7 @@
           </div>
         </v-card-text>
         <v-card-actions class="d-flex justify-center">
-          <v-btn prepend-icon="mdi-github" color="black">Github</v-btn>
+          <v-btn prepend-icon="mdi-github">Github</v-btn>
           <v-btn prepend-icon="mdi-file-document-outline" color="primary">使用文档</v-btn>
           <v-btn prepend-icon="mdi-bug-outline" color="brown">问题反馈</v-btn>
         </v-card-actions>

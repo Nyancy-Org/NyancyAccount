@@ -10,12 +10,16 @@ import 'vuetify/styles'
 
 // Composables
 import { createVuetify } from 'vuetify'
+import { VSpeedDial } from 'vuetify/labs/VSpeedDial'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
+  components: {
+    VSpeedDial
+  },
   defaults: {
     VCard: {
-      elevation: 0
+      variant: 'text'
     },
     VBtn: {
       elevation: 0
@@ -30,6 +34,11 @@ export default createVuetify({
       light: {
         colors: {
           primary: '#5f89a4'
+        }
+      },
+      dark: {
+        colors: {
+          primary: '#92c4e4'
         }
       }
     }
