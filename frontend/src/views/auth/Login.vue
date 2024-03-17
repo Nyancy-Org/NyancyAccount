@@ -36,7 +36,7 @@ const login = async () => {
   <v-form ref="form" fast-fail @submit.prevent>
     <v-slide-y-reverse-transition leave-absolute>
       <div v-if="step === 2 && formData.username" class="text-center mt-n3 my-4">
-        <v-chip prepend-icon="mdi-account-circle-outline">
+        <v-chip prepend-icon="mdi-account-circle-outline" color="primary">
           {{ formData.username }}
         </v-chip>
       </div>
