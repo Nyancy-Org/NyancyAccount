@@ -2,11 +2,11 @@
 import { onMounted, ref, watch } from 'vue'
 import { indexStore } from '@/stores'
 import { useTheme } from 'vuetify'
-import { useMediaQuery } from '@vueuse/core'
+import { usePreferredDark } from '@vueuse/core'
 const vFab = ref()
 const theme = useTheme()
 const store = indexStore()
-const isPreferredDark = useMediaQuery('(prefers-color-scheme: dark)')
+const isPreferredDark = usePreferredDark()
 
 const setAppTheme = () =>
   (theme.global.name.value =
