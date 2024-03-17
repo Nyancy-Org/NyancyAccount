@@ -45,9 +45,11 @@ const reset = () =>
           <div class="my-4 text-h5 text-primary">{{ option.title || $route.meta.title }}</div>
         </v-card-title>
         <v-card-text>
-          <v-slide-x-transition leave-absolute>
-            <RouterView @update="update" @reset="reset" />
-          </v-slide-x-transition>
+          <RouterView v-slot="{ Component }">
+            <v-slide-x-transition leave-absolute>
+              <component :is="Component" @update="update" @reset="reset" />
+            </v-slide-x-transition>
+          </RouterView>
         </v-card-text>
       </v-card>
     </v-col>
