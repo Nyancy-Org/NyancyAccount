@@ -1,18 +1,14 @@
 <template>
   <v-snackbar
-    v-model="store.snackbar.show"
-    :timeout="store.snackbar.timeout"
-    :color="store.snackbar.color"
-    :location="(store.snackbar.location as any)"
+    v-model="snackbar.show"
+    :timeout="snackbar.timeout"
+    :color="snackbar.color"
+    :location="snackbar.location as any"
   >
-    {{ store.snackbar.text }}
+    {{ snackbar.text }}
 
     <template v-slot:actions>
-      <v-btn
-        :color="store.snackbar.color + '-accent'"
-        variant="text"
-        @click="store.snackbar.show = false"
-      >
+      <v-btn :color="snackbar.color + '-accent'" variant="text" @click="snackbar.show = false">
         关闭
       </v-btn>
     </template>
@@ -20,6 +16,6 @@
 </template>
 
 <script lang="ts" setup>
-import { indexStore } from "@/stores";
-const store = indexStore();
+import { indexStore } from '@/stores'
+const { snackbar } = indexStore()
 </script>

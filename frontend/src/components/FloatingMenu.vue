@@ -5,14 +5,14 @@ import { useTheme } from 'vuetify'
 import { usePreferredDark } from '@vueuse/core'
 const vFab = ref()
 const theme = useTheme()
-const store = indexStore()
+const { appTheme } = indexStore()
 const isPreferredDark = usePreferredDark()
 
 const setAppTheme = () =>
   (theme.global.name.value =
-    store.appTheme === 'dark'
+    appTheme.value === 'dark'
       ? 'dark'
-      : store.appTheme === 'light'
+      : appTheme.value === 'light'
         ? 'light'
         : isPreferredDark.value
           ? 'dark'
@@ -25,16 +25,16 @@ const btns = [
   },
   {
     icon: 'weather-sunny',
-    click: () => (store.appTheme = theme.global.name.value = 'light')
+    click: () => (appTheme.value = theme.global.name.value = 'light')
   },
   {
     icon: 'weather-night',
-    click: () => (store.appTheme = theme.global.name.value = 'dark')
+    click: () => (appTheme.value = theme.global.name.value = 'dark')
   },
   {
     icon: 'theme-light-dark',
     click: () => {
-      store.appTheme = 'auto'
+      appTheme.value = 'auto'
       setAppTheme()
     }
   }
