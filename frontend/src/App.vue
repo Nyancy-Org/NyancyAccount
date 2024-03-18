@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { RouterView } from 'vue-router'
 import Footer from './components/Footer.vue'
 import Snackbar from './components/Snackbar.vue'

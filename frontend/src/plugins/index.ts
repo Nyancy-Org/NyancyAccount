@@ -12,6 +12,12 @@ import { createPinia } from 'pinia'
 // Types
 import type { App } from 'vue'
 
-export function registerPlugins(app: App) {
-  app.use(vuetify).use(router).use(createPinia())
+// Stores
+import { userStore } from '@/stores/user'
+
+export async function registerPlugins(app: App) {
+  app.use(vuetify).use(createPinia())
+  const { getUserInfo } = userStore()
+  await getUserInfo()
+  app.use(router)
 }

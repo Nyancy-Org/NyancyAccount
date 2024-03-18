@@ -1,9 +1,9 @@
 import { LoginForm, NyaResponse, RegForm, UserInfoRes } from '@/types'
-import axios from '@/utils/request'
+import { axios, baseURL } from '@/utils/request'
 import { AxiosError } from 'axios'
 
 // 请求地址前缀
-axios.defaults.baseURL += '/auth'
+axios.defaults.baseURL = baseURL + '/auth'
 
 export type MailCodeType = 'reg' | 'changeEmail' | 'changePwd' | 'universal'
 export type MailLinkType = 'resetPwd'

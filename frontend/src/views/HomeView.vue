@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { indexStore } from '@/stores'
+const { isLogin } = indexStore()
+</script>
 
 <template>
   <v-row class="h-100" justify="center" align="center" no-gutters>
@@ -14,7 +17,22 @@
         <v-card-text>
           <div class="mt-4">
             <p class="my-5">一个账号，</p>
-            <v-btn prepend-icon="mdi-cat" color="primary" variant="tonal" size="large" to="/auth"
+            <v-btn
+              v-if="isLogin"
+              prepend-icon="mdi-cat"
+              color="primary"
+              variant="tonal"
+              size="large"
+              to="/user/info"
+              >用户中心</v-btn
+            >
+            <v-btn
+              v-else
+              prepend-icon="mdi-cat"
+              color="primary"
+              variant="tonal"
+              size="large"
+              to="/auth"
               >开始使用</v-btn
             >
           </div>

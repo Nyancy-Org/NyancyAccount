@@ -23,6 +23,6 @@
     "src/**/*.ts", 
     "src/**/*.vue",
     "src/**/*.d.ts", 
-    "./*.ts",
+    "./*.ts", "vite.config.mts",
   ],
 }
