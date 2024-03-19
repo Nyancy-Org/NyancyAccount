@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import md5 from 'md5'
 import { useDisplay } from 'vuetify'
 import { indexStore } from '@/stores'
@@ -28,7 +29,7 @@ const menus = [
   { name: '授权应用', icon: 'apps', path: 'apps' }
 ]
 
-const { info } = userStore()
+const { info } = storeToRefs(userStore())
 const { isLogin, showMsg, openConfirmDialog } = indexStore()
 
 const btnLoading = ref(false)
@@ -69,7 +70,7 @@ const logout = async () => {
       </v-card>
       <v-row>
         <v-col lg="3" md="4" sm="4" cols="12">
-          <v-card variant="flat">
+          <v-card variant="flat" :class="!xs && 'brightness'">
             <v-card-text class="text-center">
               <v-avatar
                 :image="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=300&r=R&d=`"
@@ -94,7 +95,7 @@ const logout = async () => {
           </v-card>
         </v-col>
         <v-col lg="9" md="8" sm="8" cols="12">
-          <v-card variant="flat" class="mb-5">
+          <v-card variant="flat" class="mb-5 brightness">
             <v-tabs color="primary">
               <v-tab v-for="(item, i) in menus" :key="i" :to="item.path">
                 <v-icon start> mdi-{{ item.icon }} </v-icon>
@@ -102,7 +103,7 @@ const logout = async () => {
               </v-tab>
             </v-tabs>
           </v-card>
-          <v-card variant="flat">
+          <v-card variant="flat" class="brightness">
             <RouterView v-slot="{ Component }">
               <v-slide-x-transition leave-absolute>
                 <component :is="Component" @update="update" @reset="reset" />
