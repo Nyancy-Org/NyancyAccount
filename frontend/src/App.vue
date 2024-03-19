@@ -3,6 +3,9 @@ import { RouterView } from 'vue-router'
 import Footer from './components/Footer.vue'
 import Snackbar from './components/Snackbar.vue'
 import FloatingMenu from './components/FloatingMenu.vue'
+import ConfirmDialog from './components/ConfirmDialog.vue'
+
+const GLOBAL_COMPONENTS = [Footer, Snackbar, FloatingMenu, ConfirmDialog]
 </script>
 
 <template>
@@ -28,8 +31,6 @@ import FloatingMenu from './components/FloatingMenu.vue'
       </v-container>
     </v-main>
 
-    <Footer></Footer>
-    <Snackbar />
-    <FloatingMenu />
+    <component v-for="(c, i) in GLOBAL_COMPONENTS" :key="i" :is="c" />
   </v-app>
 </template>

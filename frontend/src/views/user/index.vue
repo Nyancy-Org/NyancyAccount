@@ -29,17 +29,22 @@ const menus = [
 ]
 
 const { info } = userStore()
-const { isLogin, showMsg } = indexStore()
+const { isLogin, showMsg, openConfirmDialog } = indexStore()
 
 const btnLoading = ref(false)
 const logout = async () => {
   try {
+    await openConfirmDialog('警告', '你真的要登出吗？', 'warning')
+    btnLoading.value = true
     const { msg } = await logoutApi()
     showMsg(msg, 'green')
     isLogin.value = false
     router.replace('/')
   } catch (err: any) {
+    if (err.message.startsWith('[Confirm Dialog]')) return
     window.location.href = '/'
+  } finally {
+    btnLoading.value = false
   }
 }
 </script>
