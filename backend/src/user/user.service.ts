@@ -4,16 +4,24 @@ import bcrypt from 'bcryptjs';
 import type { UserInfo, UpdateType } from './user.interface';
 import { isEmail, validatePassword } from 'src/Utils';
 import { AuthService as AuthServices } from 'src/auth/auth.service';
+import type { Request } from 'express';
 
 @Injectable()
 export class UserService {
   constructor(private readonly AuthService: AuthServices) {}
 
   // 获取当前用户信息
-  async info(session: Record<string, any>) {
+  async info(session: Record<string, any>, req: Request) {
     const [r]: UserInfo[] = await db.query(
       'select * from user where binary email=?',
       [session.email],
+    );
+
+    const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
+    const loginTime = Date.now().toString();
+    await db.query(
+      'update user set lastLoginTime=?, lastLoginIp=? where id=?',
+      [loginTime, ip, r.id],
     );
 
     // 删除敏感信息

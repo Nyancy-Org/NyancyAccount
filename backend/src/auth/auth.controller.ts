@@ -22,6 +22,7 @@ export class AuthController {
   @HttpCode(200)
   login(@Session() session: Record<string, any>, @Body() body: LoginForm) {
     return this.AuthService.login(session, body);
+    @Session() session: Record<string, any>,
   }
 
   @Post('register')

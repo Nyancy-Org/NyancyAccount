@@ -25,8 +25,8 @@ const uInfo = [
     value: new Date(Number(info?.regTime) ?? 0).toLocaleString()
   },
   {
-    title: '上次登录IP',
-    value: info?.lastLoginIp
+    title: '最后登录',
+    value: new Date(Number(info?.lastLoginTime) ?? 0).toLocaleString()
   }
 ]
 </script>

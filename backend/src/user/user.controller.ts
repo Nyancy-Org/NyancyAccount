@@ -11,10 +11,12 @@ import {
   Body,
   Get,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { UserService as UserServices } from './user.service';
 import { CheckAuthGuard, isAdmin } from 'src/Guard/permission';
 import type { UserInfo, UpdateType } from './user.interface';
+import type { Request } from 'express';
 
 @Controller('user')
 @UseGuards(CheckAuthGuard)
@@ -24,8 +26,8 @@ export class UserController {
   // 用户信息
   @Get('info')
   @HttpCode(200)
-  info(@Session() session: Record<string, any>) {
-    return this.UserService.info(session);
+  info(@Session() session: Record<string, any>, @Req() req: Request) {
+    return this.UserService.info(session, req);
   }
 
   // 更新用户信息

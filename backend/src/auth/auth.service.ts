@@ -49,9 +49,14 @@ export class AuthService {
     // 登陆成功
     // 记录登录IP
     const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
-    await db.query('update user set lastLoginIp=? where id=?', [ip, r[0].id]);
+    const loginTime = Date.now().toString();
+    await db.query(
+      'update user set lastLoginTime=?, lastLoginIp=? where id=?',
+      [loginTime, ip, r[0].id],
+    );
 
     r[0].lastLoginIp = ip as string;
+    r[0].lastLoginTime = loginTime;
     // 删除密码再发送给客户端
     delete r[0].password;
     delete r[0].verifyToken;
