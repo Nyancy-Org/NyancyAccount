@@ -1,4 +1,4 @@
-import axios_ from 'axios'
+import axios_, { AxiosResponse } from 'axios'
 import { indexStore } from '@/stores'
 
 const { showMsg } = indexStore()
@@ -9,18 +9,13 @@ const axios = axios_.create({
   timeout: 5000
 })
 
-const defaultInterceptor = axios.interceptors.response.use(
-  function (response) {
-    // 2xx 范围内的状态码都会触发该函数。
-    // 对响应数据做点什么
-    return response
-  },
-  function (err) {
-    // 超出 2xx 范围的状态码都会触发该函数。
-    // 对响应错误做点什么
-    showMsg(err.response.data.msg || err.message, 'red')
+axios.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (err: any) => {
+    !(err.config.baseURL + err.config.url).startsWith(baseURL + '/user/info') &&
+      showMsg(err.response.data.msg || err.message, 'red')
     return Promise.reject(err)
   }
 )
 
-export { axios, defaultInterceptor, baseURL }
+export { axios, baseURL }

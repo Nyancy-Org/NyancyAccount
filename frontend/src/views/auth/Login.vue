@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { indexStore } from '@/stores'
 import { LoginForm } from '@/types'
 import { VForm } from 'vuetify/lib/components/index.mjs'
 import { loginApi } from '@/apis/auth'
+import { userStore } from '@/stores/user'
+import router from '@/router'
 
-const { showMsg } = indexStore()
-
+const { showMsg, isLogin } = indexStore()
+const { info } = storeToRefs(userStore())
 const form = ref<InstanceType<typeof VForm>>()
 const formData = ref<LoginForm>({
   username: '',
@@ -24,8 +27,11 @@ const login = async () => {
     const { valid } = await form.value.validate()
     if (!valid) return
     btnLoading.value = true
-    const data = await loginApi(formData.value)
-    showMsg(data.msg, 'green')
+    const { msg, data } = await loginApi(formData.value)
+    showMsg(msg, 'green')
+    info.value = data
+    isLogin.value = true
+    router.replace('/user/info')
   } finally {
     btnLoading.value = false
   }
