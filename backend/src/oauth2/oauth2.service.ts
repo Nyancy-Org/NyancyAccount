@@ -192,7 +192,7 @@ export class Oauth2Service {
 
     // 检查code是否存在
     const ac: CodeInfo[] = await db.query(
-      'select * from oauth_auth_codes where id=?',
+      'select * from oauth_auth_codes where binary id=?',
       [body.code],
     );
 
@@ -206,9 +206,10 @@ export class Oauth2Service {
     const currentTime = new Date();
     if (targetTime < currentTime) {
       // 过期了就删除
-      const d = await db.query('delete from oauth_auth_codes where id=?', [
-        body.code,
-      ]);
+      const d = await db.query(
+        'delete from oauth_auth_codes where binary id=?',
+        [body.code],
+      );
       if (d.affectedRows !== 1) throw new Error('[OAuth] 恭喜，你数据库没了');
       throw new HttpException(
         { msg: 'Code 已过期' },
@@ -303,7 +304,7 @@ export class Oauth2Service {
 
     // 检查 accessToken是否过期
     const [act]: AccessTokenInfo[] = await db.query(
-      'select * from oauth_access_tokens where id=?',
+      'select * from oauth_access_tokens where binary id=?',
       [accessToken],
     );
 
@@ -315,9 +316,10 @@ export class Oauth2Service {
 
     if (targetTime < currentTime) {
       // 过期了就删除
-      const d = await db.query('delete from oauth_access_tokens where id=?', [
-        accessToken,
-      ]);
+      const d = await db.query(
+        'delete from oauth_access_tokens where binary id=?',
+        [accessToken],
+      );
       if (d.affectedRows !== 1)
         throw new Error('[OAuth User] 恭喜，你数据库没了');
       throw new HttpException(

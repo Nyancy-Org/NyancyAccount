@@ -11,9 +11,10 @@ export class UserService {
 
   // 获取当前用户信息
   async info(session: Record<string, any>) {
-    const [r]: UserInfo[] = await db.query('select * from user where email=?', [
-      session.email,
-    ]);
+    const [r]: UserInfo[] = await db.query(
+      'select * from user where binary email=?',
+      [session.email],
+    );
 
     // 删除敏感信息
     delete r.password;
@@ -73,20 +74,20 @@ export class UserService {
     body: Pick<UserInfo, 'username'>,
   ) {
     const [s] = await db.query(
-      'select * from user where email=?',
+      'select * from user where binary email=?',
       session.email,
     );
     if (s.username === body.username)
       throw new Error('与原用户名相符，无需更改');
     await this.validateUName(body.username as string);
     const n = await db.query(
-      'select * from user where username=?',
+      'select * from user where binary username=?',
       body.username,
     );
     if (n.length >= 1) throw new Error('该用户名已被占用，请换一个新的');
-    const r = await db.query('update user set username=? where uuid=?', [
+    const r = await db.query('update user set username=? where id=?', [
       body.username,
-      session.uuid,
+      session.uid,
     ]);
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
@@ -116,7 +117,10 @@ export class UserService {
       'changeEmail',
     );
 
-    const n = await db.query('select * from user where email=?', body.email);
+    const n = await db.query(
+      'select * from user where binary email=?',
+      body.email,
+    );
     if (n.length >= 1) throw new Error('该邮箱已被其他用户绑定，请换一个新的');
     const r = await db.query('update user set email=? where id=?', [
       body.email,
@@ -147,9 +151,9 @@ export class UserService {
     if (!compareResult) throw new Error('原密码错误');
     validatePassword(body.password.new);
     body.password.new = bcrypt.hashSync(body.password.new, 10);
-    const r = await db.query('update user set password=? where uuid=?', [
+    const r = await db.query('update user set password=? where id=?', [
       body.password.new,
-      session.uuid,
+      session.uid,
     ]);
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
@@ -171,7 +175,7 @@ export class UserService {
       while (!isUnique) {
         apikey = this.createApiKey(32);
         const existingUser = await db.query(
-          'select * from user where apikey=?',
+          'select * from user where binary apikey=?',
           [apikey],
         );
         if (existingUser.length === 0) {
@@ -252,7 +256,7 @@ export class UserService {
 
     // 构建搜索条件
     if (search) {
-      query += ` WHERE id LIKE '%${search}%' OR uuid LIKE '%${search}%' OR username LIKE '%${search}%' OR status LIKE '%${search}%' OR role LIKE '%${search}%' OR email LIKE '%${search}%' OR apikey LIKE '%${search}%'`;
+      query += ` WHERE id LIKE '%${search}%' OR username LIKE '%${search}%' OR status LIKE '%${search}%' OR role LIKE '%${search}%' OR email LIKE '%${search}%' OR apikey LIKE '%${search}%'`;
     }
 
     // 构建排序条件
@@ -283,7 +287,7 @@ export class UserService {
       body.id,
     );
     const nn: UserInfo[] = await db.query(
-      'select * from user where username=?',
+      'select * from user where binary username=?',
       body.username,
     );
     if (n.username !== nn[0].username) {
@@ -323,7 +327,7 @@ export class UserService {
       while (!isUnique) {
         apikey = this.createApiKey(32);
         const existingUser = await db.query(
-          'select * from user where apikey=?',
+          'select * from user where binary apikey=?',
           [apikey],
         );
         if (existingUser.length === 0) {

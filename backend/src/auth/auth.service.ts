@@ -23,11 +23,13 @@ export class AuthService {
     }
     let r: UserInfo[];
     if (a.type === 'default') {
-      r = await db.query('select * from user where username=?', [
+      r = await db.query('select * from user where binary username=?', [
         body.username,
       ]);
     } else {
-      r = await db.query('select * from user where email=?', [body.username]);
+      r = await db.query('select * from user where binary email=?', [
+        body.username,
+      ]);
     }
 
     // 如果没有找到这个用户或者用户名密码错误
@@ -66,9 +68,10 @@ export class AuthService {
     isEmail(body.email);
 
     // 查询邮箱是否被占用
-    const e: UserInfo[] = await db.query('select * from user where email=?', [
-      body.email,
-    ]);
+    const e: UserInfo[] = await db.query(
+      'select * from user where binary email=?',
+      [body.email],
+    );
 
     // 邮箱已存在在
     if (e[0] != undefined) throw new Error('该邮箱已被注册！');
@@ -84,7 +87,7 @@ export class AuthService {
   // 检查用户名可用性
   async checkUserName(body: { username: string }) {
     const r: UserInfo[] = await db.query(
-      'select * from user where username=?',
+      'select * from user where binary username=?',
       [body.username],
     );
     if (r[0] != undefined) throw new Error('该用户名已被占用！');
@@ -236,9 +239,10 @@ export class AuthService {
     isEmail(receiver);
 
     // 判断这个邮箱是否被注册
-    const [u]: UserInfo[] = await db.query('select * from user where email=?', [
-      receiver,
-    ]);
+    const [u]: UserInfo[] = await db.query(
+      'select * from user where binary email=?',
+      [receiver],
+    );
     if (!u) throw new Error('该邮箱未注册');
 
     // 如果有，那就生成验证链接，以及把uuid存入数据库后面进行比对
@@ -262,7 +266,7 @@ export class AuthService {
   async verifyEmailLink(body: RegForm) {
     // 首先判断和数据库里面的是否相符
     const [dc] = await db.query(
-      'select id from user where verifyToken=?',
+      'select id from user where binary verifyToken=?',
       body.code,
     );
     if (!dc) throw new Error('验证链接已过期或不存在！');
@@ -305,7 +309,7 @@ export class AuthService {
 
     // 获取被重置密码的邮箱
     const [dc]: { email: string }[] = await db.query(
-      'select email from user where verifyToken=?',
+      'select email from user where binary verifyToken=?',
       body.code,
     );
     if (!dc) throw new Error('验证链接已过期或不存在！');
@@ -396,7 +400,7 @@ export class AuthService {
   // 是否允许注册
   async allowReg() {
     const a = await db.query(
-      'select * from site where optionName = "allowReg"',
+      'select * from site where binary optionName = "allowReg"',
     );
     if (a[0].value === 'false') {
       throw new HttpException(
