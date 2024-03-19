@@ -17,7 +17,9 @@ export function GlobalHeaders(req: Request, res: Response, next: NextFunction) {
     'Content-Type, X-Requested-With, Origin, Accept, Authorization',
   );
   res.header('X-Powered-By', 'https://lazy.ink');
-  logger.info(`${req.headers.host} ${req.method} ${req.url}`);
+  logger.info(
+    `${req.headers['x-real-ip'] || req.socket.remoteAddress} ${req.method} ${req.url}`,
+  );
   next();
 }
 
