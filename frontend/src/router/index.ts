@@ -20,6 +20,7 @@ const router = createRouter({
       children: [
         {
           path: '',
+          name: 'normal',
           component: () => import('../views/auth/Normal.vue'),
           meta: {
             title: '让我们开始吧~',
@@ -59,6 +60,7 @@ const router = createRouter({
       children: [
         {
           path: '',
+          name: 'userRedirect',
           redirect: '/user/info'
         },
         {
@@ -93,6 +95,8 @@ router.beforeEach((to, from, next) => {
     showMsg('未授权的访问，请先登录', 'red')
     return next('/auth/login')
   }
+
+  document.title = to.meta.title + ' - Nyancy Account'
 
   next()
 })

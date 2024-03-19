@@ -1,3 +1,5 @@
+import Normal from '@/views/auth/Normal.vue'
+
 export interface LoginForm {
   username: string
   password: string
@@ -15,11 +17,16 @@ export interface NyaResponse {
   data: any
 }
 
+export enum UserStatus {
+  BANNED = -1,
+  NORMAL
+}
+
 export interface UserInfo {
   id: number
   username: string
   password?: string
-  status: number
+  status: UserStatus
   role: string
   email: string
   regTime: string
