@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { userStore } from '@/stores/user'
-import { userStatus } from '@/types/const'
+// import { userStatus } from '@/types/const'
 const { info } = userStore()
 
 const uInfo = [
@@ -12,13 +12,17 @@ const uInfo = [
     title: '邮箱',
     value: info?.email
   },
-  {
-    title: '账号状态',
-    value: userStatus[info?.status ?? -1]
-  },
+  // {
+  //   title: '账号状态',
+  //   value: userStatus[info?.status ?? -1]
+  // },
   {
     title: '权限组',
     value: info?.role
+  },
+  {
+    title: '上次登录IP',
+    value: info?.lastLoginIp
   },
   {
     title: '注册时间',
