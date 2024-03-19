@@ -7,11 +7,12 @@ import type { LoginForm, RegForm } from './auth.interface';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/user/user.interface';
 import { emailTemplate, isEmail } from 'src/Utils';
+import type { Request } from 'express';
 
 @Injectable()
 export class AuthService {
   // 登录
-  async login(session: Record<string, any>, body: LoginForm) {
+  async login(session: Record<string, any>, req: Request, body: LoginForm) {
     const a = await this.loginValidateData(body);
     if (!a.status) {
       throw new HttpException(
@@ -46,6 +47,11 @@ export class AuthService {
       throw new Error('你已被封禁，禁止登录。详情请联系管理员');
 
     // 登陆成功
+    // 记录登录IP
+    const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
+    await db.query('update user set lastLoginIp=? where id=?', [ip, r[0].id]);
+
+    r[0].lastLoginIp = ip as string;
     // 删除密码再发送给客户端
     delete r[0].password;
     delete r[0].verifyToken;

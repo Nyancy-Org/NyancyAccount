@@ -30,6 +30,7 @@ export interface UserInfo {
   role: string
   email: string
   regTime: string
+  lastLoginIp: string
   apikey: string
   verifyToken?: string
 }

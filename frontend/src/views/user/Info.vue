@@ -13,7 +13,7 @@ const uInfo = [
     value: info?.email
   },
   {
-    title: '状态',
+    title: '账号状态',
     value: userStatus[info?.status ?? -1]
   },
   {
@@ -23,6 +23,10 @@ const uInfo = [
   {
     title: '注册时间',
     value: new Date(Number(info?.regTime) ?? 0).toLocaleString()
+  },
+  {
+    title: '上次登录IP',
+    value: info?.lastLoginIp
   }
 ]
 </script>
