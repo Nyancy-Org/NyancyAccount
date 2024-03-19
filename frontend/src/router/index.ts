@@ -8,6 +8,9 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      meta: {
+        title: '首页'
+      },
       component: () => import('../views/HomeView.vue')
     },
 
@@ -96,7 +99,7 @@ router.beforeEach((to, from, next) => {
     return next('/auth/login')
   }
 
-  document.title = to.meta.title + ' - Nyancy Account'
+  document.title = (to.meta.title || '首页') + ' - Nyancy Account'
 
   next()
 })

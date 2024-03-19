@@ -50,12 +50,14 @@ const login = async () => {
     <v-slide-x-transition leave-absolute>
       <v-text-field
         v-if="step === 1"
+        autofocus
         v-model="formData.username"
         :rules="[(v) => (v.length === 0 ? false : true)]"
         label="用户名或邮箱"
       ></v-text-field>
       <v-text-field
         v-if="step === 2"
+        autofocus
         v-model="formData.password"
         :rules="[(v) => (v.length === 0 ? false : true)]"
         label="密码"

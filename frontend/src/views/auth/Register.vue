@@ -163,6 +163,7 @@ onUnmounted(() => emit('reset'))
       <div v-if="step === Step.UNAME">
         <v-text-field
           v-model="formData.username"
+          autofocus
           :rules="[(v) => checkUName(v)]"
           label="用户名"
           clearable
@@ -193,6 +194,7 @@ onUnmounted(() => emit('reset'))
       <v-text-field
         v-if="step === Step.EMAIL"
         v-model="formData.email"
+        autofocus
         :rules="[(v) => (v.length === 0 ? false : true)]"
         label="一个能用的邮箱"
         type="email"
@@ -201,6 +203,7 @@ onUnmounted(() => emit('reset'))
       <div v-if="step === Step.CODE">
         <v-otp-input
           v-model="formData.code"
+          autofocus
           class="mb-1"
           :disabled="btnLoading"
           @finish="nextStep"
