@@ -4,25 +4,24 @@ import bcrypt from 'bcryptjs';
 import type { UserInfo, UpdateType } from './user.interface';
 import { isEmail, validatePassword } from 'src/Utils';
 import { AuthService as AuthServices } from 'src/auth/auth.service';
-import type { Request } from 'express';
-
 @Injectable()
 export class UserService {
   constructor(private readonly AuthService: AuthServices) {}
 
   // 获取当前用户信息
-  async info(session: Record<string, any>, req: Request) {
+  async info(session: Record<string, any>) {
     const [r]: UserInfo[] = await db.query(
       'select * from user where binary email=?',
       [session.email],
     );
 
-    const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
-    const loginTime = Date.now().toString();
-    await db.query(
-      'update user set lastLoginTime=?, lastLoginIp=? where id=?',
-      [loginTime, ip, r.id],
-    );
+    // 暂时不做记录
+    // const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
+    // const loginTime = Date.now().toString();
+    // await db.query(
+    //   'update user set lastLoginTime=?, lastLoginIp=? where id=?',
+    //   [loginTime, ip, r.id],
+    // );
 
     // 删除敏感信息
     delete r.password;
@@ -45,17 +44,19 @@ export class UserService {
   ) {
     switch (type) {
       case 'name': {
-        await this.updateName(session, body as Pick<UserInfo, 'username'>);
-        break;
+        return await this.updateName(
+          session,
+          body as Pick<UserInfo, 'username'>,
+        );
       }
       case 'email': {
-        await this.updateEmail(
+        return await this.updateEmail(
           session,
           body as Pick<UserInfo, 'email'> & { code: string },
         );
       }
       case 'password': {
-        await this.updatePassword(
+        return await this.updatePassword(
           session,
           body as {
             password: {
@@ -64,11 +65,12 @@ export class UserService {
             };
           },
         );
-        break;
       }
       case 'apikey': {
-        await this.updateApikey(session, body as Pick<UserInfo, 'apikey'>);
-        break;
+        return await this.updateApikey(
+          session,
+          body as Pick<UserInfo, 'apikey'>,
+        );
       }
       default: {
         throw new Error('未知的类型');
