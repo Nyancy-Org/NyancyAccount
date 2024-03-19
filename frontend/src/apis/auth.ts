@@ -57,3 +57,9 @@ export const regApi = async (formData: RegForm) => {
   const { data }: { data: NyaResponse } = await axios.post('/register?t_=' + Date.now(), formData)
   return data
 }
+
+// 登出
+export const logoutApi = async () => {
+  const { data }: { data: NyaResponse } = await axios.post('/logout?t_=' + Date.now())
+  return data
+}
