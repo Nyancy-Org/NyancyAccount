@@ -39,7 +39,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     });
 
     logger.error(
-      `[${status}] ${request.headers['x-real-ip'] || request.socket.remoteAddress} [${request.method}] ${request.originalUrl}`,
+      `[${status}] ${request.headers['x-forwarded-for'] || request.socket.remoteAddress} [${request.method}] ${request.originalUrl}`,
     );
   }
 }

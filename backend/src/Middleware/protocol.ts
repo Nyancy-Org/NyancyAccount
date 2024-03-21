@@ -18,7 +18,7 @@ export function GlobalHeaders(req: Request, res: Response, next: NextFunction) {
   );
   res.header('X-Powered-By', 'https://lazy.ink');
   logger.info(
-    `${req.headers['x-real-ip'] || req.socket.remoteAddress} ${req.method} ${req.url}`,
+    `${req.headers['x-forward-for'] || req.socket.remoteAddress} ${req.method} ${req.url}`,
   );
   next();
 }
