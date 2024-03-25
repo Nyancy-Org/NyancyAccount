@@ -63,7 +63,6 @@ const handleOk = async () => {
     if (!valid) return
     btnLoading.value = true
     const { msg } = await updateUInfoApi('email', formData.value)
-    // BUG：后端还是原邮箱
     await getUserInfo()
     showMsg(msg, 'green')
     open.value = false
