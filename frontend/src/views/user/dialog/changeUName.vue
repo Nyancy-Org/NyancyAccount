@@ -23,7 +23,7 @@ const handleOk = async () => {
     await getUserInfo()
     showMsg(msg, 'green')
     username.value = ''
-    open.value = false
+    handleCancel()
   } finally {
     btnLoading.value = false
   }

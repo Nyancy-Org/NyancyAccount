@@ -65,7 +65,7 @@ const handleOk = async () => {
     const { msg } = await updateUInfoApi('email', formData.value)
     await getUserInfo()
     showMsg(msg, 'green')
-    open.value = false
+    handleCancel()
   } finally {
     btnLoading.value = false
   }
@@ -73,6 +73,7 @@ const handleOk = async () => {
 
 const handleCancel = async () => {
   open.value = false
+  form.value?.reset()
 }
 
 defineExpose({
