@@ -5,11 +5,13 @@ import {
   Post,
   Body,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AuthService as AuthServices } from './auth.service';
 import { MailerService as MailerServices } from 'src/Service/mailer';
 import { RateLimit } from 'nestjs-rate-limiter';
 import type { LoginForm, RegForm } from './auth.interface';
+import type { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -20,9 +22,12 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  login(@Session() session: Record<string, any>, @Body() body: LoginForm) {
-    return this.AuthService.login(session, body);
+  login(
     @Session() session: Record<string, any>,
+    @Body() body: LoginForm,
+    @Req() req: Request,
+  ) {
+    return this.AuthService.login(session, req, body);
   }
 
   @Post('register')

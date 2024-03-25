@@ -10,10 +10,9 @@ export class UserService {
 
   // 获取当前用户信息
   async info(session: Record<string, any>) {
-    const [r]: UserInfo[] = await db.query(
-      'select * from user where binary email=?',
-      [session.email],
-    );
+    const [r]: UserInfo[] = await db.query('select * from user where id=?', [
+      session.uid,
+    ]);
 
     // 暂时不做记录
     // const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
@@ -119,6 +118,8 @@ export class UserService {
     // 验证邮箱格式
     isEmail(body.email);
 
+    if (!body.code) throw new Error('请输入验证码');
+
     // 验证验证码是否正确
     await this.AuthService.verifyEmailCode(
       session,
@@ -138,6 +139,8 @@ export class UserService {
     ]);
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
+
+    session['email'] = body.email;
 
     return {
       code: HttpStatus.OK,

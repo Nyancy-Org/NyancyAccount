@@ -194,6 +194,10 @@ export class AuthService {
     if (!type || MailCodeType.findIndex((i) => i === type) === -1)
       throw new Error('未知的验证码类型');
 
+    if (type !== 'reg') {
+      if (session && !session.login) throw new Error('你tm是不是没登陆？');
+    }
+
     // 验证邮箱格式
     isEmail(receiver);
 

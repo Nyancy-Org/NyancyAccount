@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { userStore } from '@/stores/user'
-import { userStatus } from '@/types/const'
 
 // dialogs
 import changeUName from './dialog/changeUName.vue'
+import changeEmail from './dialog/changeEmail.vue'
 
 const changeUNameDialog = ref<InstanceType<typeof changeUName>>()
-
-const { info } = userStore()
+const changeEmailDialog = ref<InstanceType<typeof changeEmail>>()
 
 const btns = [
   {
@@ -21,7 +19,7 @@ const btns = [
     title: '更改邮箱',
     icon: 'email-edit-outline',
     color: '',
-    click: () => {}
+    click: () => changeEmailDialog.value?.openDialog()
   },
   {
     title: '更改密码',
@@ -34,7 +32,7 @@ const btns = [
 
 <template>
   <v-card-text>
-    <v-list lines="one" class="pt-0">
+    <v-list lines="one" class="pa-0">
       <v-list-item
         v-for="(item, i) in btns"
         :key="i"
@@ -54,4 +52,5 @@ const btns = [
   </v-card-text>
 
   <changeUName ref="changeUNameDialog" />
+  <changeEmail ref="changeEmailDialog" />
 </template>
