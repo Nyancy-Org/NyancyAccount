@@ -25,6 +25,8 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@simplewebauthn/server": "^9.0.3",
+    "@simplewebauthn/types": "^9.0.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/express-session": "^1.17.10",
     "@types/fs-extra": "^11.0.4",
