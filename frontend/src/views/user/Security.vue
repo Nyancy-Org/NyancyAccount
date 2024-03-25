@@ -4,9 +4,11 @@ import { ref } from 'vue'
 // dialogs
 import changeUName from './dialog/changeUName.vue'
 import changeEmail from './dialog/changeEmail.vue'
+import changePwd from './dialog/changePwd.vue'
 
 const changeUNameDialog = ref<InstanceType<typeof changeUName>>()
 const changeEmailDialog = ref<InstanceType<typeof changeEmail>>()
+const changePwdDialog = ref<InstanceType<typeof changePwd>>()
 
 const btns = [
   {
@@ -25,7 +27,7 @@ const btns = [
     title: '更改密码',
     icon: 'lock-reset',
     color: '',
-    click: () => {}
+    click: () => changePwdDialog.value?.openDialog()
   }
 ]
 </script>
@@ -53,4 +55,5 @@ const btns = [
 
   <changeUName ref="changeUNameDialog" />
   <changeEmail ref="changeEmailDialog" />
+  <changePwd ref="changePwdDialog" />
 </template>
