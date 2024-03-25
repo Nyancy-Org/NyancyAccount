@@ -8,5 +8,5 @@ export interface RegForm extends LoginForm {
   email: string;
 }
 
-export const MailCodeType = ['reg', 'changeEmail', 'changePwd', 'universal'];
+export const MailCodeType = ['reg', 'changeEmail', 'universal'];
 export const MailLinkType = ['resetPwd'];
