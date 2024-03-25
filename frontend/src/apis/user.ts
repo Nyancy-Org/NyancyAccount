@@ -1,5 +1,6 @@
-import { NyaResponse, UserInfoRes } from '@/types'
+import { NyaResponse, PublicKeyORes, UserInfoRes } from '@/types'
 import { axios } from '@/utils/request'
+import { RegistrationResponseJSON } from '@simplewebauthn/types'
 
 // 请求地址前缀
 const baseURL = '/user'
@@ -18,6 +19,31 @@ export const updateUInfoApi = async (
   const { data }: { data: NyaResponse } = await axios.put(
     `${baseURL}/update/${type}?t_=${Date.now()}`,
     formData
+  )
+  return data
+}
+
+// 获取 外部验证器 注册参数
+export const getWebAuthnRegOptionApi = async () => {
+  const { data }: { data: PublicKeyORes } = await axios.get(
+    baseURL + '/registrationOptions?t_=' + Date.now()
+  )
+  return data
+}
+
+// 验证 外部验证器
+export const verifyWebAuthnApi = async (formData: RegistrationResponseJSON) => {
+  const { data }: { data: NyaResponse } = await axios.post(
+    baseURL + '/verifyRegistration?t_=' + Date.now(),
+    formData
+  )
+  return data
+}
+
+// 删除 外部验证器
+export const deleteWebAuthnApi = async () => {
+  const { data }: { data: NyaResponse } = await axios.delete(
+    baseURL + '/deleteRegistration?t_=' + Date.now()
   )
   return data
 }

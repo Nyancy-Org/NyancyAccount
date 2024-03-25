@@ -11,10 +11,12 @@ import {
   Body,
   Get,
   Delete,
+  Post,
 } from '@nestjs/common';
 import { UserService as UserServices } from './user.service';
 import { CheckAuthGuard, isAdmin } from 'src/Guard/permission';
 import type { UserInfo, UpdateType } from './user.interface';
+import type { RegistrationResponseJSON } from '@simplewebauthn/types';
 
 @Controller('user')
 @UseGuards(CheckAuthGuard)
@@ -37,6 +39,30 @@ export class UserController {
     @Body() body: { [propName: string]: unknown },
   ) {
     return this.UserService.update(session, type, body);
+  }
+
+  // 生成 WebAuthn 配置项
+  @Get('registrationOptions')
+  @HttpCode(200)
+  reg_wan(@Session() session: Record<string, any>) {
+    return this.UserService.reg_wan(session);
+  }
+
+  // 验证 WebAuthn 配置项
+  @Post('verifyRegistration')
+  @HttpCode(200)
+  verify_wan(
+    @Session() session: Record<string, any>,
+    @Body() body: RegistrationResponseJSON,
+  ) {
+    return this.UserService.verify_wan(session, body);
+  }
+
+  // 删除 WebAuthn
+  @Delete('deleteRegistration')
+  @HttpCode(200)
+  delete_wan(@Session() session: Record<string, any>) {
+    return this.UserService.delete_wan(session);
   }
 
   /**

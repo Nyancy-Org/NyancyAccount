@@ -10,6 +10,7 @@ export interface UserInfo {
   lastLoginIp: string;
   apikey: string;
   verifyToken?: string;
+  authDevice?: string;
 }
 
 export type UpdateType = 'name' | 'email' | 'password' | 'apikey';

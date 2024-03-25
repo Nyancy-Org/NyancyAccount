@@ -1,4 +1,4 @@
-import Normal from '@/views/auth/Normal.vue'
+import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types'
 
 export interface LoginForm {
   username: string
@@ -34,8 +34,13 @@ export interface UserInfo {
   lastLoginIp: string
   apikey: string
   verifyToken?: string
+  authDevice?: string
 }
 
 export interface UserInfoRes extends NyaResponse {
   data: UserInfo
+}
+
+export interface PublicKeyORes extends NyaResponse {
+  data: PublicKeyCredentialCreationOptionsJSON
 }

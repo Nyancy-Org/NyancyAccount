@@ -5,10 +5,12 @@ import { ref } from 'vue'
 import changeUName from './dialog/changeUName.vue'
 import changeEmail from './dialog/changeEmail.vue'
 import changePwd from './dialog/changePwd.vue'
+import bindAN from './dialog/bindAN.vue'
 
 const changeUNameDialog = ref<InstanceType<typeof changeUName>>()
 const changeEmailDialog = ref<InstanceType<typeof changeEmail>>()
 const changePwdDialog = ref<InstanceType<typeof changePwd>>()
+const bindANDialog = ref<InstanceType<typeof bindAN>>()
 
 const btns = [
   {
@@ -28,6 +30,12 @@ const btns = [
     icon: 'lock-reset',
     color: '',
     click: () => changePwdDialog.value?.openDialog()
+  },
+  {
+    title: '外部验证器',
+    icon: 'fingerprint',
+    color: '',
+    click: () => bindANDialog.value?.openDialog()
   }
 ]
 </script>
@@ -56,4 +64,5 @@ const btns = [
   <changeUName ref="changeUNameDialog" />
   <changeEmail ref="changeEmailDialog" />
   <changePwd ref="changePwdDialog" />
+  <bindAN ref="bindANDialog" />
 </template>

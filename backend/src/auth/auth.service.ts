@@ -60,6 +60,7 @@ export class AuthService {
     // 删除密码再发送给客户端
     delete r[0].password;
     delete r[0].verifyToken;
+    r[0].authDevice ? (r[0].authDevice = 'true') : (r[0].authDevice = null);
 
     session['login'] = true;
     session['uid'] = r[0].id;

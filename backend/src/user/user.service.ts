@@ -4,6 +4,28 @@ import bcrypt from 'bcryptjs';
 import type { UserInfo, UpdateType } from './user.interface';
 import { isEmail, validatePassword } from 'src/Utils';
 import { AuthService as AuthServices } from 'src/auth/auth.service';
+import {
+  // Authentication
+  generateAuthenticationOptions,
+  // Registration
+  generateRegistrationOptions,
+  verifyAuthenticationResponse,
+  verifyRegistrationResponse,
+} from '@simplewebauthn/server';
+import type {
+  GenerateAuthenticationOptionsOpts,
+  GenerateRegistrationOptionsOpts,
+  VerifiedAuthenticationResponse,
+  VerifiedRegistrationResponse,
+  VerifyAuthenticationResponseOpts,
+  VerifyRegistrationResponseOpts,
+} from '@simplewebauthn/server';
+import { isoBase64URL, isoUint8Array } from '@simplewebauthn/server/helpers';
+import type {
+  AuthenticatorDevice,
+  RegistrationResponseJSON,
+} from '@simplewebauthn/types';
+
 @Injectable()
 export class UserService {
   constructor(private readonly AuthService: AuthServices) {}
@@ -25,6 +47,7 @@ export class UserService {
     // 删除敏感信息
     delete r.password;
     delete r.verifyToken;
+    r.authDevice ? (r.authDevice = 'true') : (r.authDevice = null);
 
     // 然后再返回
     return {
@@ -212,6 +235,137 @@ export class UserService {
     return {
       code: HttpStatus.OK,
       msg: '更新 Apikey 成功',
+      time: Date.now(),
+    };
+  }
+
+  // 生成 外部验证器 配置项
+  async reg_wan(session: Record<string, any>) {
+    const { data: u } = await this.info_(session.uid);
+
+    if (u.authDevice) throw new Error('你已经绑定了外部验证器，无需再次绑定');
+
+    const devices: AuthenticatorDevice[] = u.authDevice
+      ? JSON.parse(u.authDevice)
+      : [];
+
+    const opts: GenerateRegistrationOptionsOpts = {
+      rpName: 'Nyancy Account',
+      rpID: 'localhost',
+      userID: String(u.id),
+      userName: u.username,
+      timeout: 60000,
+      attestationType: 'none',
+      /**
+       * Passing in a user's list of already-registered authenticator IDs here prevents users from
+       * registering the same device multiple times. The authenticator will simply throw an error in
+       * the browser if it's asked to perform registration when one of these ID's already resides
+       * on it.
+       * 在这里传入用户的已注册验证器ID列表可以防止用户多次注册同一设备。
+       * 如果在其中一个ID已经存在的情况下，验证器被要求执行注册，那么它只会在浏览器中抛出一个错误。
+       */
+      excludeCredentials: devices.map((dev) => ({
+        id: dev.credentialID,
+        type: 'public-key',
+        transports: dev.transports,
+      })),
+      authenticatorSelection: {
+        residentKey: 'discouraged',
+        userVerification: 'preferred',
+      },
+      /**
+       * Support the two most common algorithms: ES256, and RS256
+       */
+      supportedAlgorithmIDs: [-7, -257],
+    };
+
+    const options = await generateRegistrationOptions(opts);
+
+    session['NyaChallenge'] = options.challenge;
+
+    return {
+      code: HttpStatus.OK,
+      msg: '获取成功',
+      time: Date.now(),
+      data: options,
+    };
+  }
+
+  // 验证外部验证器
+  async verify_wan(
+    session: Record<string, any>,
+    body: RegistrationResponseJSON,
+  ) {
+    const { data: u } = await this.info_(session.uid);
+
+    const devices: AuthenticatorDevice[] = u.authDevice
+      ? JSON.parse(u.authDevice)
+      : [];
+
+    let verification: VerifiedRegistrationResponse;
+    try {
+      const opts: VerifyRegistrationResponseOpts = {
+        response: body,
+        expectedChallenge: session['NyaChallenge'],
+        expectedOrigin: `http://localhost:1240`,
+        expectedRPID: 'localhost',
+        requireUserVerification: false,
+      };
+      verification = await verifyRegistrationResponse(opts);
+    } catch (err: any) {
+      console.error(err);
+      throw new Error(err.message);
+    }
+
+    const { verified, registrationInfo } = verification;
+
+    if (verified && registrationInfo) {
+      const { credentialPublicKey, credentialID, counter } = registrationInfo;
+
+      const existingDevice = devices.find((device) =>
+        isoUint8Array.areEqual(device.credentialID, credentialID),
+      );
+
+      if (!existingDevice) {
+        /**
+         * Add the returned device to the user's list of devices
+         */
+        const newDevice: AuthenticatorDevice = {
+          credentialPublicKey,
+          credentialID,
+          counter,
+          transports: body.response.transports,
+        };
+        devices.push(newDevice);
+      }
+
+      const r = await db.query('update user set authDevice=? where id=?', [
+        JSON.stringify(devices),
+        session.uid,
+      ]);
+      if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
+    }
+
+    session['NyaChallenge'] = undefined;
+
+    return {
+      code: HttpStatus.OK,
+      msg: '验证成功',
+      time: Date.now(),
+      data: { verified },
+    };
+  }
+
+  async delete_wan(session: Record<string, any>) {
+    const r = await db.query('update user set authDevice=? where id=?', [
+      null,
+      session.uid,
+    ]);
+    if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
+
+    return {
+      code: HttpStatus.OK,
+      msg: '删除成功',
       time: Date.now(),
     };
   }
