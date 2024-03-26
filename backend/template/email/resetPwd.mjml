@@ -31,8 +31,8 @@
         <mj-text css-class="indent" color="#dc4242" font-family="MiSans">
           您正在进行重置密码操作，请点击下面链接继续前往验证：
         </mj-text>
-        <mj-button css-class="code" font-family="MiSans" background-color="transparent" color="#3d5e78" href="http://127.0.0.1:1239/test/{{ v }}">
-          http://127.0.0.1:1239/test/{{ v }}
+        <mj-button css-class="code" font-family="MiSans" background-color="transparent" color="#3d5e78" href="http://localhost:1240/auth/reset/?token={{ v }}">
+          http://localhost:1240/auth/reset/?token={{ v }}
         </mj-button>
 
         <mj-text css-class="indent" font-family="MiSans">

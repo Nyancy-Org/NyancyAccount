@@ -47,6 +47,15 @@ const router = createRouter({
             title: '注册',
             image: '054.png'
           }
+        },
+        {
+          path: 'reset',
+          name: 'reset',
+          component: () => import('../views/auth/Reset.vue'),
+          meta: {
+            title: '重置密码',
+            image: '041.png'
+          }
         }
       ]
     },

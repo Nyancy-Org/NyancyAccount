@@ -19,6 +19,7 @@
     "@simplewebauthn/browser": "^9.0.1",
     "@simplewebauthn/types": "^9.0.1",
     "@vueuse/core": "^10.9.0",
+    "@vueuse/router": "^10.9.0",
     "axios": "^1.6.7",
     "lightningcss": "^1.24.0",
     "lodash": "^4.17.21",

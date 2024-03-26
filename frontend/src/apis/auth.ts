@@ -59,6 +59,29 @@ export const sendEmailCodeApi = async (
   }
 }
 
+// 发送邮箱验证地址
+export const sendEmailLinkApi = async (
+  formData: Pick<RegForm, 'email'> & { type: MailLinkType }
+) => {
+  try {
+    const res = await axios.post(baseURL + '/sendEmailLink?t_=' + Date.now(), formData)
+
+    const data: NyaResponse = res.data
+    const retryAfter = res.headers['retry-after']
+
+    return {
+      data,
+      retryAfter
+    }
+  } catch (err: any) {
+    const error: AxiosError = err
+    return {
+      data: error.response?.data as NyaResponse,
+      retryAfter: error.response?.headers['retry-after']
+    }
+  }
+}
+
 // 注册
 export const regApi = async (formData: RegForm) => {
   const { data }: { data: NyaResponse } = await axios.post(
@@ -71,6 +94,15 @@ export const regApi = async (formData: RegForm) => {
 // 登出
 export const logoutApi = async () => {
   const { data }: { data: NyaResponse } = await axios.post(baseURL + '/logout?t_=' + Date.now())
+  return data
+}
+
+// 重置密码
+export const resetPwdApi = async (formData: RegForm) => {
+  const { data }: { data: NyaResponse } = await axios.post(
+    baseURL + '/reset?t_=' + Date.now(),
+    formData
+  )
   return data
 }
 
