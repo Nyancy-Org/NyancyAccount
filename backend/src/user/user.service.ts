@@ -25,6 +25,7 @@ import type {
   AuthenticatorDevice,
   RegistrationResponseJSON,
 } from '@simplewebauthn/types';
+import config from 'src/Service/config';
 
 @Injectable()
 export class UserService {
@@ -250,8 +251,8 @@ export class UserService {
       : [];
 
     const opts: GenerateRegistrationOptionsOpts = {
-      rpName: 'Nyancy Account',
-      rpID: 'localhost',
+      rpName: config.webAuthn.rpName,
+      rpID: config.webAuthn.rpID,
       userID: String(u.id),
       userName: u.username,
       timeout: 60000,
@@ -307,8 +308,8 @@ export class UserService {
       const opts: VerifyRegistrationResponseOpts = {
         response: body,
         expectedChallenge: session['NyaChallenge'],
-        expectedOrigin: `http://localhost:1240`,
-        expectedRPID: 'localhost',
+        expectedOrigin: config.webAuthn.expectedOrigin,
+        expectedRPID: config.webAuthn.rpID,
         requireUserVerification: false,
       };
       verification = await verifyRegistrationResponse(opts);
