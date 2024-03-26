@@ -44,18 +44,18 @@ export class UserController {
   // 生成 WebAuthn 配置项
   @Get('registrationOptions')
   @HttpCode(200)
-  reg_wan(@Session() session: Record<string, any>) {
-    return this.UserService.reg_wan(session);
+  genRegOpt(@Session() session: Record<string, any>) {
+    return this.UserService.genRegOpt(session);
   }
 
   // 验证 WebAuthn 配置项
   @Post('verifyRegistration')
   @HttpCode(200)
-  verify_wan(
+  vRegOpt(
     @Session() session: Record<string, any>,
     @Body() body: RegistrationResponseJSON,
   ) {
-    return this.UserService.verify_wan(session, body);
+    return this.UserService.vRegOpt(session, body);
   }
 
   // 删除 WebAuthn

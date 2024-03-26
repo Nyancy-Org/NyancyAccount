@@ -2,25 +2,18 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { db } from 'src/Service/mysql';
 import bcrypt from 'bcryptjs';
 import type { UserInfo, UpdateType } from './user.interface';
-import { isEmail, validatePassword } from 'src/Utils';
+import { isEmail, uint8ArrayToBase64, validatePassword } from 'src/Utils';
 import { AuthService as AuthServices } from 'src/auth/auth.service';
 import {
-  // Authentication
-  generateAuthenticationOptions,
   // Registration
   generateRegistrationOptions,
-  verifyAuthenticationResponse,
   verifyRegistrationResponse,
 } from '@simplewebauthn/server';
 import type {
-  GenerateAuthenticationOptionsOpts,
   GenerateRegistrationOptionsOpts,
-  VerifiedAuthenticationResponse,
   VerifiedRegistrationResponse,
-  VerifyAuthenticationResponseOpts,
   VerifyRegistrationResponseOpts,
 } from '@simplewebauthn/server';
-import { isoBase64URL, isoUint8Array } from '@simplewebauthn/server/helpers';
 import type {
   AuthenticatorDevice,
   RegistrationResponseJSON,
@@ -241,14 +234,13 @@ export class UserService {
   }
 
   // 生成 外部验证器 配置项
-  async reg_wan(session: Record<string, any>) {
+  async genRegOpt(session: Record<string, any>) {
     const { data: u } = await this.info_(session.uid);
 
+    // 只能绑定单个验证器，多的懒得搞
     if (u.authDevice) throw new Error('你已经绑定了外部验证器，无需再次绑定');
 
-    const devices: AuthenticatorDevice[] = u.authDevice
-      ? JSON.parse(u.authDevice)
-      : [];
+    const devices: AuthenticatorDevice[] = [];
 
     const opts: GenerateRegistrationOptionsOpts = {
       rpName: config.webAuthn.rpName,
@@ -293,15 +285,8 @@ export class UserService {
   }
 
   // 验证外部验证器
-  async verify_wan(
-    session: Record<string, any>,
-    body: RegistrationResponseJSON,
-  ) {
-    const { data: u } = await this.info_(session.uid);
-
-    const devices: AuthenticatorDevice[] = u.authDevice
-      ? JSON.parse(u.authDevice)
-      : [];
+  async vRegOpt(session: Record<string, any>, body: RegistrationResponseJSON) {
+    const devices: AuthenticatorDevice[] = [];
 
     let verification: VerifiedRegistrationResponse;
     try {
@@ -323,23 +308,14 @@ export class UserService {
     if (verified && registrationInfo) {
       const { credentialPublicKey, credentialID, counter } = registrationInfo;
 
-      const existingDevice = devices.find((device) =>
-        isoUint8Array.areEqual(device.credentialID, credentialID),
-      );
-
-      if (!existingDevice) {
-        /**
-         * Add the returned device to the user's list of devices
-         */
-        const newDevice: AuthenticatorDevice = {
-          credentialPublicKey,
-          credentialID,
-          counter,
-          transports: body.response.transports,
-        };
-        devices.push(newDevice);
-      }
-
+      // 诶嘿，魔法~
+      const newDevice: any = {
+        credentialPublicKey: uint8ArrayToBase64(credentialPublicKey),
+        credentialID: uint8ArrayToBase64(credentialID),
+        counter,
+        transports: body.response.transports,
+      };
+      devices.push(newDevice);
       const r = await db.query('update user set authDevice=? where id=?', [
         JSON.stringify(devices),
         session.uid,
