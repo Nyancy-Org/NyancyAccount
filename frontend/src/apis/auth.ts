@@ -1,6 +1,7 @@
-import { LoginForm, NyaResponse, RegForm, UserInfoRes } from '@/types'
+import { LoginForm, NyaResponse, PublicKeyORes, RegForm, UserInfoRes } from '@/types'
 import { axios } from '@/utils/request'
 import { AxiosError } from 'axios'
+import { AuthenticationResponseJSON } from '@simplewebauthn/types'
 
 // 请求地址前缀
 const baseURL = '/auth'
@@ -70,5 +71,25 @@ export const regApi = async (formData: RegForm) => {
 // 登出
 export const logoutApi = async () => {
   const { data }: { data: NyaResponse } = await axios.post(baseURL + '/logout?t_=' + Date.now())
+  return data
+}
+
+// 获取 外部验证器 注册参数
+export const getWebAuthnAuthOptionApi = async (formData: LoginForm) => {
+  const { data }: { data: PublicKeyORes } = await axios.post(
+    baseURL + '/registrationOptions?t_=' + Date.now(),
+    {
+      username: formData.username
+    }
+  )
+  return data
+}
+
+// 验证 外部验证器
+export const verifyWebAuthnApi = async (formData: AuthenticationResponseJSON) => {
+  const { data }: { data: NyaResponse } = await axios.post(
+    baseURL + '/verifyRegistration?t_=' + Date.now(),
+    formData
+  )
   return data
 }

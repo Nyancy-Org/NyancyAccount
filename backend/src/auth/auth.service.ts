@@ -6,8 +6,23 @@ import { logger } from 'src/Utils/log';
 import type { LoginForm, RegForm } from './auth.interface';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/user/user.interface';
-import { emailTemplate, isEmail } from 'src/Utils';
+import { base64ToUint8Array, emailTemplate, isEmail } from 'src/Utils';
 import type { Request } from 'express';
+import {
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server';
+import type {
+  GenerateAuthenticationOptionsOpts,
+  VerifiedAuthenticationResponse,
+  VerifyAuthenticationResponseOpts,
+} from '@simplewebauthn/server';
+import { isoBase64URL, isoUint8Array } from '@simplewebauthn/server/helpers';
+import type {
+  AuthenticatorDevice,
+  AuthenticationResponseJSON,
+} from '@simplewebauthn/types';
+import config from 'src/Service/config';
 
 @Injectable()
 export class AuthService {
@@ -22,19 +37,19 @@ export class AuthService {
         HttpStatus.EXPECTATION_FAILED,
       );
     }
-    let r: UserInfo[];
+    let r: UserInfo;
     if (a.type === 'default') {
-      r = await db.query('select * from user where binary username=?', [
+      [r] = await db.query('select * from user where binary username=?', [
         body.username,
       ]);
     } else {
-      r = await db.query('select * from user where binary email=?', [
+      [r] = await db.query('select * from user where binary email=?', [
         body.username,
       ]);
     }
 
     // 如果没有找到这个用户或者用户名密码错误
-    if (r[0] === undefined || !bcrypt.compareSync(body.password, r[0].password))
+    if (r === undefined || !bcrypt.compareSync(body.password, r.password))
       throw new HttpException(
         {
           msg: '用户名或密码错误',
@@ -42,36 +57,7 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
 
-    // 如果被封了
-    if (r[0].status == -1)
-      throw new Error('你已被封禁，禁止登录。详情请联系管理员');
-
-    // 登陆成功
-    // 记录登录IP
-    const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
-    const loginTime = Date.now().toString();
-    await db.query(
-      'update user set lastLoginTime=?, lastLoginIp=? where id=?',
-      [loginTime, ip, r[0].id],
-    );
-
-    r[0].lastLoginIp = ip as string;
-    r[0].lastLoginTime = loginTime;
-    // 删除密码再发送给客户端
-    delete r[0].password;
-    delete r[0].verifyToken;
-    r[0].authDevice ? (r[0].authDevice = 'true') : (r[0].authDevice = null);
-
-    session['login'] = true;
-    session['uid'] = r[0].id;
-    session['email'] = r[0].email;
-
-    return {
-      code: HttpStatus.OK,
-      msg: '登陆成功',
-      time: Date.now(),
-      data: r[0],
-    };
+    return await this.loginInfo(session, req, r);
   }
 
   // 检查邮箱可用性
@@ -98,17 +84,27 @@ export class AuthService {
 
   // 检查用户名可用性
   async checkUserName(body: { username: string }) {
-    const r: UserInfo[] = await db.query(
+    const [r]: UserInfo[] = await db.query(
       'select * from user where binary username=?',
       [body.username],
     );
-    if (r[0] != undefined) throw new Error('该用户名已被占用！');
+    if (r != undefined) throw new Error('该用户名已被占用！');
 
     return {
       code: HttpStatus.OK,
       msg: '恭喜，该用户名可用~',
       time: Date.now(),
     };
+  }
+
+  // 本不应该出现在这里
+  private async hasUser(username: string) {
+    const [r]: UserInfo[] = await db.query(
+      'select * from user where binary username=?',
+      `${username}`,
+    );
+    if (!r) throw new Error('用户不存在');
+    return r;
   }
 
   // 注册
@@ -182,6 +178,127 @@ export class AuthService {
       code: HttpStatus.OK,
       msg: '登出成功',
       time: Date.now(),
+    };
+  }
+
+  // 生成 外部验证器 配置项
+  async genAuthOpt(session: Record<string, any>, body: LoginForm) {
+    const u = await this.hasUser(body.username);
+
+    const devices: AuthenticatorDevice[] = u.authDevice
+      ? JSON.parse(u.authDevice)
+      : [];
+
+    const opts: GenerateAuthenticationOptionsOpts = {
+      timeout: 60000,
+      allowCredentials: devices.map((dev: any) => ({
+        id: base64ToUint8Array(dev.credentialID),
+        type: 'public-key',
+        transports: dev.transports,
+      })),
+      userVerification: 'preferred',
+      rpID: config.webAuthn.rpID,
+    };
+
+    const options = await generateAuthenticationOptions(opts);
+    session['NyaChallenge'] = options.challenge;
+    session['_uname'] = u.username;
+
+    return {
+      code: HttpStatus.OK,
+      msg: '获取成功',
+      time: Date.now(),
+      data: options,
+    };
+  }
+
+  // 验证外部验证器
+  async vRegOpt(
+    session: Record<string, any>,
+    req: Request,
+    body: AuthenticationResponseJSON,
+  ) {
+    const u = await this.hasUser(session['_uname']);
+
+    const devices: AuthenticatorDevice[] = u.authDevice
+      ? JSON.parse(u.authDevice)
+      : [];
+
+    let dbAuthenticator;
+    const bodyCredIDBuffer = isoBase64URL.toBuffer(body.rawId);
+    for (const dev of devices) {
+      if (
+        isoUint8Array.areEqual(
+          base64ToUint8Array(dev.credentialID as any),
+          bodyCredIDBuffer,
+        )
+      ) {
+        dbAuthenticator = dev;
+        break;
+      }
+    }
+    if (!dbAuthenticator) throw new Error('非法的验证器');
+
+    let verification: VerifiedAuthenticationResponse;
+    try {
+      const opts: VerifyAuthenticationResponseOpts = {
+        response: body,
+        expectedChallenge: session['NyaChallenge'],
+        expectedOrigin: config.webAuthn.expectedOrigin,
+        expectedRPID: config.webAuthn.rpID,
+        authenticator: {
+          credentialID: base64ToUint8Array(dbAuthenticator.credentialID as any),
+          credentialPublicKey: base64ToUint8Array(
+            dbAuthenticator.credentialPublicKey as any,
+          ),
+          counter: dbAuthenticator.counter,
+        },
+        requireUserVerification: false,
+      };
+      verification = await verifyAuthenticationResponse(opts);
+    } catch (err: any) {
+      console.error(err);
+      throw new Error(err.message);
+    }
+
+    const { verified } = verification;
+    session['_uname'] = session['NyaChallenge'] = undefined;
+
+    if (!verified) throw new Error('验证失败');
+
+    return await this.loginInfo(session, req, u);
+  }
+
+  async loginInfo(session: Record<string, any>, req: Request, u: UserInfo) {
+    // 如果被封了
+    if (u.status == -1)
+      throw new Error('你已被封禁，禁止登录。详情请联系管理员');
+
+    // 登陆成功
+    // 记录登录IP
+    const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
+    const loginTime = Date.now().toString();
+    await db.query(
+      'update user set lastLoginTime=?, lastLoginIp=? where id=?',
+      [loginTime, ip, u.id],
+    );
+
+    u.lastLoginIp = ip as string;
+    u.lastLoginTime = loginTime;
+    // 删除密码再发送给客户端
+    delete u.password;
+    delete u.verifyToken;
+    u.authDevice ? (u.authDevice = 'true') : (u.authDevice = null);
+
+    session['login'] = true;
+    session['uid'] = u.id;
+    session['email'] = u.email;
+
+    return {
+      code: HttpStatus.OK,
+      msg: '登陆成功',
+      time: Date.now(),
+      data: u,
     };
   }
 

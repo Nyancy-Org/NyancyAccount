@@ -25,7 +25,6 @@ const getRegOption = async () => {
     btnLoading.value = true
     const { data: option } = await getWebAuthnRegOptionApi()
     rRes = await startRegistration(option)
-    console.log(rRes)
   } catch (err: any) {
     if (err.name === 'InvalidStateError') {
       showMsg('Authenticator was probably already registered by user', 'red')

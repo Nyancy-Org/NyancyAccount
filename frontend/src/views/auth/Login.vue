@@ -4,9 +4,11 @@ import { storeToRefs } from 'pinia'
 import { indexStore } from '@/stores'
 import { LoginForm } from '@/types'
 import { VForm } from 'vuetify/lib/components/index.mjs'
-import { loginApi } from '@/apis/auth'
+import { loginApi, getWebAuthnAuthOptionApi, verifyWebAuthnApi } from '@/apis/auth'
 import { userStore } from '@/stores/user'
 import router from '@/router'
+import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
+import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
 
 const { showMsg, isLogin } = indexStore()
 const { info } = storeToRefs(userStore())
@@ -18,6 +20,7 @@ const formData = ref<LoginForm>({
 
 const step = ref(1)
 const btnLoading = ref(false)
+const wBtnLoading = ref(false)
 
 const nextStep = () => formData.value.username && step.value++
 
@@ -35,6 +38,35 @@ const login = async () => {
   } finally {
     btnLoading.value = false
   }
+}
+
+const getAuthOption = async () => {
+  if (!form.value) return
+  const { valid } = await form.value.validate()
+  if (!valid) return
+  if (!browserSupportsWebAuthn()) return showMsg('你的浏览器不支持 WebAuthn', 'red')
+  let aRes: AuthenticationResponseJSON
+  try {
+    wBtnLoading.value = true
+    const { data: option } = await getWebAuthnAuthOptionApi(formData.value)
+    console.log(option)
+
+    aRes = await startAuthentication(option)
+  } catch (err: any) {
+    if (err.name === 'InvalidStateError') {
+      showMsg('Authenticator was probably already registered by user', 'red')
+    } else {
+      console.error(err)
+      showMsg(err.message, 'red')
+    }
+  } finally {
+    wBtnLoading.value = false
+  }
+  const { msg, data } = await verifyWebAuthnApi(aRes!)
+  showMsg(msg, 'green')
+  info.value = data
+  isLogin.value = true
+  router.replace('/user/info')
 }
 </script>
 
@@ -65,9 +97,23 @@ const login = async () => {
       ></v-text-field>
     </v-slide-x-transition>
 
-    <v-btn v-if="step === 1" size="large" color="primary" type="submit" block @click="nextStep"
-      >下一步</v-btn
-    >
+    <v-row v-if="step === 1">
+      <v-col cols="12" sm="6">
+        <v-btn
+          size="large"
+          variant="tonal"
+          color="purple"
+          block
+          @click="getAuthOption"
+          :loading="wBtnLoading"
+          >使用外部验证器</v-btn
+        >
+      </v-col>
+      <v-col cols="12" sm="6">
+        <v-btn size="large" color="primary" type="submit" block @click="nextStep">下一步</v-btn>
+      </v-col>
+    </v-row>
+
     <v-row v-else>
       <v-col cols="12" sm="6">
         <v-row>
@@ -80,9 +126,16 @@ const login = async () => {
         </v-row>
       </v-col>
       <v-col cols="12" sm="6">
-        <v-btn size="large" color="primary" type="submit" block @click="login" :loading="btnLoading"
-          >登录</v-btn
+        <v-btn
+          size="large"
+          color="primary"
+          type="submit"
+          block
+          @click="login"
+          :loading="btnLoading"
         >
+          登录
+        </v-btn>
       </v-col>
     </v-row>
   </v-form>
