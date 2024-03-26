@@ -113,7 +113,7 @@ const toUserCenter = async () => {
   btnLoading.value = true
   try {
     await loginApi(formData.value)
-    // 登陆后相关操作
+    // 登录后相关操作
     router.replace('/user')
   } finally {
     btnLoading.value = false

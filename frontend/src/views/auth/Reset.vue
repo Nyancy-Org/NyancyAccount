@@ -136,7 +136,7 @@ onMounted(() => {
         autofocus
         clearable
         :rules="[(v) => (v.length === 0 ? false : true)]"
-        label="一个能用的邮箱"
+        label="你的邮箱"
         type="email"
       ></v-text-field>
 

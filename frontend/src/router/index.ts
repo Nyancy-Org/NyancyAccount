@@ -99,7 +99,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const { isLogin, showMsg } = indexStore()
 
-  // 已登录的不能访问登陆页面
+  // 已登录的不能访问登录页面
   if (isLogin.value && to.path.startsWith('/auth')) return next('/')
 
   // 未登录的不能访问其他页面

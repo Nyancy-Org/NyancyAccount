@@ -172,7 +172,7 @@ export class AuthService {
 
   // 登出
   async logout(session: Record<string, any>) {
-    if (!session.login) throw new Error('登出失败，你tm是不是没登陆？');
+    if (!session.login) throw new Error('登出失败，你tm是不是没登录？');
     session.destroy();
     return {
       code: HttpStatus.OK,
@@ -274,7 +274,7 @@ export class AuthService {
     if (u.status == -1)
       throw new Error('你已被封禁，禁止登录。详情请联系管理员');
 
-    // 登陆成功
+    // 登录成功
     // 记录登录IP
     const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
     const loginTime = Date.now().toString();
@@ -296,7 +296,7 @@ export class AuthService {
 
     return {
       code: HttpStatus.OK,
-      msg: '登陆成功',
+      msg: '登录成功',
       time: Date.now(),
       data: u,
     };
@@ -313,7 +313,7 @@ export class AuthService {
       throw new Error('未知的验证码类型');
 
     if (type !== 'reg') {
-      if (session && !session.login) throw new Error('你tm是不是没登陆？');
+      if (session && !session.login) throw new Error('你tm是不是没登录？');
     }
 
     // 验证邮箱格式
