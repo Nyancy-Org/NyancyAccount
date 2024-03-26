@@ -9,7 +9,9 @@ import { userStore } from '@/stores/user'
 import router from '@/router'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
+import { useDisplay } from 'vuetify'
 
+const { xs } = useDisplay()
 const { showMsg, isLogin } = indexStore()
 const { info } = storeToRefs(userStore())
 const form = ref<InstanceType<typeof VForm>>()
@@ -96,18 +98,27 @@ const getAuthOption = async () => {
     </v-slide-x-transition>
 
     <v-row v-if="step === 1">
-      <v-col v-if="browserSupportsWebAuthn()" cols="12" sm="6">
-        <v-btn
-          size="large"
-          variant="tonal"
-          color="primary"
-          block
-          @click="getAuthOption"
-          :loading="wBtnLoading"
-          >使用外部验证器</v-btn
-        >
+      <v-col cols="12" sm="7">
+        <v-row>
+          <v-col cols="12" sm="6">
+            <v-btn size="large" variant="text" color="primary" block to="/auth/reset"
+              >忘记密码</v-btn
+            >
+          </v-col>
+          <v-col v-if="browserSupportsWebAuthn()" cols="12" sm="6">
+            <v-btn
+              size="large"
+              variant="tonal"
+              color="green"
+              block
+              @click="getAuthOption"
+              :loading="wBtnLoading"
+              >使用外部验证器</v-btn
+            >
+          </v-col>
+        </v-row>
       </v-col>
-      <v-col cols="12" :sm="browserSupportsWebAuthn() ? 6 : 12">
+      <v-col cols="12" sm="5">
         <v-btn size="large" color="primary" type="submit" block @click="nextStep">下一步</v-btn>
       </v-col>
     </v-row>
@@ -118,9 +129,7 @@ const getAuthOption = async () => {
           <v-col cols="12" sm="6">
             <v-btn size="large" variant="text" color="warning" block @click="step--">上一步</v-btn>
           </v-col>
-          <v-col cols="12" sm="6">
-            <v-btn size="large" variant="text" color="primary" block>忘记密码</v-btn>
-          </v-col>
+          <v-col v-if="!xs" cols="12" sm="6"> </v-col>
         </v-row>
       </v-col>
       <v-col cols="12" sm="6">
