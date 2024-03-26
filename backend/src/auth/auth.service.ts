@@ -396,7 +396,7 @@ export class AuthService {
   }
 
   // 验证邮箱地址（适用于忘记密码）
-  async verifyEmailLink(body: RegForm) {
+  async verifyEmailLink(body: { code: string }) {
     // 首先判断和数据库里面的是否相符
     const [dc] = await db.query(
       'select id from user where binary verifyToken=?',
@@ -428,9 +428,11 @@ export class AuthService {
   }
 
   // 重置密码
-  async resetPasswd(body: RegForm) {
+  async resetPasswd(body: Pick<RegForm, 'password'> & Pick<RegForm, 'code'>) {
     // 先验证密码是否合法
-    const a = await this.regValidateData(body);
+    const a = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(
+      body.password,
+    );
     if (!a) {
       throw new HttpException(
         {
