@@ -49,8 +49,6 @@ const getAuthOption = async () => {
   try {
     wBtnLoading.value = true
     const { data: option } = await getWebAuthnAuthOptionApi(formData.value)
-    console.log(option)
-
     aRes = await startAuthentication(option)
   } catch (err: any) {
     if (err.name === 'InvalidStateError') {
@@ -98,18 +96,18 @@ const getAuthOption = async () => {
     </v-slide-x-transition>
 
     <v-row v-if="step === 1">
-      <v-col cols="12" sm="6">
+      <v-col v-if="browserSupportsWebAuthn()" cols="12" sm="6">
         <v-btn
           size="large"
           variant="tonal"
-          color="purple"
+          color="primary"
           block
           @click="getAuthOption"
           :loading="wBtnLoading"
           >使用外部验证器</v-btn
         >
       </v-col>
-      <v-col cols="12" sm="6">
+      <v-col cols="12" :sm="browserSupportsWebAuthn() ? 6 : 12">
         <v-btn size="large" color="primary" type="submit" block @click="nextStep">下一步</v-btn>
       </v-col>
     </v-row>

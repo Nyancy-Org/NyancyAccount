@@ -70,7 +70,11 @@ const logout = async () => {
       </v-card>
       <v-row>
         <v-col lg="3" md="4" sm="4" cols="12">
-          <v-card variant="flat" :class="!xs && 'brightness'">
+          <v-card
+            variant="flat"
+            :class="!xs && 'brightness'"
+            :style="{ background: xs ? 'unset' : 'rgb(var(--v-theme-surface))' }"
+          >
             <v-card-text class="text-center">
               <v-avatar
                 :image="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=300&r=R&d=`"

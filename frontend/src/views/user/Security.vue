@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { arrayFilter } from '@/utils'
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 
 // dialogs
 import changeUName from './dialog/changeUName.vue'
@@ -12,7 +14,7 @@ const changeEmailDialog = ref<InstanceType<typeof changeEmail>>()
 const changePwdDialog = ref<InstanceType<typeof changePwd>>()
 const bindANDialog = ref<InstanceType<typeof bindAN>>()
 
-const btns = [
+const btns = arrayFilter([
   {
     title: '更改用户名',
     icon: 'account-edit',
@@ -35,9 +37,10 @@ const btns = [
     title: '外部验证器',
     icon: 'fingerprint',
     color: '',
-    click: () => bindANDialog.value?.openDialog()
+    click: () => bindANDialog.value?.openDialog(),
+    condition: () => browserSupportsWebAuthn()
   }
-]
+])
 </script>
 
 <template>
