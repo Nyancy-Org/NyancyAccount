@@ -4,7 +4,7 @@ import { indexStore } from '@/stores'
 import { useDisplay } from 'vuetify'
 import type { VForm } from 'vuetify/lib/components/index.mjs'
 import _ from 'lodash'
-import { updateMyOAuth2AppApi } from '@/apis/oauth2'
+import { updateMyOAuth2AppApi, newOAuth2AppApi } from '@/apis/oauth2'
 import { OAuth2ClientInfo } from '@/types'
 
 const emit = defineEmits(['update'])
@@ -40,12 +40,11 @@ const handleOk = async () => {
     const { valid } = await form.value.validate()
     if (!valid) return
     btnLoading.value = true
-    if (isEditMode.value) {
-      const { msg } = await updateMyOAuth2AppApi(formData.value)
-      showMsg(msg, 'green')
-      emit('update')
-    }
-
+    const { msg } = isEditMode.value
+      ? await updateMyOAuth2AppApi(formData.value)
+      : await newOAuth2AppApi(formData.value)
+    showMsg(msg, 'green')
+    emit('update')
     handleCancel()
   } finally {
     btnLoading.value = false
@@ -84,7 +83,7 @@ defineExpose({
             :disabled="btnLoading"
           >
           </v-text-field>
-          <v-row :no-gutters="xs">
+          <v-row :no-gutters="xs" v-if="isEditMode">
             <v-col cols="12" xs="12" sm="6">
               <v-text-field
                 :model-value="new Date(formData.createdAt).toLocaleString()"

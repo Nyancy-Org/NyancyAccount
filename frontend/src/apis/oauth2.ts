@@ -1,4 +1,10 @@
-import { NyaResponse, OAuth2ClientInfo, OAuth2ClientInfoRes } from '@/types'
+import {
+  NyaResponse,
+  EditOauthClient,
+  NewOauthClient,
+  OAuth2ClientInfo,
+  OAuth2ClientInfoRes
+} from '@/types'
 import { axios } from '@/utils/request'
 
 // 请求地址前缀
@@ -15,8 +21,17 @@ export const getMyOAuth2AppsApi = async () => {
 }
 
 // 更新我的 OAuth2 应用信息
-export const updateMyOAuth2AppApi = async (formData: OAuth2ClientInfo) => {
+export const updateMyOAuth2AppApi = async (formData: EditOauthClient) => {
   const { data }: { data: NyaResponse } = await axios.put(
+    userURL + '/client?t_=' + Date.now(),
+    formData
+  )
+  return data
+}
+
+// 新建 OAuth2 应用
+export const newOAuth2AppApi = async (formData: NewOauthClient) => {
+  const { data }: { data: NyaResponse } = await axios.post(
     userURL + '/client?t_=' + Date.now(),
     formData
   )

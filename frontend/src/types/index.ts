@@ -45,12 +45,23 @@ export interface PublicKeyORes extends NyaResponse {
   data: PublicKeyCredentialCreationOptionsJSON
 }
 
-export interface OAuth2ClientInfo {
+export interface NewOauthClient {
+  name: string
+  redirect: string
+}
+
+export interface EditOauthClient extends NewOauthClient {
+  id: number
+}
+
+export interface AdminEditOauthClient extends EditOauthClient {
+  secret: string
+}
+
+export interface OAuth2ClientInfo extends NewOauthClient {
   id: number
   userId: number
-  name: string
   secret: string
-  redirect: string
   createdAt: Date
   updatedAt: Date
 }
