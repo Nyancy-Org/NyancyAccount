@@ -105,7 +105,7 @@ defineExpose({
         <v-form ref="form" fast-fail @submit.prevent>
           <v-text-field
             v-model="formData.email"
-            :rules="[(v) => (v.length === 0 ? false : true)]"
+            :rules="[(v) => (v && v.length > 0 ? true : false)]"
             autofocus
             clearable
             hide-details

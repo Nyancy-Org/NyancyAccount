@@ -84,14 +84,14 @@ const getAuthOption = async () => {
         v-if="step === 1"
         autofocus
         v-model="formData.username"
-        :rules="[(v) => (v.length === 0 ? false : true)]"
+        :rules="[(v) => (v && v.length > 0 ? true : false)]"
         label="用户名或邮箱"
       ></v-text-field>
       <v-text-field
         v-if="step === 2"
         autofocus
         v-model="formData.password"
-        :rules="[(v) => (v.length === 0 ? false : true)]"
+        :rules="[(v) => (v && v.length > 0 ? true : false)]"
         label="密码"
         type="password"
       ></v-text-field>

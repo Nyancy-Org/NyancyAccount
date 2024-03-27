@@ -135,7 +135,7 @@ onMounted(() => {
         v-model="formData.email"
         autofocus
         clearable
-        :rules="[(v) => (v.length === 0 ? false : true)]"
+        :rules="[(v) => (v && v.length > 0 ? true : false)]"
         label="你的邮箱"
         type="email"
       ></v-text-field>

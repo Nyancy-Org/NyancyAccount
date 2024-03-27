@@ -195,7 +195,7 @@ onUnmounted(() => emit('reset'))
         v-if="step === Step.EMAIL"
         v-model="formData.email"
         autofocus
-        :rules="[(v) => (v.length === 0 ? false : true)]"
+        :rules="[(v) => (v && v.length > 0 ? true : false)]"
         label="一个能用的邮箱"
         type="email"
       ></v-text-field>
