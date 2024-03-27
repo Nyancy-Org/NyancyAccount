@@ -83,7 +83,7 @@ export class Oauth2Service {
 
     // 获取用户ID
     const [u]: UserInfo[] = await db.query('select * from user where id=?', [
-      session['id'],
+      session['uid'],
     ]);
 
     // 判断该用户是否存在 code
@@ -351,7 +351,7 @@ export class Oauth2Service {
     // 根据id查找应用
     const c: OauthClientInfo[] = await db.query(
       'select * from oauth_clients where userId=?',
-      [session['id']],
+      [session['uid']],
     );
 
     return {
@@ -390,7 +390,7 @@ export class Oauth2Service {
     await isSafeData(body);
 
     // 获取用户ID
-    const uid = session['id'];
+    const uid = session['uid'];
 
     let i;
     try {
@@ -464,7 +464,7 @@ export class Oauth2Service {
     await isSafeData(body);
 
     // 获取用户ID
-    const uid = session['id'];
+    const uid = session['uid'];
 
     // 检查body的id是否为该用户所拥有的
     const bI: { id: number; userId: number }[] = await db.query(
@@ -501,7 +501,7 @@ export class Oauth2Service {
     await isSafeData(body);
 
     // 获取用户ID
-    const uid = session['id'];
+    const uid = session['uid'];
 
     // 检查body的id是否为该用户所拥有的
     const bI: { id: number; userId: number }[] = await db.query(
