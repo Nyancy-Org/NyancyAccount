@@ -44,28 +44,30 @@ const btns = arrayFilter([
 </script>
 
 <template>
-  <v-card-text>
-    <v-list lines="one" class="pa-0">
-      <v-list-item
-        v-for="(item, i) in btns"
-        :key="i"
-        v-ripple
-        :title="item.title"
-        :color="item.color"
-        @click="item.click"
-      >
-        <template #prepend>
-          <v-icon variant="text">mdi-{{ item.icon }}</v-icon>
-        </template>
-        <template #append>
-          <v-icon>mdi-arrow-right</v-icon>
-        </template>
-      </v-list-item>
-    </v-list>
-  </v-card-text>
+  <div>
+    <v-card-text>
+      <v-list lines="one" class="pa-0">
+        <v-list-item
+          v-for="(item, i) in btns"
+          :key="i"
+          v-ripple
+          :title="item.title"
+          :color="item.color"
+          @click="item.click"
+        >
+          <template #prepend>
+            <v-icon variant="text">mdi-{{ item.icon }}</v-icon>
+          </template>
+          <template #append>
+            <v-icon>mdi-arrow-right</v-icon>
+          </template>
+        </v-list-item>
+      </v-list>
+    </v-card-text>
 
-  <changeUName ref="changeUNameDialog" />
-  <changeEmail ref="changeEmailDialog" />
-  <changePwd ref="changePwdDialog" />
-  <bindAN ref="bindANDialog" />
+    <changeUName ref="changeUNameDialog" />
+    <changeEmail ref="changeEmailDialog" />
+    <changePwd ref="changePwdDialog" />
+    <bindAN ref="bindANDialog" />
+  </div>
 </template>
