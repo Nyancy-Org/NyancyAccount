@@ -79,16 +79,21 @@ const router = createRouter({
           path: 'info',
           component: () => import('../views/user/Info.vue'),
           meta: {
-            title: '个人信息',
-            image: '069.png'
+            title: '个人信息'
           }
         },
         {
           path: 'security',
           component: () => import('../views/user/Security.vue'),
           meta: {
-            title: '账号安全',
-            image: '069.png'
+            title: '账号安全'
+          }
+        },
+        {
+          path: 'apps',
+          component: () => import('../views/user/Apps.vue'),
+          meta: {
+            title: 'OAuth2 应用'
           }
         }
       ]
