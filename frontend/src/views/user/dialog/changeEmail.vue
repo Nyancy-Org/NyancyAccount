@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { updateUInfoApi } from '@/apis/user'
-import { sendEmailCodeApi } from '@/apis/auth'
+import { checkEmailApi, sendEmailCodeApi } from '@/apis/auth'
 import { indexStore } from '@/stores'
 import { userStore } from '@/stores/user'
 import type { VForm } from 'vuetify/lib/components/index.mjs'
@@ -31,6 +31,9 @@ const sendEmailCode = async () => {
 
   // 后端判断的位置不太理想，所以前端先判断
   if (formData.value.email === info?.email) return showMsg('不可与原邮箱一致', 'warning')
+  await checkEmailApi({
+    email: formData.value.email
+  })
 
   if (timer.value) clearInterval(timer.value)
   num.value = -1
