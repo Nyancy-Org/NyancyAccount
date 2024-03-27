@@ -3,7 +3,7 @@
     v-model="snackbar.show"
     :timeout="snackbar.timeout"
     :color="snackbar.color"
-    :location="snackbar.location as any"
+    :location="snackbar.location"
   >
     {{ snackbar.text }}
 
