@@ -37,3 +37,11 @@ export const newOAuth2AppApi = async (formData: NewOauthClient) => {
   )
   return data
 }
+
+// 删除我的 OAuth2 应用
+export const delMyOAuth2AppApi = async (formData: OAuth2ClientInfo) => {
+  const { data }: { data: NyaResponse } = await axios.delete(userURL + '/client?t_=' + Date.now(), {
+    data: { id: formData.id }
+  })
+  return data
+}

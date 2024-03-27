@@ -1,16 +1,26 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { OAuth2ClientInfo } from '@/types'
-import { getMyOAuth2AppsApi } from '@/apis/oauth2'
+import { getMyOAuth2AppsApi, delMyOAuth2AppApi } from '@/apis/oauth2'
 import CopyTool from '@/components/CopyTool.vue'
 import oOauth2 from './dialog/oOauth2.vue'
+import { indexStore } from '@/stores'
 
+const { showMsg, openConfirmDialog } = indexStore()
 const serverItems = ref<OAuth2ClientInfo[]>([])
 const oOauth2Dialog = ref<InstanceType<typeof oOauth2>>()
 
 const getAppList = async () => {
   const { data } = await getMyOAuth2AppsApi()
   serverItems.value = data
+}
+
+const toDelete = async (item: OAuth2ClientInfo) => {
+  const flag = await openConfirmDialog('警告', '你确定要删除这个 OAuth2 应用吗？此操作不可逆转！')
+  if (!flag) return
+  const { msg } = await delMyOAuth2AppApi(item)
+  await getAppList()
+  return showMsg(msg, 'green')
 }
 
 onMounted(async () => {
@@ -78,7 +88,13 @@ onMounted(async () => {
                   @click="oOauth2Dialog?.openDialog(item)"
                   >编辑</v-btn
                 >
-                <v-btn color="red" variant="tonal" prepend-icon="mdi-delete-outline">删除</v-btn>
+                <v-btn
+                  color="red"
+                  variant="tonal"
+                  prepend-icon="mdi-delete-outline"
+                  @click="toDelete(item)"
+                  >删除</v-btn
+                >
               </v-col>
             </v-row>
           </v-expansion-panel-text>
