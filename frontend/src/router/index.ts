@@ -77,26 +77,39 @@ const router = createRouter({
         },
         {
           path: 'info',
-          component: () => import('../views/user/Info.vue'),
+          name: 'info',
           meta: {
             title: '个人信息'
-          }
+          },
+          component: () => import('../views/user/Info.vue')
         },
         {
           path: 'security',
-          component: () => import('../views/user/Security.vue'),
+          name: 'security',
           meta: {
             title: '账号安全'
-          }
+          },
+          component: () => import('../views/user/Security.vue')
         },
         {
           path: 'apps',
-          component: () => import('../views/user/Apps.vue'),
+          name: 'apps',
           meta: {
             title: 'OAuth2 应用'
-          }
+          },
+          component: () => import('../views/user/Apps.vue')
         }
       ]
+    },
+
+    // 404
+    {
+      path: '/404',
+      name: '404',
+      meta: {
+        title: '404 Not Found'
+      },
+      component: () => import('../views/404.vue')
     }
   ]
 })
@@ -111,6 +124,18 @@ router.beforeEach((to, from, next) => {
   if (to.meta.needLogin && !isLogin.value) {
     showMsg('未授权的访问，请先登录', 'red')
     return next('/auth/login')
+  }
+
+  if (!to.name) {
+    console.log(to)
+
+    return next({
+      path: '/404',
+      replace: true,
+      query: {
+        errPath: to.fullPath
+      }
+    })
   }
 
   document.title = (to.meta.title || '首页') + ' - Nyancy Account'
