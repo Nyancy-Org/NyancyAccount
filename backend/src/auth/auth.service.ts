@@ -98,11 +98,21 @@ export class AuthService {
   }
 
   // 本不应该出现在这里
-  private async hasUser(username: string) {
-    const [r]: UserInfo[] = await db.query(
-      'select * from user where binary username=?',
-      `${username}`,
-    );
+  private async hasUser(usernameOrEmail: string) {
+    let r: UserInfo;
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usernameOrEmail)) {
+      // 是邮箱
+      [r] = await db.query(
+        'select * from user where binary email=?',
+        `${usernameOrEmail}`,
+      );
+    } else {
+      // 用户名
+      [r] = await db.query(
+        'select * from user where binary username=?',
+        `${usernameOrEmail}`,
+      );
+    }
     if (!r) throw new Error('用户不存在');
     return r;
   }
