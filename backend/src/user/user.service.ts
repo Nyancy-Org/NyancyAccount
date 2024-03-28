@@ -117,6 +117,8 @@ export class UserService {
     ]);
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
+
+    await this.delete_wan(session);
     return {
       code: HttpStatus.OK,
       msg: '更新用户名成功',
@@ -158,7 +160,7 @@ export class UserService {
       throw new Error('发生了未知错误，请联系网站管理员');
 
     session['email'] = body.email;
-
+    await this.delete_wan(session);
     return {
       code: HttpStatus.OK,
       msg: '更新邮箱成功',
