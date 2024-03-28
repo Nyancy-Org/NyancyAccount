@@ -30,4 +30,12 @@ export class SiteController {
   update_(@Body() body: SiteOptions) {
     return this.SiteService.update_(body);
   }
+
+  // 获取统计数据
+  @Get('statistic')
+  @UseGuards(isAdmin)
+  @HttpCode(200)
+  updateNotice() {
+    return this.SiteService.getStatistic();
+  }
 }

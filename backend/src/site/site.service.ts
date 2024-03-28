@@ -32,4 +32,60 @@ export class SiteService {
       time: new Date().getTime(),
     };
   }
+
+  // 获取统计数据
+  async getStatistic() {
+    const r: { source: string; count: number }[] = await db.query(`
+      SELECT 'oauth_clients' as source, COUNT(*) as count FROM oauth_clients
+      UNION
+      SELECT 'user' as source, COUNT(*) as count FROM user
+    `);
+
+    const dS: { date: Date; count: number }[] = await db.query(
+      'SELECT * FROM daily_statistics ORDER BY date DESC LIMIT 7',
+    );
+
+    const transformedResult = dS.reduce((acc, entry) => {
+      acc.push({ date: entry.date, count: entry.count });
+      return acc;
+    }, []);
+
+    // 按照日期升序排序
+    transformedResult.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    const dailyRegStatistics = transformedResult.reduce(
+      (acc, entry) => {
+        acc.date.push(entry.date.toLocaleDateString());
+        acc.count.push(entry.count);
+        return acc;
+      },
+      { date: [], count: [] },
+    );
+
+    const statistics = {
+      oauth_clients: '',
+      user: '',
+      dailyRegStatistics,
+    };
+
+    r.forEach((row) => {
+      if (row.source === 'oauth_clients') {
+        statistics.oauth_clients = row.count.toString();
+      } else if (row.source === 'user') {
+        statistics.user = row.count.toString();
+      }
+    });
+
+    return {
+      status: true,
+      code: 200,
+      msg: '获取成功',
+      time: new Date().getTime(),
+      data: statistics,
+    };
+  }
 }
