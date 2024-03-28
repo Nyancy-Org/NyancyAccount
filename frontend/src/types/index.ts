@@ -84,3 +84,14 @@ export interface OAuth2StateRes extends NyaResponse {
     code: string
   }
 }
+
+export interface StatisticRes extends NyaResponse {
+  data: {
+    oauth_clients: string
+    user: string
+    dailyRegStatistics: {
+      date: string[]
+      count: number[]
+    }
+  }
+}

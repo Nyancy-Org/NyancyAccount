@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { indexStore } from '@/stores'
+import { userStore } from '@/stores/user'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -129,6 +130,33 @@ const router = createRouter({
       ]
     },
 
+    // admin
+    {
+      path: '/admin',
+      name: 'admin',
+      meta: {
+        needLogin: true,
+        needAdmin: true
+      },
+      component: () => import('../views/admin/index.vue'),
+
+      children: [
+        {
+          path: '',
+          name: 'oauth2Redirect',
+          redirect: '/admin/dashboard'
+        },
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          meta: {
+            title: '仪表板'
+          },
+          component: () => import('../views/admin/Dashboard.vue')
+        }
+      ]
+    },
+
     // 404
     {
       path: '/404',
@@ -143,6 +171,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const { isLogin, showMsg } = indexStore()
+  const { info } = userStore()
 
   // 已登录的不能访问登录页面
   if (isLogin.value && to.path.startsWith('/auth')) return next('/')
@@ -153,6 +182,11 @@ router.beforeEach((to, from, next) => {
     return next('/auth/login')
   }
 
+  // 非管理员不可访问
+  if (to.meta.needAdmin && info?.role !== 'admin') {
+    showMsg('你无权访问该页面', 'red')
+    return next('/user/info')
+  }
   if (!to.name) {
     console.log(to)
 
