@@ -1,4 +1,4 @@
-import { NyaResponse, PublicKeyORes, UserInfoRes, UserListRes } from '@/types'
+import { NyaResponse, PublicKeyORes, UserInfo, UserInfoRes, UserListRes } from '@/types'
 import { axios } from '@/utils/request'
 import { RegistrationResponseJSON } from '@simplewebauthn/types'
 
@@ -65,5 +65,11 @@ export const getUserListApi = async (
       search
     }
   })
+  return data
+}
+
+// 更新用户信息
+export const updateUserInfoApi = async (formData: UserInfo) => {
+  const { data }: { data: NyaResponse } = await axios.put(baseURL + '/?t_=' + Date.now(), formData)
   return data
 }

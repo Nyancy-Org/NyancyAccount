@@ -435,12 +435,15 @@ export class UserService {
       'select * from user where binary username=?',
       body.username,
     );
-    if (n.username !== nn[0].username) {
-      await this.validateUName(body.username);
-      if (nn.length >= 1) {
-        throw new Error('该用户名已被占用，请换一个新的');
+    if (nn.length !== 0) {
+      if (n.username !== nn[0].username) {
+        await this.validateUName(body.username);
+        if (nn.length >= 1) {
+          throw new Error('该用户名已被占用，请换一个新的');
+        }
       }
     }
+
     // 用户名合法性验证通过
 
     // 验证密码合法性

@@ -5,7 +5,9 @@ import { getUserListApi } from '@/apis/user'
 import _ from 'lodash'
 import { UserInfo } from '@/types'
 import { userStatus } from '@/types/const'
+import oUser from './dialog/oUser.vue'
 
+const oUserDialog = ref<InstanceType<typeof oUser>>()
 const { showMsg } = indexStore()
 const itemsPerPage = ref(10)
 const search = ref('')
@@ -61,6 +63,13 @@ const loadItems = _.throttle(
   },
   1000
 )
+
+const refreshItems = () =>
+  loadItems({
+    page: currentPage.value,
+    itemsPerPage: itemsPerPage.value,
+    sortBy: _sortBy.value
+  })
 </script>
 
 <template>
@@ -118,12 +127,14 @@ const loadItems = _.throttle(
               variant="text"
               size="small"
               color="primary"
-              @click="item"
+              @click="oUserDialog?.openDialog(item)"
             ></v-btn>
             <v-btn icon="mdi-trash-can-outline" variant="text" size="small" color="red"></v-btn>
           </template>
         </v-data-table-server>
       </v-card-text>
     </v-card>
+
+    <oUser ref="oUserDialog" @update="refreshItems" />
   </div>
 </template>

@@ -53,7 +53,7 @@ onMounted(async () => {
             </v-row>
           </v-card-text>
           <v-card-actions>
-            <v-btn block color="orange"> 用户管理 </v-btn>
+            <v-btn block color="orange" to="/admin/users"> 用户管理 </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -76,7 +76,7 @@ onMounted(async () => {
             </v-row>
           </v-card-text>
           <v-card-actions>
-            <v-btn block color="teal"> 应用管理 </v-btn>
+            <v-btn block color="teal" to="/admin/oauth2"> 应用管理 </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
