@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { indexStore } from '@/stores'
 import { useElementSize } from '@vueuse/core'
 import { getStatisticApi } from '@/apis/site'
-import { onMounted } from 'vue'
 const { appTheme } = indexStore()
 
 const c1 = ref<HTMLElement>()

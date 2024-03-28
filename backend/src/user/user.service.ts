@@ -333,6 +333,7 @@ export class UserService {
     };
   }
 
+  // 删除外部验证器
   async delete_wan(session: Record<string, any>) {
     const r = await db.query('update user set authDevice=? where id=?', [
       null,

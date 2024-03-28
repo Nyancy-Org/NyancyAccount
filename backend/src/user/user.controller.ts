@@ -90,8 +90,6 @@ export class UserController {
     if (!page || !pageSize)
       throw new HttpException(
         {
-          status: false,
-          code: HttpStatus.EXPECTATION_FAILED,
           msg: '参数有误',
         },
         HttpStatus.EXPECTATION_FAILED,
