@@ -148,7 +148,7 @@ defineExpose({
             </v-col>
           </v-row>
         </v-form>
-        <small><b>注意：</b>修改用户名或者邮箱后，需要用户手动重新绑定外置验证器！</small>
+        <small><b>注意：</b>修改用户名或者邮箱后，需要用户手动重新绑定外部验证器！</small>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
