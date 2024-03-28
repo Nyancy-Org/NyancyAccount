@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { indexStore } from '@/stores'
-import { getUserListApi } from '@/apis/user'
+import { getUserListApi, delUserApi } from '@/apis/user'
 import _ from 'lodash'
-import { UserInfo } from '@/types'
+import { UserInfo, UserStatus } from '@/types'
 import { userStatus } from '@/types/const'
 import oUser from './dialog/oUser.vue'
 
 const oUserDialog = ref<InstanceType<typeof oUser>>()
-const { showMsg } = indexStore()
+const { showMsg, openConfirmDialog } = indexStore()
 const itemsPerPage = ref(10)
 const search = ref('')
 
@@ -70,6 +70,17 @@ const refreshItems = () =>
     itemsPerPage: itemsPerPage.value,
     sortBy: _sortBy.value
   })
+
+const toDelete = async (item: UserInfo) => {
+  const flag = await openConfirmDialog(
+    '警告',
+    `你确定要删除用户 ${item.username} ？此操作不可逆转！`
+  )
+  if (!flag) return
+  const { msg } = await delUserApi(item)
+  refreshItems()
+  return showMsg(msg, 'green')
+}
 </script>
 
 <template>
@@ -89,7 +100,6 @@ const refreshItems = () =>
           append-inner-icon="mdi-magnify"
           hide-details
         ></v-text-field>
-        <v-btn class="ml-4" variant="outlined" color="primary">添加</v-btn>
       </div>
     </div>
     <v-card class="mt-5" variant="outlined">
@@ -105,8 +115,15 @@ const refreshItems = () =>
           color="transparent"
           @update:options="loadItems"
         >
+          <template v-slot:[`item.role`]="{ item }">
+            <span :class="item.role === 'admin' ? 'text-orange' : ''">
+              {{ item.role }}
+            </span>
+          </template>
           <template v-slot:[`item.status`]="{ item }">
-            {{ userStatus[item.status ?? -1] }}
+            <v-chip :color="item.status === UserStatus.NORMAL ? 'green' : 'red'">
+              {{ userStatus[item.status ?? -1] }}
+            </v-chip>
           </template>
           <template v-slot:[`item.regTime`]="{ item }">
             {{ new Date(Number(item.regTime)).toLocaleString() }}
@@ -129,7 +146,13 @@ const refreshItems = () =>
               color="primary"
               @click="oUserDialog?.openDialog(item)"
             ></v-btn>
-            <v-btn icon="mdi-trash-can-outline" variant="text" size="small" color="red"></v-btn>
+            <v-btn
+              icon="mdi-trash-can-outline"
+              variant="text"
+              size="small"
+              color="red"
+              @click="toDelete(item)"
+            ></v-btn>
           </template>
         </v-data-table-server>
       </v-card-text>

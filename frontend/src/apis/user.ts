@@ -73,3 +73,13 @@ export const updateUserInfoApi = async (formData: UserInfo) => {
   const { data }: { data: NyaResponse } = await axios.put(baseURL + '/?t_=' + Date.now(), formData)
   return data
 }
+
+// 删除用户
+export const delUserApi = async (formData: UserInfo) => {
+  const { data }: { data: NyaResponse } = await axios.delete(baseURL + '/?t_=' + Date.now(), {
+    data: {
+      id: formData.id
+    }
+  })
+  return data
+}
