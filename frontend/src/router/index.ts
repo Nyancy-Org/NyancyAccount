@@ -157,6 +157,16 @@ const router = createRouter({
       ]
     },
 
+    // 403
+    {
+      path: '/403',
+      name: '403',
+      meta: {
+        title: '403 Forbidden'
+      },
+      component: () => import('../views/error/403.vue')
+    },
+
     // 404
     {
       path: '/404',
@@ -164,7 +174,7 @@ const router = createRouter({
       meta: {
         title: '404 Not Found'
       },
-      component: () => import('../views/404.vue')
+      component: () => import('../views/error/404.vue')
     }
   ]
 })
@@ -185,11 +195,15 @@ router.beforeEach((to, from, next) => {
   // 非管理员不可访问
   if (to.meta.needAdmin && info?.role !== 'admin') {
     showMsg('你无权访问该页面', 'red')
-    return next('/user/info')
+    return next({
+      path: '/403',
+      replace: true,
+      query: {
+        errPath: to.fullPath
+      }
+    })
   }
-  if (!to.name) {
-    console.log(to)
-
+  if (!to.name)
     return next({
       path: '/404',
       replace: true,
@@ -197,7 +211,6 @@ router.beforeEach((to, from, next) => {
         errPath: to.fullPath
       }
     })
-  }
 
   document.title = (to.meta.title || '首页') + ' - Nyancy Account'
 
