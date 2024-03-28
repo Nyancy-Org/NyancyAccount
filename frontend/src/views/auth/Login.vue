@@ -61,7 +61,7 @@ const getAuthOption = async () => {
       showMsg('Authenticator was probably already registered by user', 'red')
     } else {
       console.error(err)
-      showMsg(err.message, 'red')
+      return showMsg(err.message, 'red')
     }
   } finally {
     wBtnLoading.value = false
