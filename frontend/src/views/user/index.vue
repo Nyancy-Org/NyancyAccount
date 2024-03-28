@@ -28,6 +28,7 @@ const menus = [
   { name: 'OAuth2 应用', icon: 'apps', path: 'apps' }
 ]
 
+const { isAdmin } = userStore()
 const { info } = storeToRefs(userStore())
 const { openConfirmDialog } = indexStore()
 const { logout } = useAuth()
@@ -80,6 +81,15 @@ const toLogout = async () => {
               <div v-if="!xs" class="d-flex flex-wrap justify-center ga-4">
                 <v-btn color="primary" variant="tonal" prepend-icon="mdi-arrow-left" block to="/"
                   >返回首页</v-btn
+                >
+                <v-btn
+                  v-if="isAdmin()"
+                  color="orange"
+                  variant="tonal"
+                  prepend-icon="mdi-view-dashboard-outline"
+                  block
+                  to="/admin/dashboard"
+                  >管理面板</v-btn
                 >
                 <v-btn
                   color="red"

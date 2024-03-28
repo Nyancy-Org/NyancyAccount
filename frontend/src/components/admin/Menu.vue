@@ -46,4 +46,12 @@ const menus = [
       :color="item.color"
     ></v-list-item>
   </v-list>
+  <v-divider></v-divider>
+  <v-list density="compact" nav>
+    <v-list-item
+      prepend-icon="mdi-account-arrow-left-outline"
+      title="返回用户中心"
+      to="/user/info"
+    ></v-list-item>
+  </v-list>
 </template>

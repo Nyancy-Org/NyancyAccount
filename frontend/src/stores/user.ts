@@ -10,6 +10,8 @@ const { isLogin } = indexStore()
 export const userStore = defineStore('userStore', () => {
   const info = ref<UserInfo>()
 
+  const isAdmin = () => info.value?.role === 'admin'
+
   const getUserInfo = async () => {
     try {
       const { data } = await getUserInfoApi()
@@ -24,6 +26,7 @@ export const userStore = defineStore('userStore', () => {
 
   return {
     info,
-    getUserInfo
+    getUserInfo,
+    isAdmin
   }
 })

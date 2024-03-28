@@ -181,7 +181,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const { isLogin, showMsg } = indexStore()
-  const { info } = userStore()
+  const { isAdmin } = userStore()
 
   // 已登录的不能访问登录页面
   if (isLogin.value && to.path.startsWith('/auth')) return next('/')
@@ -193,7 +193,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // 非管理员不可访问
-  if (to.meta.needAdmin && info?.role !== 'admin') {
+  if (to.meta.needAdmin && !isAdmin()) {
     showMsg('你无权访问该页面', 'red')
     return next({
       path: '/403',
