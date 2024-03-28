@@ -69,3 +69,18 @@ export interface OAuth2ClientInfo extends NewOauthClient {
 export interface OAuth2ClientInfoRes extends NyaResponse {
   data: OAuth2ClientInfo[]
 }
+
+export interface OAuth2ClientLowInfoRes extends NyaResponse {
+  data: {
+    id: number
+    createdAt: string
+    name: string
+  }
+}
+
+export interface OAuth2StateRes extends NyaResponse {
+  data: {
+    state: string
+    code: string
+  }
+}

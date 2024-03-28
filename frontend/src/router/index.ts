@@ -102,6 +102,33 @@ const router = createRouter({
       ]
     },
 
+    // OAuth 2
+    {
+      path: '/oauth2',
+      name: 'oauth2',
+      // meta: {
+      //   needLogin: true
+      // },
+      component: () => import('../views/oauth2/index.vue'),
+
+      children: [
+        {
+          path: '',
+          name: 'oauth2Redirect',
+          redirect: '/404'
+        },
+        {
+          path: 'authorize',
+          name: 'authorize',
+          meta: {
+            title: 'Nyancy OAuth2 授权',
+            image: '072.png'
+          },
+          component: () => import('../views/oauth2/Authorize.vue')
+        }
+      ]
+    },
+
     // 404
     {
       path: '/404',

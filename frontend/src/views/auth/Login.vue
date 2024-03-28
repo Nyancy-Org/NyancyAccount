@@ -10,10 +10,12 @@ import router from '@/router'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types'
 import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser'
 import { useDisplay } from 'vuetify'
+import { useRouteQuery } from '@vueuse/router'
 
 const { xs } = useDisplay()
 const { showMsg, isLogin } = indexStore()
 const { info } = storeToRefs(userStore())
+const redirectUrl = useRouteQuery('redirect')
 const form = ref<InstanceType<typeof VForm>>()
 const formData = ref<LoginForm>({
   username: '',
@@ -36,6 +38,8 @@ const login = async () => {
     showMsg(msg, 'green')
     info.value = data
     isLogin.value = true
+    if (redirectUrl.value)
+      return (window.location.href = decodeURIComponent(redirectUrl.value as string))
     router.replace('/user/info')
   } finally {
     btnLoading.value = false
@@ -66,6 +70,8 @@ const getAuthOption = async () => {
   showMsg(msg, 'green')
   info.value = data
   isLogin.value = true
+  if (redirectUrl.value)
+    return (window.location.href = decodeURIComponent(redirectUrl.value as string))
   router.replace('/user/info')
 }
 </script>
