@@ -5,8 +5,7 @@ import md5 from 'md5'
 import { useDisplay } from 'vuetify'
 import { indexStore } from '@/stores'
 import { userStore } from '@/stores/user'
-import { logoutApi } from '@/apis/auth'
-import router from '@/router'
+import { useAuth } from '@/hooks/useAuth'
 
 const { xs } = useDisplay()
 
@@ -30,20 +29,17 @@ const menus = [
 ]
 
 const { info } = storeToRefs(userStore())
-const { isLogin, showMsg, openConfirmDialog } = indexStore()
+const { openConfirmDialog } = indexStore()
+const { logout } = useAuth()
 
 const btnLoading = ref(false)
-const logout = async () => {
+const toLogout = async () => {
   try {
     await openConfirmDialog('警告', '你真的要登出吗？', 'warning')
     btnLoading.value = true
-    const { msg } = await logoutApi()
-    showMsg(msg, 'green')
-    isLogin.value = false
-    router.replace('/')
+    await logout()
   } catch (err: any) {
-    if (err.message.startsWith('[Confirm Dialog]')) return
-    window.location.href = '/'
+    console.error(err)
   } finally {
     btnLoading.value = false
   }
@@ -90,7 +86,7 @@ const logout = async () => {
                   variant="tonal"
                   prepend-icon="mdi-logout"
                   block
-                  @click="logout"
+                  @click="toLogout"
                   :loading="btnLoading"
                   >退出登录</v-btn
                 >

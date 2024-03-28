@@ -1,4 +1,8 @@
-import { checkUNameApi } from '@/apis/auth'
+import { checkUNameApi, logoutApi } from '@/apis/auth'
+import { indexStore } from '@/stores'
+import router from '@/router'
+
+const { isLogin, showMsg } = indexStore()
 
 export function useAuth() {
   const checkUName = async (v: string) => {
@@ -14,8 +18,21 @@ export function useAuth() {
       : '密码必须为6-20位之间'
   }
 
+  const logout = async () => {
+    try {
+      const { msg } = await logoutApi()
+      showMsg(msg, 'green')
+      isLogin.value = false
+      router.replace('/')
+    } catch (err: any) {
+      if (err.message.startsWith('[Confirm Dialog]')) return
+      window.location.href = '/'
+    }
+  }
+
   return {
     checkUName,
-    checkPwd
+    checkPwd,
+    logout
   }
 }
