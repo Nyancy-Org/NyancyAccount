@@ -1,4 +1,4 @@
-import { NyaResponse, PublicKeyORes, UserInfoRes } from '@/types'
+import { NyaResponse, PublicKeyORes, UserInfoRes, UserListRes } from '@/types'
 import { axios } from '@/utils/request'
 import { RegistrationResponseJSON } from '@simplewebauthn/types'
 
@@ -45,5 +45,25 @@ export const deleteWebAuthnApi = async () => {
   const { data }: { data: NyaResponse } = await axios.delete(
     baseURL + '/deleteRegistration?t_=' + Date.now()
   )
+  return data
+}
+
+// 用户列表
+export const getUserListApi = async (
+  page: number,
+  pageSize: number,
+  sortBy: string,
+  sortDesc: boolean,
+  search?: string
+) => {
+  const { data }: { data: UserListRes } = await axios.get(baseURL + '/list?t_=' + Date.now(), {
+    params: {
+      page,
+      pageSize,
+      sortBy,
+      sortDesc,
+      search
+    }
+  })
   return data
 }

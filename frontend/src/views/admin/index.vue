@@ -60,8 +60,8 @@ const toLogout = async () => {
     </template>
   </v-navigation-drawer>
   <RouterView v-slot="{ Component }">
-    <v-slide-x-transition leave-absolute>
+    <v-fade-transition leave-absolute>
       <component :is="Component" @update="update" @reset="reset" />
-    </v-slide-x-transition>
+    </v-fade-transition>
   </RouterView>
 </template>

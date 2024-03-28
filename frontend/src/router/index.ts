@@ -153,6 +153,14 @@ const router = createRouter({
             title: '仪表板'
           },
           component: () => import('../views/admin/Dashboard.vue')
+        },
+        {
+          path: 'users',
+          name: 'users',
+          meta: {
+            title: '用户管理'
+          },
+          component: () => import('../views/admin/Users.vue')
         }
       ]
     },

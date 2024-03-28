@@ -41,6 +41,14 @@ export interface UserInfoRes extends NyaResponse {
   data: UserInfo
 }
 
+export interface UserListRes extends NyaResponse {
+  data: {
+    totalCount: number
+    totalPages: number
+    users: UserInfo[]
+  }
+}
+
 export interface PublicKeyORes extends NyaResponse {
   data: PublicKeyCredentialCreationOptionsJSON
 }
