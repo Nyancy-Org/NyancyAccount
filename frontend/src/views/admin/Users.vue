@@ -90,7 +90,7 @@ const toDelete = async (item: UserInfo) => {
         用户管理 <small>( {{ totalItems }} )</small>
       </div>
 
-      <div class="d-flex align-center">
+      <div class="d-flex align-center ga-4">
         <v-text-field
           style="min-width: 30vw"
           v-model:model-value="search"
@@ -99,7 +99,16 @@ const toDelete = async (item: UserInfo) => {
           density="compact"
           append-inner-icon="mdi-magnify"
           hide-details
+          :disabled="search.length === 0 && loading"
         ></v-text-field>
+        <v-btn
+          @click="refreshItems"
+          :loading="loading"
+          prepend-icon="mdi-refresh"
+          variant="outlined"
+          color="primary"
+          >刷新</v-btn
+        >
       </div>
     </div>
     <v-card class="mt-5" variant="outlined">
