@@ -5,6 +5,7 @@ import { getUserListApi, delUserApi } from '@/apis/user'
 import _ from 'lodash'
 import { UserInfo, UserStatus } from '@/types'
 import { userStatus } from '@/types/const'
+import CopyTool from '@/components/CopyTool.vue'
 import oUser from './dialog/oUser.vue'
 
 const oUserDialog = ref<InstanceType<typeof oUser>>()
@@ -14,14 +15,14 @@ const search = ref('')
 
 const headers = ref([
   { key: 'id', title: 'ID' },
-  { key: 'username', title: '用户名' },
-  { key: 'email', title: '绑定邮箱' },
-  { key: 'role', title: '权限组' },
-  { key: 'status', title: '状态' },
-  { key: 'regTime', title: '注册时间' },
-  { key: 'lastLoginTime', title: '上次登录' },
+  { key: 'username', title: '用户名', width: '120px' },
+  { key: 'email', title: '绑定邮箱', width: '180px' },
+  { key: 'role', title: '权限组', width: '100px' },
+  { key: 'status', title: '状态', width: '100px' },
+  { key: 'regTime', title: '注册时间', width: '120px' },
+  { key: 'lastLoginTime', title: '上次登录', width: '120px' },
   { key: 'lastLoginIp', title: '最后登录IP' },
-  { key: 'authDevice', title: '外部验证器' },
+  { key: 'authDevice', title: '外部验证器', width: '130px' },
   { key: 'operate', title: '操作', sortable: false }
 ])
 
@@ -124,6 +125,13 @@ const toDelete = async (item: UserInfo) => {
           color="transparent"
           @update:options="loadItems"
         >
+          <template v-slot:[`item.email`]="{ item }">
+            <CopyTool :text="item.email">
+              <template #default="{ copy, style, act }">
+                <span v-bind="act" @click="copy" :style="style">{{ item.email }}</span>
+              </template>
+            </CopyTool>
+          </template>
           <template v-slot:[`item.role`]="{ item }">
             <span :class="item.role === 'admin' ? 'text-orange' : ''">
               {{ item.role }}
@@ -139,6 +147,13 @@ const toDelete = async (item: UserInfo) => {
           </template>
           <template v-slot:[`item.lastLoginTime`]="{ item }">
             {{ new Date(Number(item.lastLoginTime)).toLocaleString() }}
+          </template>
+          <template v-slot:[`item.lastLoginIp`]="{ item }">
+            <CopyTool :text="item.lastLoginIp">
+              <template #default="{ copy, style, act }">
+                <span v-bind="act" @click="copy" :style="style">{{ item.lastLoginIp }}</span>
+              </template>
+            </CopyTool>
           </template>
           <template v-slot:[`item.authDevice`]="{ item }">
             <v-chip v-if="item.authDevice" color="green" prepend-icon="mdi-shield-lock-outline">
