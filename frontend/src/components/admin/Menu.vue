@@ -2,6 +2,7 @@
 import { userStore } from '@/stores/user'
 import md5 from 'md5'
 
+const eimt = defineEmits(['updateRail'])
 const { info } = userStore()
 
 const menus = [
@@ -34,11 +35,16 @@ const menus = [
 
 <template>
   <v-list>
-    <v-list-item
-      :prepend-avatar="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=300&r=R&d=`"
-      :subtitle="info?.email"
-      :title="`#${info?.id} ${info?.username}`"
-    ></v-list-item>
+    <v-list-item :subtitle="info?.email" :title="`#${info?.id} ${info?.username}`">
+      <template v-slot:prepend>
+        <v-avatar @click.stop="eimt('updateRail')" class="cursor-pointer">
+          <v-img
+            :alt="`#${info?.id} ${info?.username}`"
+            :src="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=300&r=R&d=`"
+          ></v-img>
+        </v-avatar>
+      </template>
+    </v-list-item>
   </v-list>
   <v-divider></v-divider>
   <v-list density="compact" nav>

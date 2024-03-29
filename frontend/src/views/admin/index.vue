@@ -18,9 +18,16 @@ const reset = () =>
   })
 
 const rail = ref(false)
+const drawer = ref(true)
 const { openConfirmDialog } = indexStore()
 const { logout } = useAuth()
 const btnLoading = ref(false)
+
+const toggleDrawer = () => {
+  rail.value = false
+  drawer.value = !drawer.value
+}
+
 const toLogout = async () => {
   try {
     await openConfirmDialog('警告', '你真的要登出吗？', 'warning')
@@ -37,12 +44,12 @@ const toLogout = async () => {
 <template>
   <v-app-bar :elevation="1" title="NYANCY ACCOUNT">
     <template #prepend>
-      <v-app-bar-nav-icon @click="rail = !rail"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
     </template>
   </v-app-bar>
 
-  <v-navigation-drawer :rail="rail">
-    <Menu />
+  <v-navigation-drawer :rail="rail" v-model="drawer">
+    <Menu @updateRail="rail = !rail" />
     <template v-slot:append>
       <v-divider></v-divider>
       <div class="pa-2">
