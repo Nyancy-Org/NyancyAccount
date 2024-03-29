@@ -265,7 +265,7 @@ export class UserService {
         transports: dev.transports,
       })),
       authenticatorSelection: {
-        residentKey: 'discouraged',
+        residentKey: 'preferred',
         userVerification: 'preferred',
       },
       /**
