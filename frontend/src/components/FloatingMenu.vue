@@ -21,7 +21,7 @@ const setAppTheme = () =>
 const btns = [
   {
     icon: 'arrow-up',
-    click: () => {}
+    click: () => window.scrollTo(0, 0)
   },
   {
     icon: 'weather-sunny',
