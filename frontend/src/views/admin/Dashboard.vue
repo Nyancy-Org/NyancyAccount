@@ -82,7 +82,13 @@ onMounted(async () => {
       </v-col>
       <v-col cols="12" xs="12" sm="12" md="4">
         <v-card variant="outlined" :disabled="loading">
-          <v-img src="https://api.imlazy.ink/img/" cover :height="c1_h"></v-img>
+          <v-img
+            src="https://api.imlazy.ink/img/"
+            loading="lazy"
+            cover
+            :height="c1_h"
+            alt="Random image"
+          ></v-img>
         </v-card>
       </v-col>
     </v-row>

@@ -9,6 +9,7 @@ const { isLogin } = indexStore()
       <v-card align="center">
         <v-card-title>
           <v-img
+            alt="Logo"
             :width="200"
             src="https://s1.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/023.png"
           />

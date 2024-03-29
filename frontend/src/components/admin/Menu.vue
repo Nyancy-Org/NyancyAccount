@@ -40,7 +40,7 @@ const menus = [
         <v-avatar @click.stop="eimt('updateRail')" class="cursor-pointer">
           <v-img
             :alt="`#${info?.id} ${info?.username}`"
-            :src="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=300&r=R&d=`"
+            :src="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=64&r=R&d=`"
           ></v-img>
         </v-avatar>
       </template>

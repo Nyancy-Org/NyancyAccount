@@ -52,7 +52,14 @@ onMounted(() => {
 
 <template>
   <div style="position: fixed; right: 50px; bottom: 50px">
-    <v-btn ref="vFab" size="large" color="primary" icon="mdi-cat" variant="tonal"></v-btn>
+    <v-btn
+      ref="vFab"
+      size="large"
+      color="primary"
+      icon="mdi-cat"
+      variant="tonal"
+      aria-label="浮动菜单"
+    ></v-btn>
     <v-speed-dial :activator="vFab" location="top center" transition="slide-y-reverse-transition">
       <v-btn
         v-for="(item, i) in btns"
