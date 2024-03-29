@@ -115,7 +115,7 @@ export class Oauth2Service {
       return {
         code: 500,
         msg: e.message,
-        time: new Date().getTime(),
+        time: Date.now(),
       };
     }
 
@@ -269,7 +269,7 @@ export class Oauth2Service {
       return {
         code: 500,
         msg: e.message,
-        time: new Date().getTime(),
+        time: Date.now(),
       };
     }
 
@@ -338,7 +338,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '获取成功',
-      time: new Date().getTime(),
+      time: Date.now(),
       data: r[0],
     };
   }
@@ -357,7 +357,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '获取成功',
-      time: new Date().getTime(),
+      time: Date.now(),
       data: c,
     };
   }
@@ -410,7 +410,7 @@ export class Oauth2Service {
         status: false,
         code: 500,
         msg: e.message,
-        time: new Date().getTime(),
+        time: Date.now(),
       };
     }
 
@@ -418,7 +418,7 @@ export class Oauth2Service {
       return {
         code: 200,
         msg: '添加成功',
-        time: new Date().getTime(),
+        time: Date.now(),
       };
     } else {
       throw new Error('添加失败，可能数据库炸了');
@@ -484,7 +484,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '更新成功',
-      time: new Date().getTime(),
+      time: Date.now(),
     };
   }
 
@@ -518,7 +518,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '删除成功',
-      time: new Date().getTime(),
+      time: Date.now(),
     };
   }
 
@@ -541,7 +541,7 @@ export class Oauth2Service {
       return {
         code: 200,
         msg: '获取成功',
-        time: new Date().getTime(),
+        time: Date.now(),
         data: {
           totalCount: Number(totalCount[0].count),
           totalPages: 1,
@@ -576,7 +576,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '获取成功',
-      time: new Date().getTime(),
+      time: Date.now(),
       data: {
         totalCount: Number(totalCount[0].count),
         totalPages: totalPages,
@@ -600,7 +600,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '更新成功',
-      time: new Date().getTime(),
+      time: Date.now(),
     };
   }
 
@@ -618,7 +618,7 @@ export class Oauth2Service {
     return {
       code: 200,
       msg: '删除成功',
-      time: new Date().getTime(),
+      time: Date.now(),
     };
   }
 }

@@ -9,7 +9,7 @@ export class SiteService {
     return {
       code: 200,
       msg: '获取成功',
-      time: new Date().getTime(),
+      time: Date.now(),
       data: r,
     };
   }
@@ -29,7 +29,7 @@ export class SiteService {
     return {
       code: 200,
       msg: '更新成功',
-      time: new Date().getTime(),
+      time: Date.now(),
     };
   }
 
@@ -84,7 +84,7 @@ export class SiteService {
       status: true,
       code: 200,
       msg: '获取成功',
-      time: new Date().getTime(),
+      time: Date.now(),
       data: statistics,
     };
   }
