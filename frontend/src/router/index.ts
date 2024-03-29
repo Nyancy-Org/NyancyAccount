@@ -169,6 +169,14 @@ const router = createRouter({
             title: 'OAuth2 应用管理'
           },
           component: () => import('../views/admin/OAuth2.vue')
+        },
+        {
+          path: 'site',
+          name: 'site',
+          meta: {
+            title: '站点配置'
+          },
+          component: () => import('../views/admin/Site.vue')
         }
       ]
     },

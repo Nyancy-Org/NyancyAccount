@@ -4,7 +4,7 @@ import { SiteOptions } from './site.interface';
 @Injectable()
 export class SiteService {
   // 获取站点配置
-  async info() {
+  async options() {
     const r: SiteOptions[] = await db.query('select * from site');
     return {
       code: 200,

@@ -16,15 +16,15 @@ export class SiteController {
   constructor(private readonly SiteService: SiteServices) {}
 
   // 获取站点配置
-  @Get('info')
+  @Get('options')
   @UseGuards(isAdmin)
   @HttpCode(200)
   list() {
-    return this.SiteService.info();
+    return this.SiteService.options();
   }
 
   // 修改站点配置
-  @Put('')
+  @Put('options')
   @UseGuards(isAdmin)
   @HttpCode(200)
   update_(@Body() body: SiteOptions) {

@@ -111,3 +111,14 @@ export interface StatisticRes extends NyaResponse {
     }
   }
 }
+
+export interface SiteOptions {
+  id: number
+  note: string
+  optionName: string
+  value: string
+}
+
+export interface SiteOptionsRes extends NyaResponse {
+  data: SiteOptions[]
+}

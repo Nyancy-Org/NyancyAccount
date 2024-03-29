@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { userStore } from '@/stores/user'
 import md5 from 'md5'
 
@@ -23,6 +22,12 @@ const menus = [
     icon: 'vector-link',
     color: 'teal',
     to: '/admin/oauth2'
+  },
+  {
+    title: '站点配置',
+    icon: 'cog-outline',
+    color: 'blue-grey',
+    to: '/admin/site'
   }
 ]
 </script>
