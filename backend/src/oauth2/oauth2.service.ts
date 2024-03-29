@@ -593,8 +593,8 @@ export class Oauth2Service {
         HttpStatus.EXPECTATION_FAILED,
       );
     const r = await db.query(
-      'update oauth_clients set name=?,secret=?,redirect=?,updatedAt=? where id=?',
-      [body.name, body.secret, body.redirect, new Date(), body.id],
+      'update oauth_clients set userId=?,name=?,secret=?,redirect=?,updatedAt=? where id=?',
+      [body.userId, body.name, body.secret, body.redirect, new Date(), body.id],
     );
     if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
     return {

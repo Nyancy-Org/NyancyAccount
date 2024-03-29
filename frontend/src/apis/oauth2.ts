@@ -6,7 +6,8 @@ import {
   OAuth2ClientInfoRes,
   OAuth2ClientLowInfoRes,
   OAuth2StateRes,
-  OAuth2AppsRes
+  OAuth2AppsRes,
+  AdminEditOauthClient
 } from '@/types'
 import { axios } from '@/utils/request'
 
@@ -88,6 +89,15 @@ export const getOAuth2AppsApi = async (
         search
       }
     }
+  )
+  return data
+}
+
+// 更新 OAuth2 应用信息
+export const updateOAuth2AppApi = async (formData: AdminEditOauthClient) => {
+  const { data }: { data: NyaResponse } = await axios.put(
+    adminURL + '/client?t_=' + Date.now(),
+    formData
   )
   return data
 }

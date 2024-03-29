@@ -13,6 +13,7 @@ export interface NewOauthClient {
 
 export interface AdminEditOauthClient extends EditOauthClient {
   secret: string;
+  userId: number;
 }
 
 export interface EditOauthClient extends NewOauthClient {
