@@ -2,6 +2,23 @@ body {
   font-family: MiSans;
 }
 
+.app-bar {
+  background: rgba(var(--v-theme-surface),0.8) !important;
+  backdrop-filter: saturate(50%) blur(4px);
+
+  .img-meow {
+    height: 64px;
+    transform: translateY(11px);
+    transition: all 0.5s ease-in-out;
+    cursor: progress;
+
+    &:hover {
+      transform: translate(-30px, 11px)
+    }
+  }
+}
+
+
 .aLink {
   color: #ff4081 !important;
   position: relative;
