@@ -101,3 +101,14 @@ export const updateOAuth2AppApi = async (formData: AdminEditOauthClient) => {
   )
   return data
 }
+
+// 删除 OAuth2 应用
+export const delOAuth2AppApi = async (formData: OAuth2ClientInfo) => {
+  const { data }: { data: NyaResponse } = await axios.delete(
+    adminURL + '/client?t_=' + Date.now(),
+    {
+      data: { id: formData.id }
+    }
+  )
+  return data
+}

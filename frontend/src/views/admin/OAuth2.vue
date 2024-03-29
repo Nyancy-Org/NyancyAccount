@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { indexStore } from '@/stores'
-import { getOAuth2AppsApi } from '@/apis/oauth2'
+import { getOAuth2AppsApi, delOAuth2AppApi } from '@/apis/oauth2'
 import _ from 'lodash'
 import { OAuth2ClientInfo } from '@/types'
 import CopyTool from '@/components/CopyTool.vue'
@@ -72,9 +72,9 @@ const refreshItems = () =>
 const toDelete = async (item: OAuth2ClientInfo) => {
   const flag = await openConfirmDialog('警告', `你确定要删除应用 ${item.name} ？此操作不可逆转！`)
   if (!flag) return
-  // const { msg } = await delUserApi(item)
+  const { msg } = await delOAuth2AppApi(item)
   refreshItems()
-  // return showMsg(msg, 'green')
+  return showMsg(msg, 'green')
 }
 </script>
 
