@@ -14,13 +14,13 @@ const search = ref('')
 
 const headers = ref([
   { key: 'id', title: 'ID' },
-  { key: 'userId', title: '用户ID', width: '120px' },
+  { key: 'userId', title: '用户ID', width: '110px' },
   { key: 'name', title: '应用名称', width: '180px' },
-  { key: 'secret', title: '客户端 Secret', width: '100px' },
-  { key: 'redirect', title: '回调地址', width: '100px' },
-  { key: 'createdAt', title: '创建时间', width: '120px' },
-  { key: 'updatedAt', title: '最后更新', width: '120px' },
-  { key: 'operate', title: '操作', sortable: false }
+  { key: 'secret', title: '客户端 Secret', width: '120px' },
+  { key: 'redirect', title: '回调地址', width: '200px' },
+  { key: 'createdAt', title: '创建时间', width: '150px' },
+  { key: 'updatedAt', title: '最后更新', width: '150px' },
+  { key: 'operate', title: '操作', sortable: false, width: '160px' }
 ])
 
 const serverItems = ref<OAuth2ClientInfo[]>([])
@@ -122,14 +122,18 @@ const toDelete = async (item: OAuth2ClientInfo) => {
           <template v-slot:[`item.secret`]="{ item }">
             <CopyTool :text="item.secret">
               <template #default="{ copy, style, act }">
-                <span v-bind="act" @click="copy" :style="style">{{ item.secret }}</span>
+                <span v-bind="act" @click="copy" :style="style" class="truncate d-block">{{
+                  item.secret
+                }}</span>
               </template>
             </CopyTool>
           </template>
           <template v-slot:[`item.redirect`]="{ item }">
             <CopyTool :text="item.redirect">
               <template #default="{ copy, style, act }">
-                <span v-bind="act" @click="copy" :style="style">{{ item.redirect }}</span>
+                <span v-bind="act" @click="copy" :style="style" class="truncate d-block">{{
+                  item.redirect
+                }}</span>
               </template>
             </CopyTool>
           </template>

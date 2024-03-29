@@ -128,7 +128,9 @@ const toDelete = async (item: UserInfo) => {
           <template v-slot:[`item.email`]="{ item }">
             <CopyTool :text="item.email">
               <template #default="{ copy, style, act }">
-                <span v-bind="act" @click="copy" :style="style">{{ item.email }}</span>
+                <span v-bind="act" @click="copy" :style="style" class="truncate d-block">{{
+                  item.email
+                }}</span>
               </template>
             </CopyTool>
           </template>

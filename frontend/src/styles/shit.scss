@@ -76,6 +76,13 @@ body {
   border: thin solid #e0e0e0!important
 }
 
+.truncate {
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  width: inherit;
+}
+
 @media (max-width: 450px) {
   .only-desktop {
     display: none;
