@@ -93,6 +93,14 @@ export interface OAuth2StateRes extends NyaResponse {
   }
 }
 
+export interface OAuth2AppsRes extends NyaResponse {
+  data: {
+    totalCount: number
+    totalPages: number
+    clients: OAuth2ClientInfo[]
+  }
+}
+
 export interface StatisticRes extends NyaResponse {
   data: {
     oauth_clients: string

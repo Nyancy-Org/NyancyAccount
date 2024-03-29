@@ -5,7 +5,8 @@ import {
   OAuth2ClientInfo,
   OAuth2ClientInfoRes,
   OAuth2ClientLowInfoRes,
-  OAuth2StateRes
+  OAuth2StateRes,
+  OAuth2AppsRes
 } from '@/types'
 import { axios } from '@/utils/request'
 
@@ -64,6 +65,29 @@ export const getOAuth2AppInfoApi = async (client_id: string) => {
 export const getCodeApi = async (client_id: string, state: string, redirect_uri: string) => {
   const { data }: { data: OAuth2StateRes } = await axios.post(
     `${baseURL}/authorize/?client_id=${client_id}&response_type=code&scope=&state=${state ?? ''}&redirect_uri=${redirect_uri}`
+  )
+  return data
+}
+
+// 获取 OAuth2 应用列表
+export const getOAuth2AppsApi = async (
+  page: number,
+  pageSize: number,
+  sortBy: string,
+  sortDesc: boolean,
+  search?: string
+) => {
+  const { data }: { data: OAuth2AppsRes } = await axios.get(
+    adminURL + '/clients?t_=' + Date.now(),
+    {
+      params: {
+        page,
+        pageSize,
+        sortBy,
+        sortDesc,
+        search
+      }
+    }
   )
   return data
 }
