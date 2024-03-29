@@ -18,11 +18,10 @@ export class SiteService {
   async update_(body: SiteOptions) {
     // 更新数据
     let r;
-    r = await db.query('UPDATE site SET note=?, value=? where id=?', [
-      body.note,
-      body.value,
-      body.id,
-    ]);
+    r = await db.query(
+      'UPDATE site SET note=?, value=?,updatedAt=?  where id=?',
+      [body.note, body.value, new Date(), body.id],
+    );
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
     r = null;

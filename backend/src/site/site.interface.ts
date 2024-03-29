@@ -3,4 +3,5 @@ export interface SiteOptions {
   note: string;
   optionName: string;
   value: string;
+  updatedAt: Date;
 }
