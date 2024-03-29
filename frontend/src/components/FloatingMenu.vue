@@ -5,7 +5,7 @@ import { useTheme } from 'vuetify'
 import { usePreferredDark } from '@vueuse/core'
 const vFab = ref()
 const theme = useTheme()
-const { appTheme } = indexStore()
+const { appTheme, progressLinear } = indexStore()
 const isPreferredDark = usePreferredDark()
 
 const setAppTheme = () =>
@@ -59,6 +59,7 @@ onMounted(() => {
       icon="mdi-cat"
       variant="tonal"
       aria-label="浮动菜单"
+      :loading="progressLinear > 0"
     ></v-btn>
     <v-speed-dial :activator="vFab" location="top center" transition="slide-y-reverse-transition">
       <v-btn

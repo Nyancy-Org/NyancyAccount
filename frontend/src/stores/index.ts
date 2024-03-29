@@ -57,12 +57,15 @@ export const indexStore = createGlobalState(() => {
     })
   }
 
+  const progressLinear = ref(0)
+
   return {
     appTheme,
     snackbar,
     showMsg,
     isLogin,
     confirmDialog,
-    openConfirmDialog
+    openConfirmDialog,
+    progressLinear
   }
 })

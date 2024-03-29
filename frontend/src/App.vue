@@ -4,23 +4,20 @@ import Footer from './components/Footer.vue'
 import Snackbar from './components/Snackbar.vue'
 import FloatingMenu from './components/FloatingMenu.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
+import { indexStore } from './stores'
 
+const { progressLinear } = indexStore()
 const GLOBAL_COMPONENTS = [Footer, Snackbar, FloatingMenu, ConfirmDialog]
 </script>
 
 <template>
   <v-app>
-    <!-- <v-app-bar :elevation="1" title="NYANCY ACCOUNT">
-      <template v-slot:prepend>
-        <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      </template>
-    </v-app-bar>
-
-    <v-navigation-drawer>
-      <v-list>
-        <v-list-item title="Navigation drawer"></v-list-item>
-      </v-list>
-    </v-navigation-drawer> -->
+    <v-progress-linear
+      v-if="progressLinear > 0"
+      color="primary"
+      :model-value="progressLinear"
+      style="z-index: 9999"
+    ></v-progress-linear>
     <v-main>
       <v-container class="h-100">
         <RouterView v-slot="{ Component }">

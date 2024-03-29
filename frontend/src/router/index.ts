@@ -203,9 +203,19 @@ const router = createRouter({
   ]
 })
 
+const { isLogin, showMsg, progressLinear } = indexStore()
+let timer: NodeJS.Timeout
+
 router.beforeEach((to, from, next) => {
-  const { isLogin, showMsg } = indexStore()
   const { isAdmin } = userStore()
+
+  progressLinear.value += Math.floor(Math.random() * 6) + 1
+  timer = setInterval(() => {
+    progressLinear.value += Math.floor(Math.random() * 6) + 1
+    if (progressLinear.value >= 95) {
+      clearInterval(timer)
+    }
+  }, 1000)
 
   // 已登录的不能访问登录页面
   if (isLogin.value && to.path.startsWith('/auth')) return next('/')
@@ -239,6 +249,11 @@ router.beforeEach((to, from, next) => {
   document.title = (to.meta.title || '首页') + ' - Nyancy Account'
 
   next()
+})
+
+router.afterEach(() => {
+  clearInterval(timer)
+  progressLinear.value = 0
 })
 
 export default router
