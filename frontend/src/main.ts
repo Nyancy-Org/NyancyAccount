@@ -12,5 +12,6 @@ const app = createApp(App)
     console.error(err)
   } finally {
     app.mount('#app')
+    ;(window as any).removePageLoading()
   }
 })()
