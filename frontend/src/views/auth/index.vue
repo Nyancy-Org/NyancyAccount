@@ -40,7 +40,7 @@ const reset = () =>
         <v-card-title align="center">
           <v-img
             :width="200"
-            :src="`https://s1.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/${option.image || $route.meta.image}`"
+            :src="`https://cdn.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/${option.image || $route.meta.image}`"
           />
           <div class="my-4 text-h5 text-primary">{{ option.title || $route.meta.title }}</div>
         </v-card-title>

@@ -10,7 +10,7 @@ const errPath = useRouteQuery('errPath')
         <v-card-title>
           <v-img
             :width="200"
-            src="https://s1.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/035.png"
+            src="https://cdn.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/035.png"
           />
           <div class="text-h3 text-primary mt-2">{{ $route.meta.title }}</div>
         </v-card-title>

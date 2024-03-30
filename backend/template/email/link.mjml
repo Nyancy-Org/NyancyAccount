@@ -18,7 +18,7 @@
   <mj-body>
     <mj-section>
       <mj-column>
-        <mj-image width="100px" src="https://s1.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/023.png"></mj-image>
+        <mj-image width="100px" src="https://cdn.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/023.png"></mj-image>
         <mj-text align="center" font-size="30px" color="#85b6c9" font-family="MiSans">
           Nyancy Account
         </mj-text>
