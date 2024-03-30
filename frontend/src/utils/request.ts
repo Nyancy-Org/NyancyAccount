@@ -13,7 +13,7 @@ axios.interceptors.response.use(
   (response: AxiosResponse) => response,
   (err: any) => {
     !(err.config.baseURL + err.config.url).startsWith(baseURL + '/user/info') &&
-      showMsg(err.response.data.msg || err.message, 'red')
+      showMsg(err.response?.data.msg || err.message, 'red')
     return Promise.reject(err)
   }
 )
