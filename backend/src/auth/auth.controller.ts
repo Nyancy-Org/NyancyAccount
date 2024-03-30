@@ -77,6 +77,7 @@ export class AuthController {
     );
 
     try {
+      // await new Promise((resolve) => setTimeout(resolve, 10000));
       await this.MailerService.sendVerificationEmail(email);
     } catch (err) {
       throw new Error(err.message);

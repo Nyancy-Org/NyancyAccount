@@ -6,7 +6,7 @@ const { showMsg } = indexStore()
 const baseURL = '/v1'
 const axios = axios_.create({
   baseURL: baseURL,
-  timeout: 5000
+  timeout: 0
 })
 
 axios.interceptors.response.use(
