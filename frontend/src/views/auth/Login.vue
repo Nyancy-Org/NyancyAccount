@@ -67,11 +67,15 @@ const getAuthOption = async () => {
     wBtnLoading.value = false
   }
   wBtnLoading.value = true
-  const { msg, data } = await verifyWebAuthnApi(aRes!)
-  showMsg(msg, 'green')
-  info.value = data
-  isLogin.value = true
-  wBtnLoading.value = false
+  try {
+    const { msg, data } = await verifyWebAuthnApi(aRes!)
+    showMsg(msg, 'green')
+    info.value = data
+    isLogin.value = true
+  } finally {
+    wBtnLoading.value = false
+  }
+
   if (redirectUrl.value)
     return (window.location.href = decodeURIComponent(redirectUrl.value as string))
   router.replace('/user/info')
