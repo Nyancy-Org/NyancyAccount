@@ -30,7 +30,7 @@ const menus = [
 
 const { isAdmin } = userStore()
 const { info } = storeToRefs(userStore())
-const { openConfirmDialog } = indexStore()
+const { openConfirmDialog, progressLinear } = indexStore()
 const { logout } = useAuth()
 
 const btnLoading = ref(false)
@@ -113,7 +113,7 @@ const toLogout = async () => {
               </v-tab>
             </v-tabs>
           </v-card>
-          <v-card variant="flat" class="brightness">
+          <v-card variant="flat" class="brightness" :disabled="progressLinear > 0">
             <RouterView v-slot="{ Component }">
               <v-slide-x-transition leave-absolute>
                 <component :is="Component" @update="update" @reset="reset" />
