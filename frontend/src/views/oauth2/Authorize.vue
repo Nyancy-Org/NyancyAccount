@@ -20,6 +20,7 @@ const state2 = useRouteQuery('state')
 const checked = ref(false)
 const cardLoading = ref(false)
 const btnLoading = ref(false)
+const ok = ref(true)
 const clientInfo = ref<{
   id: number
   createdAt: Date
@@ -37,7 +38,7 @@ const toErr = (msg: string, img = '044.png') => {
 const checkQuery = () => {
   if (!isLogin.value) {
     const thisUrl = encodeURIComponent(window.location.href)
-    router.replace({
+    return router.replace({
       path: '/auth/login',
       query: { redirect: thisUrl }
     })
@@ -71,7 +72,7 @@ const authorize = async () => {
       return showMsg('state 不匹配，可能遭受到了攻击', 'red')
     }
     emit('update', 'image', '086.png')
-    emit('update', 'title', '授权成功，正在重定向...')
+    ok.value = false
     setTimeout(() => {
       window.location.href = _ru + _uh + '?code=' + code + '&state=' + state
     }, 2000)
@@ -88,7 +89,7 @@ onUnmounted(() => emit('reset'))
 </script>
 
 <template>
-  <v-card :disabled="!checked" variant="flat" class="brightness" :loading="cardLoading">
+  <v-card v-if="ok" :disabled="!checked" variant="flat" class="brightness" :loading="cardLoading">
     <v-card-text class="pb-0">
       <p class="text-body-1">第三方应用 {{ clientInfo?.name }} 正在向您请求获取权限</p>
       <v-card color="primary" variant="tonal" class="my-4">
@@ -137,5 +138,9 @@ onUnmounted(() => emit('reset'))
         授权
       </v-btn>
     </v-card-actions>
+  </v-card>
+  <v-card v-else variant="tonal" color="success">
+    <v-card-title>欧耶 ~ (/≧▽≦)/~</v-card-title>
+    <v-card-text>授权成功，正在重定向......</v-card-text>
   </v-card>
 </template>
