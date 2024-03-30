@@ -35,6 +35,7 @@ const getRegOption = async () => {
   } finally {
     btnLoading.value = false
   }
+  btnLoading.value = true
   await verifyWebAuthnApi(rRes!)
   showMsg('绑定成功', 'green')
   btnLoading.value = false
@@ -44,8 +45,10 @@ const getRegOption = async () => {
 const deleteAuthDevice = async () => {
   const s = await openConfirmDialog('警告', '确定要解除绑定吗？此操作不可逆转！', 'red')
   if (!s) return
+  btnLoading.value = true
   const { msg } = await deleteWebAuthnApi()
   showMsg(msg, 'green')
+  btnLoading.value = false
   handleOk()
 }
 
@@ -75,7 +78,7 @@ defineExpose({
         <v-btn v-if="!info?.authDevice" @click="getRegOption" color="green" :loading="btnLoading"
           >点击开始绑定</v-btn
         >
-        <v-btn v-else color="red" @click="deleteAuthDevice"> 解除绑定 </v-btn>
+        <v-btn v-else color="red" @click="deleteAuthDevice" :loading="btnLoading"> 解除绑定 </v-btn>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>

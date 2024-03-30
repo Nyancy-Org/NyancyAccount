@@ -61,15 +61,17 @@ const getAuthOption = async () => {
       showMsg('Authenticator was probably already registered by user', 'red')
     } else {
       console.error(err)
-      return showMsg(err.message, 'red')
+      return showMsg(err.response.data.msg || err.message, 'red')
     }
   } finally {
     wBtnLoading.value = false
   }
+  wBtnLoading.value = true
   const { msg, data } = await verifyWebAuthnApi(aRes!)
   showMsg(msg, 'green')
   info.value = data
   isLogin.value = true
+  wBtnLoading.value = false
   if (redirectUrl.value)
     return (window.location.href = decodeURIComponent(redirectUrl.value as string))
   router.replace('/user/info')
