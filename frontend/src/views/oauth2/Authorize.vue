@@ -4,11 +4,13 @@ import { useRouteHash, useRouteQuery } from '@vueuse/router'
 import router from '@/router'
 import { indexStore } from '@/stores'
 import { getOAuth2AppInfoApi, getCodeApi } from '@/apis/oauth2'
+import { useDisplay } from 'vuetify'
 
 const emit = defineEmits<{
   update: [type: 'title' | 'image', arg: string]
   reset: []
 }>()
+const { xs } = useDisplay()
 const { isLogin, showMsg } = indexStore()
 const client_id = useRouteQuery('client_id')
 const response_type = useRouteQuery('response_type')
@@ -16,7 +18,6 @@ const redirect_uri = useRouteQuery('redirect_uri')
 const urlHash = useRouteHash()
 const state2 = useRouteQuery('state')
 const checked = ref(false)
-const errMsg = ref('')
 const cardLoading = ref(false)
 const btnLoading = ref(false)
 const clientInfo = ref<{
@@ -26,9 +27,11 @@ const clientInfo = ref<{
 }>()
 
 const toErr = (msg: string, img = '044.png') => {
-  errMsg.value = msg
   emit('update', 'image', img)
-  checked.value = false
+  router.replace({
+    path: '/oauth2/error',
+    query: { msg }
+  })
 }
 
 const checkQuery = () => {
@@ -49,12 +52,8 @@ const checkQuery = () => {
 const init = async () => {
   cardLoading.value = true
   const { msg, data } = await getOAuth2AppInfoApi(client_id.value as string)
-  if (data) {
-    clientInfo.value = data
-  } else {
-    toErr(msg)
-    emit('update', 'title', 'バカ')
-  }
+  if (data) clientInfo.value = data
+  else toErr(msg)
 
   cardLoading.value = false
 }
@@ -89,27 +88,45 @@ onUnmounted(() => emit('reset'))
 </script>
 
 <template>
-  <v-card v-if="checked" variant="flat" class="brightness" :loading="cardLoading">
-    <v-card-text>
+  <v-card :disabled="!checked" variant="flat" class="brightness" :loading="cardLoading">
+    <v-card-text class="pb-0">
       <p class="text-body-1">第三方应用 {{ clientInfo?.name }} 正在向您请求获取权限</p>
       <v-card color="primary" variant="tonal" class="my-4">
         <v-card-title class="text-body-1"> 应用信息 </v-card-title>
         <v-card-text>
-          <ul style="list-style-position: inside; list-style-type: disclosure-closed">
-            <li>ID：{{ clientInfo?.id }}</li>
-            <li>创建时间：{{ new Date(clientInfo?.createdAt ?? '').toLocaleString() }}</li>
-          </ul>
+          <v-row v-if="!xs">
+            <v-col cols="6" sm="12" md="6">
+              <p class="text-subtitle-1 font-weight-medium">ID</p>
+              <span class="text-body-2 text-medium-emphasis">{{ clientInfo?.id }}</span>
+            </v-col>
+            <v-col cols="6" sm="12" md="6">
+              <p class="text-subtitle-1 font-weight-medium">创建时间</p>
+              <span class="text-body-2 text-medium-emphasis">{{
+                new Date(clientInfo?.createdAt ?? '').toLocaleString()
+              }}</span>
+            </v-col>
+          </v-row>
+          <v-list v-else density="compact" base-color="primary">
+            <v-list-item title="ID" :subtitle="clientInfo?.id" prepend-icon="mdi-id-card">
+            </v-list-item>
+            <v-list-item
+              title="创建时间"
+              :subtitle="new Date(clientInfo?.createdAt ?? '').toLocaleString()"
+              prepend-icon="mdi-clock-time-four-outline"
+            >
+            </v-list-item>
+          </v-list>
         </v-card-text>
       </v-card>
       <v-card color="warning" variant="tonal">
         <v-card-title class="text-body-1"> 授权信息 </v-card-title>
-        <v-card-text>
-          <ul style="list-style-position: inside; list-style-type: decimal">
-            <li>ID</li>
-            <li>用户名</li>
-            <li>邮箱</li>
-            <li>注册时间</li>
-          </ul>
+        <v-card-text class="pb-0">
+          <v-list density="compact" base-color="orange-darken-2">
+            <v-list-item title="UID" prepend-icon="mdi-id-card"> </v-list-item>
+            <v-list-item title="用户名" prepend-icon="mdi-account-circle-outline"> </v-list-item>
+            <v-list-item title="邮箱" prepend-icon="mdi-email-outline"> </v-list-item>
+            <v-list-item title="注册时间" prepend-icon="mdi-clock-time-four-outline"> </v-list-item>
+          </v-list>
         </v-card-text>
       </v-card>
     </v-card-text>
@@ -120,8 +137,5 @@ onUnmounted(() => emit('reset'))
         授权
       </v-btn>
     </v-card-actions>
-  </v-card>
-  <v-card v-else variant="tonal" color="red">
-    <v-card-text> 错误：{{ errMsg }} </v-card-text>
   </v-card>
 </template>

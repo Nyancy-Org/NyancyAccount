@@ -8,7 +8,7 @@ const router = createRouter({
     // index
     {
       path: '/',
-      name: 'home',
+      name: 'index',
       meta: {
         title: '首页'
       },
@@ -19,6 +19,9 @@ const router = createRouter({
     {
       path: '/auth',
       name: 'auth',
+      meta: {
+        test: 'fuck you '
+      },
       component: () => import('../views/auth/index.vue'),
 
       children: [
@@ -107,9 +110,6 @@ const router = createRouter({
     {
       path: '/oauth2',
       name: 'oauth2',
-      // meta: {
-      //   needLogin: true
-      // },
       component: () => import('../views/oauth2/index.vue'),
 
       children: [
@@ -126,6 +126,15 @@ const router = createRouter({
             image: '072.png'
           },
           component: () => import('../views/oauth2/Authorize.vue')
+        },
+        {
+          path: 'error',
+          name: 'oauth2Error',
+          meta: {
+            title: 'バカ',
+            image: '044.png'
+          },
+          component: () => import('../views/oauth2/Error.vue')
         }
       ]
     },
@@ -143,7 +152,7 @@ const router = createRouter({
       children: [
         {
           path: '',
-          name: 'oauth2Redirect',
+          name: 'adminRedirect',
           redirect: '/admin/dashboard'
         },
         {
@@ -164,7 +173,7 @@ const router = createRouter({
         },
         {
           path: 'oauth2',
-          name: 'oauth2',
+          name: 'oauth2Apps',
           meta: {
             title: 'OAuth2 应用管理'
           },
@@ -208,7 +217,6 @@ let timer: NodeJS.Timeout
 
 router.beforeEach((to, from, next) => {
   const { isAdmin } = userStore()
-
   progressLinear.value += Math.floor(Math.random() * 6) + 1
   timer = setInterval(() => {
     progressLinear.value += Math.floor(Math.random() * 6) + 1
@@ -237,7 +245,7 @@ router.beforeEach((to, from, next) => {
       }
     })
   }
-  if (!to.name)
+  if (!to.name) {
     return next({
       path: '/404',
       replace: true,
@@ -245,6 +253,7 @@ router.beforeEach((to, from, next) => {
         errPath: to.fullPath
       }
     })
+  }
 
   document.title = (to.meta.title || '首页') + ' - Nyancy Account'
 
@@ -254,6 +263,10 @@ router.beforeEach((to, from, next) => {
 router.afterEach(() => {
   clearInterval(timer)
   progressLinear.value = 0
+})
+
+router.onError((error) => {
+  console.error('Router Err:', error)
 })
 
 export default router
