@@ -114,7 +114,7 @@ const toUserCenter = async () => {
   try {
     await loginApi(formData.value)
     // 登录后相关操作
-    router.replace('/user')
+    window.location.href = '/user/info'
   } finally {
     btnLoading.value = false
   }
