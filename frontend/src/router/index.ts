@@ -19,6 +19,9 @@ const router = createRouter({
     {
       path: '/auth',
       name: 'auth',
+      meta: {
+        test: 'fuck you '
+      },
       component: () => import('../views/auth/index.vue'),
 
       children: [
