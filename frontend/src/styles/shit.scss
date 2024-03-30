@@ -80,18 +80,22 @@ body {
   .v-table {
     background: unset;
   }
-    .v-card--variant-outlined {
-      border: thin solid #3c3c3c !important
-    }
+  .v-card--variant-outlined {
+    border: thin solid #3c3c3c !important
+  }
+}
+
+.v-theme--light {
+  .v-card--variant-outlined {
+    border: thin solid #e0e0e0 !important
+  }
 }
 
 .brightness {
   filter: brightness(0.98)
 }
 
-.v-card--variant-outlined {
-  border: thin solid #e0e0e0!important
-}
+
 
 .truncate {
   text-overflow: ellipsis !important;
