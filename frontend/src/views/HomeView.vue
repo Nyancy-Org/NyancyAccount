@@ -57,7 +57,7 @@ const { xs } = useDisplay()
           <v-btn
             prepend-icon="mdi-file-document-outline"
             color="primary"
-            ref="https://github.com/Nyancy-Org/NyancyAccount/wiki"
+            href="https://github.com/Nyancy-Org/NyancyAccount/wiki"
             target="_blank"
             >使用文档</v-btn
           >
