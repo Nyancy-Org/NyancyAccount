@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { indexStore } from '@/stores'
+import { useDisplay } from 'Vuetify'
+
 const { isLogin } = indexStore()
+const { xs } = useDisplay()
 </script>
 
 <template>
@@ -13,7 +16,13 @@ const { isLogin } = indexStore()
             :width="200"
             src="https://s1.imlazy.ink:233/img/%E8%A1%A8%E6%83%85%E5%8C%85/%E7%8C%AB%E7%BE%BD%E9%9B%AB/023.png"
           />
-          <div class="text-h3 text-primary">Nyancy Account</div>
+          <div
+            style="transition: all 0.5s"
+            class="text-primary"
+            :class="xs ? 'text-h4' : 'text-h3'"
+          >
+            Nyancy Account
+          </div>
         </v-card-title>
         <v-card-text>
           <div class="mt-4">
