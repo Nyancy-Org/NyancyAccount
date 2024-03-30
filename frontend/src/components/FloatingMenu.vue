@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { indexStore } from '@/stores'
 import { useTheme } from 'vuetify'
 import { usePreferredDark } from '@vueuse/core'
+import router from '@/router'
 const vFab = ref()
 const theme = useTheme()
 const { appTheme, progressLinear } = indexStore()
@@ -22,6 +23,10 @@ const btns = [
   {
     icon: 'arrow-up',
     click: () => window.scrollTo(0, 0)
+  },
+  {
+    icon: 'home-outline',
+    click: () => router.replace('/')
   },
   {
     icon: 'weather-sunny',
@@ -51,7 +56,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div style="position: fixed; right: 50px; bottom: 50px">
+  <div style="position: fixed; right: 30px; bottom: 50px">
     <v-btn
       ref="vFab"
       size="large"
