@@ -215,6 +215,7 @@ let timer: NodeJS.Timeout
 router.beforeEach((to, from, next) => {
   const { isAdmin } = userStore()
   progressLinear.value += Math.floor(Math.random() * 6) + 1
+  if (timer) clearInterval(timer)
   timer = setInterval(() => {
     progressLinear.value += Math.floor(Math.random() * 6) + 1
     if (progressLinear.value >= 95) {
