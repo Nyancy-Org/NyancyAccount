@@ -10,6 +10,8 @@ const AppConfig = {
     password: '',
     database: '',
   },
+  isReverseProxy: false,
+  isCdn: false,
   smtpConfig: {
     host: '',
     port: 465,

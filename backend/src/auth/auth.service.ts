@@ -286,7 +286,11 @@ export class AuthService {
 
     // 登录成功
     // 记录登录IP
-    const ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
+    const ip = config.isCdn
+      ? (req.headers['x-forwarded-for'] as string).split(',')[0]
+      : config.isReverseProxy
+        ? req.headers['x-real-ip']
+        : req.socket.remoteAddress;
     const loginTime = Date.now().toString();
     await db.query(
       'update user set lastLoginTime=?, lastLoginIp=? where id=?',
