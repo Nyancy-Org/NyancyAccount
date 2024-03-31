@@ -59,7 +59,7 @@ const toLogout = async () => {
             color="red"
             variant="text"
             append-icon="mdi-arrow-right"
-            @click="logout"
+            @click="toLogout"
             :loading="btnLoading"
             >退出登录</v-btn
           >
