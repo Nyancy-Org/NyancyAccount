@@ -77,7 +77,15 @@ const toLogout = async () => {
                 :image="`https://cdn.imlazy.ink:233/avatar/${md5(info?.email || '')}?s=300&r=R&d=`"
                 :size="xs ? '100' : '80%'"
               ></v-avatar>
-              <p class="mt-4 my-3 text-h5">{{ info?.username }}</p>
+              <v-btn
+                v-if="isAdmin() && xs"
+                variant="text"
+                class="mt-4 my-3 text-h5 font-weight-regular d-block"
+                to="/admin/dashboard"
+                color="amber"
+                >{{ info?.username }}</v-btn
+              >
+              <p v-else class="mt-4 my-3 text-h5">{{ info?.username }}</p>
               <div v-if="!xs" class="d-flex flex-wrap justify-center ga-4">
                 <v-btn color="primary" variant="tonal" prepend-icon="mdi-arrow-left" block to="/"
                   >返回首页</v-btn
