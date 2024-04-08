@@ -2,7 +2,12 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { db } from 'src/Service/mysql';
 import bcrypt from 'bcryptjs';
 import type { UserInfo, UpdateType } from './user.interface';
-import { isEmail, uint8ArrayToBase64, validatePassword } from 'src/Utils';
+import {
+  base64ToUint8Array,
+  isEmail,
+  uint8ArrayToBase64,
+  validatePassword,
+} from 'src/Utils';
 import { AuthService as AuthServices } from 'src/auth/auth.service';
 import {
   // Registration
@@ -239,17 +244,15 @@ export class UserService {
   async genRegOpt(session: Record<string, any>) {
     const { data: u } = await this.info_(session.uid);
 
-    // 只能绑定单个验证器，多的懒得搞
-    if (u.authDevice) throw new Error('你已经绑定了外部验证器，无需再次绑定');
-
-    const devices: AuthenticatorDevice[] = [];
+    let devices: AuthenticatorDevice[] = [];
+    if (u.authDevice) devices = JSON.parse(u.authDevice);
 
     const opts: GenerateRegistrationOptionsOpts = {
       rpName: config.webAuthn.rpName,
       rpID: config.webAuthn.rpID,
       userID: String(u.id),
       userName: u.username,
-      timeout: 60000,
+      timeout: 100000,
       attestationType: 'none',
       /**
        * Passing in a user's list of already-registered authenticator IDs here prevents users from
@@ -259,8 +262,8 @@ export class UserService {
        * 在这里传入用户的已注册验证器ID列表可以防止用户多次注册同一设备。
        * 如果在其中一个ID已经存在的情况下，验证器被要求执行注册，那么它只会在浏览器中抛出一个错误。
        */
-      excludeCredentials: devices.map((dev) => ({
-        id: dev.credentialID,
+      excludeCredentials: devices.map((dev: any) => ({
+        id: base64ToUint8Array(dev.credentialID),
         type: 'public-key',
         transports: dev.transports,
       })),
@@ -288,7 +291,10 @@ export class UserService {
 
   // 验证外部验证器
   async vRegOpt(session: Record<string, any>, body: RegistrationResponseJSON) {
-    const devices: AuthenticatorDevice[] = [];
+    const { data: u } = await this.info_(session.uid);
+
+    let devices: AuthenticatorDevice[] = [];
+    if (u.authDevice) devices = JSON.parse(u.authDevice);
 
     let verification: VerifiedRegistrationResponse;
     try {
