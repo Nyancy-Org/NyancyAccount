@@ -36,9 +36,13 @@ const getRegOption = async () => {
     btnLoading.value = false
   }
   btnLoading.value = true
-  await verifyWebAuthnApi(rRes!)
+  try {
+    await verifyWebAuthnApi(rRes!)
+  } finally {
+    btnLoading.value = false
+  }
   showMsg('绑定成功', 'green')
-  btnLoading.value = false
+
   handleOk()
 }
 
