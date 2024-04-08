@@ -308,6 +308,12 @@ export class Oauth2Service {
       [accessToken],
     );
 
+    if (!act)
+      throw new HttpException(
+        { msg: 'access_token 已过期' },
+        HttpStatus.PRECONDITION_FAILED,
+      );
+
     // 目标时间
     const targetTime = new Date(act.expiredAt);
 
