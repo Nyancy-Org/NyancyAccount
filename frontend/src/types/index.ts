@@ -34,6 +34,8 @@ export interface UserInfo {
   lastLoginIp: string
   apikey: string
   verifyToken?: string
+
+  // 管理员获取到的是 string
   authDevice?: {
     credentialID: string
   }[]

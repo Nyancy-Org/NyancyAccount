@@ -159,9 +159,9 @@ const toDelete = async (item: UserInfo) => {
           </template>
           <template v-slot:[`item.authDevice`]="{ item }">
             <v-chip v-if="item.authDevice" color="green" prepend-icon="mdi-shield-lock-outline">
-              已启用
+              已绑定（{{ JSON.parse(item.authDevice as unknown as string).length }}个）
             </v-chip>
-            <v-chip v-else color="red" prepend-icon="mdi-shield-off-outline"> 已关闭 </v-chip>
+            <v-chip v-else color="red" prepend-icon="mdi-shield-off-outline"> 未绑定 </v-chip>
           </template>
           <template v-slot:[`item.operate`]="{ item }">
             <v-btn

@@ -24,8 +24,7 @@ const formData = ref<UserInfo>({
   lastLoginTime: '',
   lastLoginIp: '',
   apikey: '',
-  verifyToken: '',
-  authDevice: ''
+  verifyToken: ''
 })
 const open = ref(false)
 
