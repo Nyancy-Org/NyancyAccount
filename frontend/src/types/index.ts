@@ -34,7 +34,9 @@ export interface UserInfo {
   lastLoginIp: string
   apikey: string
   verifyToken?: string
-  authDevice?: string
+  authDevice?: {
+    credentialID: string
+  }[]
 }
 
 export interface UserInfoRes extends NyaResponse {
