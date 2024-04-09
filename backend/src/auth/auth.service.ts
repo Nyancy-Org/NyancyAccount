@@ -302,7 +302,11 @@ export class AuthService {
     // 删除密码再发送给客户端
     delete u.password;
     delete u.verifyToken;
-    u.authDevice ? (u.authDevice = 'true') : (u.authDevice = null);
+    u.authDevice
+      ? (u.authDevice = JSON.parse(u.authDevice).map((obj: any) => ({
+          credentialID: obj.credentialID,
+        })))
+      : (u.authDevice = null);
 
     session['login'] = true;
     session['uid'] = u.id;

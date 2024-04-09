@@ -41,9 +41,14 @@ export const verifyWebAuthnApi = async (formData: RegistrationResponseJSON) => {
 }
 
 // 删除 外部验证器
-export const deleteWebAuthnApi = async () => {
+export const deleteWebAuthnApi = async (credentialID: string) => {
   const { data }: { data: NyaResponse } = await axios.delete(
-    baseURL + '/deleteRegistration?t_=' + Date.now()
+    baseURL + '/deleteRegistration?t_=' + Date.now(),
+    {
+      data: {
+        credentialID
+      }
+    }
   )
   return data
 }

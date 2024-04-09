@@ -61,8 +61,11 @@ export class UserController {
   // 删除 WebAuthn
   @Delete('deleteRegistration')
   @HttpCode(200)
-  delete_wan(@Session() session: Record<string, any>) {
-    return this.UserService.delete_wan(session);
+  delete_wan(
+    @Session() session: Record<string, any>,
+    @Body() body: { credentialID: string },
+  ) {
+    return this.UserService.delete_wan(session, false, body);
   }
 
   /**

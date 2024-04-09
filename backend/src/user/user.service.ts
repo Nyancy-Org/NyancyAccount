@@ -46,7 +46,11 @@ export class UserService {
     // 删除敏感信息
     delete r.password;
     delete r.verifyToken;
-    r.authDevice ? (r.authDevice = 'true') : (r.authDevice = null);
+    r.authDevice
+      ? (r.authDevice = JSON.parse(r.authDevice).map((obj: any) => ({
+          credentialID: obj.credentialID,
+        })))
+      : (r.authDevice = null);
 
     // 然后再返回
     return {
@@ -123,7 +127,7 @@ export class UserService {
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
 
-    await this.delete_wan(session);
+    await this.delete_wan(session, true);
     return {
       code: HttpStatus.OK,
       msg: '更新用户名成功',
@@ -165,7 +169,7 @@ export class UserService {
       throw new Error('发生了未知错误，请联系网站管理员');
 
     session['email'] = body.email;
-    await this.delete_wan(session);
+    await this.delete_wan(session, true);
     return {
       code: HttpStatus.OK,
       msg: '更新邮箱成功',
@@ -341,10 +345,29 @@ export class UserService {
     };
   }
 
-  // 删除外部验证器
-  async delete_wan(session: Record<string, any>) {
+  // 删除单个外部验证器
+  async delete_wan(
+    session: Record<string, any>,
+    deleteAll = false,
+    body?: { credentialID: string },
+  ) {
+    const { data: u } = await this.info_(session.uid);
+    const devices: AuthenticatorDevice[] = u.authDevice
+      ? JSON.parse(u.authDevice)
+      : [];
+
+    if (devices.length === 0) throw new Error('未绑定任何外部验证器');
+
+    const filterDevices = devices.filter(
+      (a: any) => a.credentialID !== body.credentialID,
+    );
+
     const r = await db.query('update user set authDevice=? where id=?', [
-      null,
+      deleteAll
+        ? null
+        : filterDevices.length === 0
+          ? null
+          : JSON.stringify(filterDevices),
       session.uid,
     ]);
     if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
