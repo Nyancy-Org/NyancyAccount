@@ -629,4 +629,31 @@ export class Oauth2Service {
       time: Date.now(),
     };
   }
+
+  // 重置客户端密钥
+  async resetSecret(session: Record<string, any>, id: string) {
+    // 获取用户ID
+    const uid = session['uid'];
+
+    // 检查id是否为该用户所拥有的
+    const bI: { id: number; userId: number }[] = await db.query(
+      'select id,userId from oauth_clients where id=?',
+      [id],
+    );
+
+    const areAllUidsEqual = bI.every((item) => item.userId === uid);
+
+    if (!areAllUidsEqual) throw new Error('你无权修改该应用');
+
+    const r = await db.query('update oauth_clients set secret=? where id=?', [
+      randomString(40),
+      id,
+    ]);
+    if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
+    return {
+      code: 200,
+      msg: '更新成功',
+      time: Date.now(),
+    };
+  }
 }

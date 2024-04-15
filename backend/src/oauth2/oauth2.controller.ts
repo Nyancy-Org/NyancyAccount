@@ -130,6 +130,17 @@ export class Oauth2Controller {
     return await this.Oauth2Service.delMyClient(session, body);
   }
 
+  // 重置oauth2应用密钥
+  @Put('user/client/reset/:id')
+  @UseGuards(CheckAuthGuard)
+  @HttpCode(200)
+  async resetKey(
+    @Session() session: Record<string, any>,
+    @Param() params: { id: string },
+  ) {
+    return await this.Oauth2Service.resetSecret(session, params.id);
+  }
+
   /**
    * 管理员接口
    */

@@ -112,3 +112,9 @@ export const delOAuth2AppApi = async (formData: OAuth2ClientInfo) => {
   )
   return data
 }
+
+// 重置 OAuth2 应用密钥
+export const resetOAuth2SecretApi = async (formData: AdminEditOauthClient) => {
+  const { data }: { data: NyaResponse } = await axios.put(`${userURL}/client/reset/${formData.id}`)
+  return data
+}

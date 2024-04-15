@@ -5,6 +5,7 @@ import { getMyOAuth2AppsApi, delMyOAuth2AppApi } from '@/apis/oauth2'
 import CopyTool from '@/components/CopyTool.vue'
 import oOauth2 from './dialog/oOauth2.vue'
 import { indexStore } from '@/stores'
+import { resetOAuth2SecretApi } from '@/apis/oauth2'
 
 const { showMsg, openConfirmDialog } = indexStore()
 const serverItems = ref<OAuth2ClientInfo[]>([])
@@ -23,6 +24,15 @@ const toDelete = async (item: OAuth2ClientInfo) => {
   if (!flag) return
   cardLoading.value = true
   const { msg } = await delMyOAuth2AppApi(item)
+  await getAppList()
+  return showMsg(msg, 'green')
+}
+
+const toResetSecret = async (item: OAuth2ClientInfo) => {
+  const flag = await openConfirmDialog('警告', '是否重置此应用的密钥？')
+  if (!flag) return
+  cardLoading.value = true
+  const { msg } = await resetOAuth2SecretApi(item)
   await getAppList()
   return showMsg(msg, 'green')
 }
@@ -69,6 +79,17 @@ onMounted(async () => {
                     >
                   </template>
                 </CopyTool>
+                <v-tooltip text="重置密钥" location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <v-icon
+                      v-bind="props"
+                      icon="mdi-lock-reset"
+                      color="warning"
+                      class="ml-2"
+                      @click="toResetSecret(item)"
+                    ></v-icon>
+                  </template>
+                </v-tooltip>
               </v-col>
               <v-col cols="12" sm="12" md="6">
                 <p class="text-subtitle-1 font-weight-medium">回调 Url</p>
