@@ -541,7 +541,7 @@ export class Oauth2Service {
     sortDesc: string,
     search: string,
   ) {
-    const totalCount = await db.query(
+    let totalCount = await db.query(
       'SELECT COUNT(*) as count FROM oauth_clients',
     );
     if (pageSize == -1) {
@@ -558,7 +558,7 @@ export class Oauth2Service {
       };
     }
     const offset = (page - 1) * pageSize;
-    const totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
+    let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
     const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
@@ -571,7 +571,12 @@ export class Oauth2Service {
 
     // 构建搜索条件
     if (search) {
-      query += ` WHERE id LIKE '%${search}%' OR userId LIKE '%${search}%' OR name LIKE '%${search}%' OR secret LIKE '%${search}%' OR redirect LIKE '%${search}%' OR createdAt LIKE '%${search}%' OR updatedAt LIKE '%${search}%'`;
+      const s = ` WHERE id LIKE '%${search}%' OR userId LIKE '%${search}%' OR name LIKE '%${search}%' OR secret LIKE '%${search}%' OR redirect LIKE '%${search}%' OR createdAt LIKE '%${search}%' OR updatedAt LIKE '%${search}%'`;
+      query += s;
+      totalCount = await db.query(
+        `SELECT COUNT(*) as count FROM oauth_clients${s}`,
+      );
+      totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
     }
 
     // 构建排序条件

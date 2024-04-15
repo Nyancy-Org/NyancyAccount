@@ -404,7 +404,7 @@ export class UserService {
     sortDesc: string,
     search: string,
   ) {
-    const totalCount = await db.query('SELECT COUNT(*) as count FROM user');
+    let totalCount = await db.query('SELECT COUNT(*) as count FROM user');
     if (pageSize == -1) {
       const r: UserInfo[] = await db.query('select * from user');
       return {
@@ -419,7 +419,7 @@ export class UserService {
       };
     }
     const offset = (page - 1) * pageSize;
-    const totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
+    let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
     const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
@@ -432,7 +432,10 @@ export class UserService {
 
     // 构建搜索条件
     if (search) {
-      query += ` WHERE id LIKE '%${search}%' OR username LIKE '%${search}%' OR status LIKE '%${search}%' OR role LIKE '%${search}%' OR email LIKE '%${search}%' OR apikey LIKE '%${search}%'`;
+      const s = ` WHERE id LIKE '%${search}%' OR username LIKE '%${search}%' OR status LIKE '%${search}%' OR role LIKE '%${search}%' OR email LIKE '%${search}%' OR apikey LIKE '%${search}%'`;
+      query += s;
+      totalCount = await db.query(`SELECT COUNT(*) as count FROM user${s}`);
+      totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
     }
 
     // 构建排序条件
