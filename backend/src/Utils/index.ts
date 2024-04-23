@@ -103,3 +103,28 @@ export const uint8ArrayToBase64 = (u8: Uint8Array) => {
   bytes.forEach((b: any) => (binary += String.fromCharCode(b)));
   return btoa(binary);
 };
+
+export const validateSearchQuery = (_page: string, _pageSize: string) => {
+  if (
+    !_page ||
+    _page === '0' ||
+    !_pageSize ||
+    _pageSize === '0' ||
+    isNaN(Number(_page)) ||
+    isNaN(Number(_pageSize)) ||
+    Number(_page) <= 0 ||
+    Number(_pageSize) < -2 ||
+    Number(_pageSize) === 0
+  )
+    throw new HttpException(
+      {
+        msg: '参数有误',
+      },
+      HttpStatus.EXPECTATION_FAILED,
+    );
+
+  return {
+    page: Number(_page),
+    pageSize: Number(_pageSize),
+  };
+};

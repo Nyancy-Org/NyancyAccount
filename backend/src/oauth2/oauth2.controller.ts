@@ -150,8 +150,8 @@ export class Oauth2Controller {
   @UseGuards(isAdmin)
   @HttpCode(200)
   async clients(
-    @Query('page') page = 1,
-    @Query('pageSize') pageSize = 10,
+    @Query('page') page = '1',
+    @Query('pageSize') pageSize = '10',
     @Query('sortBy') sortBy: string,
     @Query('sortDesc') sortDesc: string,
     @Query('search') search: string,

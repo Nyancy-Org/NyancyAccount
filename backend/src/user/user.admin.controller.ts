@@ -1,7 +1,5 @@
 import {
   Controller,
-  HttpException,
-  HttpStatus,
   HttpCode,
   UseGuards,
   Param,
@@ -30,19 +28,12 @@ export class UserAdminController extends UserController {
   @Get('list')
   @HttpCode(200)
   list(
-    @Query('page') page = 1,
-    @Query('pageSize') pageSize = 10,
+    @Query('page') page = '1',
+    @Query('pageSize') pageSize = '10',
     @Query('sortBy') sortBy: string,
     @Query('sortDesc') sortDesc: string,
     @Query('search') search: string,
   ) {
-    if (!page || !pageSize)
-      throw new HttpException(
-        {
-          msg: '参数有误',
-        },
-        HttpStatus.EXPECTATION_FAILED,
-      );
     return this.UserAdminService.list(page, pageSize, sortBy, sortDesc, search);
   }
 

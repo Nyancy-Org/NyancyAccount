@@ -3,17 +3,20 @@ import { db } from 'src/Service/mysql';
 import bcrypt from 'bcryptjs';
 import type { LoginIP, UserInfo } from './user.interface';
 import { UserService } from './user.service';
+import { validateSearchQuery } from 'src/Utils';
 
 @Injectable()
 export class UserAdminService extends UserService {
   // 用户列表
   async list(
-    page: number,
-    pageSize: number,
+    page_: string,
+    pageSize_: string,
     sortBy: string,
     sortDesc: string,
     search: string,
   ) {
+    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+
     let totalCount = await db.query('SELECT COUNT(*) as count FROM user');
     if (pageSize == -1) {
       const r: UserInfo[] = await db.query('select * from user');
@@ -28,7 +31,7 @@ export class UserAdminService extends UserService {
         },
       };
     }
-    const offset = (page - 1) * pageSize;
+
     let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
@@ -47,6 +50,9 @@ export class UserAdminService extends UserService {
       totalCount = await db.query(`SELECT COUNT(*) as count FROM user${s}`);
       totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
     }
+
+    if (totalPages !== 0 && page > totalPages) throw new Error('超出页数');
+    const offset = (page - 1) * pageSize;
 
     // 构建排序条件
     query += ` ORDER BY ${sortBy} ${sortOrder}`;
@@ -166,7 +172,7 @@ export class UserAdminService extends UserService {
     sortDesc: string,
     search: string,
   ) {
-    const { page, pageSize } = this.validateSearchQuery(page_, pageSize_);
+    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
 
     let totalCount = await db.query('SELECT COUNT(*) as count FROM user_ip ');
 

@@ -1,6 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { db } from 'src/Service/mysql';
-import { isSafeData, objIsEmpty, randomString } from 'src/Utils';
+import {
+  isSafeData,
+  objIsEmpty,
+  randomString,
+  validateSearchQuery,
+} from 'src/Utils';
 import type {
   CodeInfo,
   OauthBody,
@@ -534,15 +539,18 @@ export class Oauth2Service {
    */
   // 获取所有oauth2应用
   async allClients(
-    page: number,
-    pageSize: number,
+    page_: string,
+    pageSize_: string,
     sortBy: string,
     sortDesc: string,
     search: string,
   ) {
+    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+
     let totalCount = await db.query(
       'SELECT COUNT(*) as count FROM oauth_clients',
     );
+
     if (pageSize == -1) {
       const r = await db.query('select * from oauth_clients');
       return {
@@ -556,7 +564,7 @@ export class Oauth2Service {
         },
       };
     }
-    const offset = (page - 1) * pageSize;
+
     let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
@@ -577,6 +585,9 @@ export class Oauth2Service {
       );
       totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
     }
+
+    if (totalPages !== 0 && page > totalPages) throw new Error('超出页数');
+    const offset = (page - 1) * pageSize;
 
     // 构建排序条件
     query += ` ORDER BY ${sortBy} ${sortOrder}`;

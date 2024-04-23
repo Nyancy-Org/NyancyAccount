@@ -7,6 +7,7 @@ import {
   isEmail,
   uint8ArrayToBase64,
   validatePassword,
+  validateSearchQuery,
 } from 'src/Utils';
 import { AuthService as AuthServices } from 'src/auth/auth.service';
 import {
@@ -388,7 +389,7 @@ export class UserService {
     sortDesc: string,
     search: string,
   ) {
-    const { page, pageSize } = this.validateSearchQuery(page_, pageSize_);
+    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
 
     let totalCount = await db.query(
       'SELECT COUNT(*) as count FROM user_ip where uid=?',
@@ -499,31 +500,5 @@ export class UserService {
       r += c.charAt(Math.floor(Math.random() * cL));
     }
     return r;
-  }
-
-  // 校验搜索参数
-  validateSearchQuery(_page: string, _pageSize: string) {
-    if (
-      !_page ||
-      _page === '0' ||
-      !_pageSize ||
-      _pageSize === '0' ||
-      isNaN(Number(_page)) ||
-      isNaN(Number(_pageSize)) ||
-      Number(_page) <= 0 ||
-      Number(_pageSize) < -2 ||
-      Number(_pageSize) === 0
-    )
-      throw new HttpException(
-        {
-          msg: '参数有误',
-        },
-        HttpStatus.EXPECTATION_FAILED,
-      );
-
-    return {
-      page: Number(_page),
-      pageSize: Number(_pageSize),
-    };
   }
 }
