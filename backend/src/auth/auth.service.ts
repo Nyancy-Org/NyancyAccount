@@ -24,6 +24,7 @@ import type {
 } from '@simplewebauthn/types';
 import config from 'src/Service/config';
 import { City } from 'ipip-ipdb';
+import useragent from 'express-useragent';
 
 @Injectable()
 export class AuthService {
@@ -590,10 +591,12 @@ export class AuthService {
       const i = c.findInfo(ip, 'CN');
       city = this.parseCity(i);
     }
+    const ua = useragent.parse(req.headers['user-agent']);
+    const device = `${ua.os} / ${ua.browser} ${ua.version}`;
 
     await db.query(
-      'insert into user_ip (uid,ip,location,time) values(?,?,?,?)',
-      [u.id, ip, city, loginTime],
+      'insert into user_ip (uid,ip,location,device,time) values(?,?,?,?,?)',
+      [u.id, ip, city, device, loginTime],
     );
 
     return {

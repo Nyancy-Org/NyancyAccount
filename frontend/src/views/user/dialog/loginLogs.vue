@@ -19,6 +19,7 @@ const headers = ref([
   { key: 'id', title: 'ID', order: 'desc' },
   { key: 'ip', title: 'IP 地址' },
   { key: 'location', title: '位置' },
+  { key: 'device', title: '设备' },
   { key: 'time', title: '登录时间' }
 ])
 
