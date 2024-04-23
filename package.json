@@ -1,9 +1,0 @@
-{
-	"dependencies": {
-		"express-useragent": "^1.0.15",
-		"ipip-ipdb": "^0.6.0"
-	},
-	"devDependencies": {
-		"@types/express-useragent": "^1.0.5"
-	}
-}
