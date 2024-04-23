@@ -1,4 +1,4 @@
-import { LoginForm, NyaResponse, PublicKeyORes, RegForm, UserInfoRes } from '@/types'
+import { LoginForm, NyaResponse, PublicKeyORes, RegForm, UserInfo, UserInfoRes } from '@/types'
 import { axios } from '@/utils/request'
 import { AxiosError } from 'axios'
 import { AuthenticationResponseJSON } from '@simplewebauthn/types'
@@ -11,10 +11,16 @@ export type MailLinkType = 'resetPwd'
 
 // 登录
 export const loginApi = async (formData: LoginForm) => {
-  const { data }: { data: UserInfoRes } = await axios.post(
-    baseURL + '/login?t_=' + Date.now(),
-    formData
-  )
+  const {
+    data
+  }: {
+    data: UserInfoRes & {
+      data: UserInfo & {
+        lastLoginIp: string
+        lastLoginTime: Date
+      }
+    }
+  } = await axios.post(baseURL + '/login?t_=' + Date.now(), formData)
   return data
 }
 
