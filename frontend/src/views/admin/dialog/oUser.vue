@@ -21,8 +21,6 @@ const formData = ref<UserInfo>({
   role: '',
   email: '',
   regTime: '',
-  lastLoginTime: '',
-  lastLoginIp: '',
   apikey: '',
   verifyToken: ''
 })

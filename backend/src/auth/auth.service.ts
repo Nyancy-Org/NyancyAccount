@@ -286,19 +286,8 @@ export class AuthService {
 
     // 登录成功
     // 记录登录IP
-    const ip = config.isCdn
-      ? (req.headers['x-forwarded-for'] as string).split(',')[0]
-      : config.isReverseProxy
-        ? req.headers['x-real-ip']
-        : req.socket.remoteAddress;
-    const loginTime = Date.now().toString();
-    await db.query(
-      'update user set lastLoginTime=?, lastLoginIp=? where id=?',
-      [loginTime, ip, u.id],
-    );
+    const { ip, loginTime } = await this.recordLoginIP(req, u);
 
-    u.lastLoginIp = ip as string;
-    u.lastLoginTime = loginTime;
     // 删除密码再发送给客户端
     delete u.password;
     delete u.verifyToken;
@@ -316,7 +305,11 @@ export class AuthService {
       code: HttpStatus.OK,
       msg: '登录成功',
       time: Date.now(),
-      data: u,
+      data: {
+        ...u,
+        lastLoginIp: ip,
+        lastLoginTime: loginTime,
+      },
     };
   }
 
@@ -565,5 +558,25 @@ export class AuthService {
     } else {
       return true;
     }
+  }
+
+  // 记录登录IP
+  async recordLoginIP(req: Request, u: UserInfo) {
+    const ip = config.isCdn
+      ? (req.headers['x-forwarded-for'] as string).split(',')[0]
+      : config.isReverseProxy
+        ? req.headers['x-real-ip']
+        : req.socket.remoteAddress;
+    const loginTime = new Date();
+    await db.query('insert into user_ip (uid,ip,time) values(?,?,?)', [
+      u.id,
+      ip,
+      loginTime,
+    ]);
+
+    return {
+      ip,
+      loginTime,
+    };
   }
 }

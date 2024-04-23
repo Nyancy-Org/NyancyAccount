@@ -341,7 +341,6 @@ export class Oauth2Service {
     delete r[0].password;
     delete r[0].verifyToken;
     delete r[0].apikey;
-    delete r[0].lastLoginIp;
     delete r[0].authDevice;
     return {
       code: 200,

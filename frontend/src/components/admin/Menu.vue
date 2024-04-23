@@ -25,6 +25,12 @@ const menus = [
     to: '/admin/oauth2'
   },
   {
+    title: '登录日志',
+    icon: 'script-text-key-outline',
+    color: 'purple',
+    to: '/admin/loginLogs'
+  },
+  {
     title: '站点配置',
     icon: 'cog-outline',
     color: 'blue-grey',

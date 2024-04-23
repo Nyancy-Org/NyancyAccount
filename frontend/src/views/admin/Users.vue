@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { indexStore } from '@/stores'
 import { getUserListApi, delUserApi } from '@/apis/user'
 import _ from 'lodash'
-import { UserInfo, UserStatus } from '@/types'
+import { type UserInfo, UserStatus } from '@/types'
 import { userStatus } from '@/types/const'
 import CopyTool from '@/components/CopyTool.vue'
 import oUser from './dialog/oUser.vue'
@@ -20,8 +20,6 @@ const headers = ref([
   { key: 'role', title: '权限组', width: '100px' },
   { key: 'status', title: '状态', width: '100px' },
   { key: 'regTime', title: '注册时间', width: '120px' },
-  { key: 'lastLoginTime', title: '上次登录', width: '120px' },
-  { key: 'lastLoginIp', title: '最后登录IP' },
   { key: 'authDevice', title: '外部验证器', width: '130px' },
   { key: 'operate', title: '操作', sortable: false }
 ])
@@ -32,7 +30,7 @@ const currentPage = ref(1)
 const _sortBy = ref<Array<{ key: string; order: string }>>([{ key: 'id', order: 'asc' }])
 const loading = ref(false)
 
-// 获取统计数据
+// 获取数据
 const loadItems = _.throttle(
   async ({
     page,
@@ -146,16 +144,6 @@ const toDelete = async (item: UserInfo) => {
           </template>
           <template v-slot:[`item.regTime`]="{ item }">
             {{ new Date(Number(item.regTime)).toLocaleString() }}
-          </template>
-          <template v-slot:[`item.lastLoginTime`]="{ item }">
-            {{ new Date(Number(item.lastLoginTime)).toLocaleString() }}
-          </template>
-          <template v-slot:[`item.lastLoginIp`]="{ item }">
-            <CopyTool :text="item.lastLoginIp">
-              <template #default="{ copy, style, act }">
-                <span v-bind="act" @click="copy" :style="style">{{ item.lastLoginIp }}</span>
-              </template>
-            </CopyTool>
           </template>
           <template v-slot:[`item.authDevice`]="{ item }">
             <v-chip v-if="item.authDevice" color="green" prepend-icon="mdi-shield-lock-outline">

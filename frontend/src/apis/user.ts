@@ -1,4 +1,4 @@
-import { NyaResponse, PublicKeyORes, UserInfo, UserInfoRes, UserListRes } from '@/types'
+import { LoginIPRes, NyaResponse, PublicKeyORes, UserInfo, UserInfoRes, UserListRes } from '@/types'
 import { axios } from '@/utils/request'
 import { RegistrationResponseJSON } from '@simplewebauthn/types'
 
@@ -7,7 +7,16 @@ const baseURL = '/user'
 
 // 个人信息
 export const getUserInfoApi = async () => {
-  const { data }: { data: UserInfoRes } = await axios.get(baseURL + '/info?t_=' + Date.now())
+  const {
+    data
+  }: {
+    data: UserInfoRes & {
+      data: {
+        lastLoginIp: string
+        lastLoginTime: Date
+      }
+    }
+  } = await axios.get(baseURL + '/info?t_=' + Date.now())
   return data
 }
 
@@ -84,6 +93,28 @@ export const delUserApi = async (formData: UserInfo) => {
   const { data }: { data: NyaResponse } = await axios.delete(baseURL + '/?t_=' + Date.now(), {
     data: {
       id: formData.id
+    }
+  })
+  return data
+}
+
+// 登录日志（普通用户）
+export const getUserLoginLogsApi = async (
+  isAdmin = false,
+  page: number,
+  pageSize: number,
+  sortBy: string,
+  sortDesc: boolean,
+  search?: string
+) => {
+  const url = isAdmin ? '/admin/loginLogs' : '/loginLogs'
+  const { data }: { data: LoginIPRes } = await axios.get(baseURL + url + '?t_=' + Date.now(), {
+    params: {
+      page,
+      pageSize,
+      sortBy,
+      sortDesc,
+      search
     }
   })
   return data

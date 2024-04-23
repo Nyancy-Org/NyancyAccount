@@ -30,8 +30,6 @@ export interface UserInfo {
   role: string
   email: string
   regTime: string
-  lastLoginTime: string
-  lastLoginIp: string
   apikey: string
   verifyToken?: string
 
@@ -126,4 +124,19 @@ export interface SiteOptions {
 
 export interface SiteOptionsRes extends NyaResponse {
   data: SiteOptions[]
+}
+
+export interface LoginIP {
+  id: number
+  uid: number
+  ip: string
+  time: Date
+}
+
+export interface LoginIPRes extends NyaResponse {
+  data: {
+    totalCount: number
+    totalPages: number
+    records: LoginIP[]
+  }
 }

@@ -8,7 +8,12 @@ import { indexStore } from '.'
 const { isLogin } = indexStore()
 
 export const userStore = defineStore('userStore', () => {
-  const info = ref<UserInfo>()
+  const info = ref<
+    UserInfo & {
+      lastLoginIp: string
+      lastLoginTime: Date
+    }
+  >()
 
   const isAdmin = () => info.value?.role === 'admin'
 

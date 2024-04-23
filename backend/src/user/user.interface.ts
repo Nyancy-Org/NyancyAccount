@@ -6,11 +6,16 @@ export interface UserInfo {
   role: string;
   email: string;
   regTime: string;
-  lastLoginTime: string;
-  lastLoginIp: string;
   apikey: string;
   verifyToken?: string;
   authDevice?: string;
 }
 
 export type UpdateType = 'name' | 'email' | 'password' | 'apikey';
+
+export interface LoginIP {
+  id: number;
+  uid: number;
+  ip: string;
+  time: Date;
+}

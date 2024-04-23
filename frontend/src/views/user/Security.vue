@@ -4,15 +4,17 @@ import { arrayFilter } from '@/utils'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 
 // dialogs
-import changeUName from './dialog/changeUName.vue'
-import changeEmail from './dialog/changeEmail.vue'
-import changePwd from './dialog/changePwd.vue'
-import bindAN from './dialog/bindAN.vue'
+import ChangeUName from './dialog/changeUName.vue'
+import ChangeEmail from './dialog/changeEmail.vue'
+import ChangePwd from './dialog/changePwd.vue'
+import BindAN from './dialog/bindAN.vue'
+import LoginLogs from './dialog/loginLogs.vue'
 
-const changeUNameDialog = ref<InstanceType<typeof changeUName>>()
-const changeEmailDialog = ref<InstanceType<typeof changeEmail>>()
-const changePwdDialog = ref<InstanceType<typeof changePwd>>()
-const bindANDialog = ref<InstanceType<typeof bindAN>>()
+const changeUNameDialog = ref<InstanceType<typeof ChangeUName>>()
+const changeEmailDialog = ref<InstanceType<typeof ChangeEmail>>()
+const changePwdDialog = ref<InstanceType<typeof ChangePwd>>()
+const bindANDialog = ref<InstanceType<typeof BindAN>>()
+const LoginLogsDialog = ref<InstanceType<typeof LoginLogs>>()
 
 const btns = arrayFilter([
   {
@@ -39,6 +41,12 @@ const btns = arrayFilter([
     color: '',
     click: () => bindANDialog.value?.openDialog(),
     condition: () => browserSupportsWebAuthn()
+  },
+  {
+    title: '登录日志',
+    icon: 'script-text-key-outline',
+    color: '',
+    click: () => LoginLogsDialog.value?.openDialog()
   }
 ])
 </script>
@@ -65,9 +73,10 @@ const btns = arrayFilter([
       </v-list>
     </v-card-text>
 
-    <changeUName ref="changeUNameDialog" />
-    <changeEmail ref="changeEmailDialog" />
-    <changePwd ref="changePwdDialog" />
-    <bindAN ref="bindANDialog" />
+    <ChangeUName ref="changeUNameDialog" />
+    <ChangeEmail ref="changeEmailDialog" />
+    <ChangePwd ref="changePwdDialog" />
+    <BindAN ref="bindANDialog" />
+    <LoginLogs ref="LoginLogsDialog" />
   </div>
 </template>

@@ -177,6 +177,14 @@ const router = createRouter({
           component: () => import('../views/admin/OAuth2.vue')
         },
         {
+          path: 'loginLogs',
+          name: 'AllLoginLogs',
+          meta: {
+            title: '登录日志'
+          },
+          component: () => import('../views/admin/LoginLogs.vue')
+        },
+        {
           path: 'site',
           name: 'site',
           meta: {

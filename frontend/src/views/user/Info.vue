@@ -30,7 +30,7 @@ const uInfo = [
   },
   {
     title: '最后登录',
-    value: new Date(Number(info?.lastLoginTime) ?? 0).toLocaleString()
+    value: new Date(info?.lastLoginTime ?? 0).toLocaleString()
   }
 ]
 </script>
