@@ -56,6 +56,7 @@ const loadItems = _.throttle(
     } catch (err: any) {
       loading.value = false
       console.error(err)
+      showMsg(err.message, 'red')
     }
   },
   1000
@@ -93,7 +94,7 @@ const toDelete = async (item: OAuth2ClientInfo) => {
           density="compact"
           append-inner-icon="mdi-magnify"
           hide-details
-          :disabled="search.length === 0 && loading"
+          :disabled="!!search && search.length === 0 && loading"
         ></v-text-field>
         <v-btn
           @click="refreshItems"
