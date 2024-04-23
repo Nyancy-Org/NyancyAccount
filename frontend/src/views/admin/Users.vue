@@ -5,7 +5,6 @@ import { getUserListApi, delUserApi } from '@/apis/user'
 import _ from 'lodash'
 import { type UserInfo, UserStatus } from '@/types'
 import { userStatus } from '@/types/const'
-import CopyTool from '@/components/CopyTool.vue'
 import oUser from './dialog/oUser.vue'
 
 const oUserDialog = ref<InstanceType<typeof oUser>>()

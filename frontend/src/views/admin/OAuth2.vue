@@ -4,7 +4,6 @@ import { indexStore } from '@/stores'
 import { getOAuth2AppsApi, delOAuth2AppApi } from '@/apis/oauth2'
 import _ from 'lodash'
 import { OAuth2ClientInfo } from '@/types'
-import CopyTool from '@/components/CopyTool.vue'
 import oOauth2 from './dialog/oOauth2.vue'
 
 const oOauth2Dialog = ref<InstanceType<typeof oOauth2>>()

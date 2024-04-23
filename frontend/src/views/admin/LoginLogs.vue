@@ -4,7 +4,6 @@ import { indexStore } from '@/stores'
 import { getUserLoginLogsApi } from '@/apis/user'
 import _ from 'lodash'
 import type { LoginIP } from '@/types'
-import CopyTool from '@/components/CopyTool.vue'
 
 const { showMsg } = indexStore()
 

@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { OAuth2ClientInfo } from '@/types'
 import { getMyOAuth2AppsApi, delMyOAuth2AppApi } from '@/apis/oauth2'
-import CopyTool from '@/components/CopyTool.vue'
 import oOauth2 from './dialog/oOauth2.vue'
 import { indexStore } from '@/stores'
 import { resetOAuth2SecretApi } from '@/apis/oauth2'
