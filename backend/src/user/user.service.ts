@@ -398,7 +398,7 @@ export class UserService {
 
     if (pageSize == -1) {
       const r: Omit<LoginIP, 'uid'>[] = await db.query(
-        'select id,ip,time FROM user_ip where uid=?',
+        'select id,ip,location,time FROM user_ip where uid=?',
         [session['uid']],
       );
       return {
@@ -422,14 +422,16 @@ export class UserService {
     sortBy = sortBy ? sortBy : 'id';
 
     // 查询语句
-    let query = `SELECT id,ip,time FROM user_ip`;
+    let query = `SELECT id,ip,location,time FROM user_ip`;
 
     // 构建搜索条件
     if (search) {
-      const s = ` WHERE id LIKE '%${search}%' OR ip LIKE '%${search}%' OR time LIKE '%${search}%' AND uid = '${session['uid']}'`;
+      const s = ` WHERE id LIKE '%${search}%' OR ip LIKE '%${search}%' OR location LIKE '%${search}%' OR time LIKE '%${search}%'`;
       query += s;
       totalCount = await db.query(`SELECT COUNT(*) as count FROM user_ip${s}`);
       totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
+    } else {
+      query += ` WHERE uid = '${session['uid']}'`;
     }
 
     if (totalPages !== 0 && page > totalPages) throw new Error('超出页数');

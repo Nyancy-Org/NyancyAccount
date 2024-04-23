@@ -26,6 +26,10 @@ const AppConfig = {
     rpID: '网站域名，例如 example.com',
     expectedOrigin: '完整的前端网页url，例如 http://example.com:8080',
   },
+  ipip: {
+    enable: false,
+    dbPath: './ipipfree.ipdb',
+  },
 };
 
 export default (() => {

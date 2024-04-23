@@ -203,7 +203,7 @@ export class UserAdminService extends UserService {
 
     // 构建搜索条件
     if (search) {
-      const s = ` WHERE id LIKE '%${search}%' OR uid LIKE '%${search}%' OR ip LIKE '%${search}%' OR time LIKE '%${search}%'`;
+      const s = ` WHERE id LIKE '%${search}%' OR uid LIKE '%${search}%' OR ip LIKE '%${search}%' OR location LIKE '%${search}%' OR time LIKE '%${search}%'`;
       query += s;
       totalCount = await db.query(`SELECT COUNT(*) as count FROM user_ip${s}`);
       totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);

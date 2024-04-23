@@ -23,6 +23,7 @@ import type {
   AuthenticationResponseJSON,
 } from '@simplewebauthn/types';
 import config from 'src/Service/config';
+import { City } from 'ipip-ipdb';
 
 @Injectable()
 export class AuthService {
@@ -560,6 +561,17 @@ export class AuthService {
     }
   }
 
+  parseCity(info: Record<string, string>) {
+    const l = [];
+
+    l.push(info.countryName);
+
+    if (info.regionName !== info.countryName) l.push(info.regionName);
+    if (info.cityName) l.push(info.cityName);
+
+    return l.join('-');
+  }
+
   // 记录登录IP
   async recordLoginIP(req: Request, u: UserInfo) {
     const ip = config.isCdn
@@ -568,11 +580,21 @@ export class AuthService {
         ? req.headers['x-real-ip']
         : req.socket.remoteAddress;
     const loginTime = new Date();
-    await db.query('insert into user_ip (uid,ip,time) values(?,?,?)', [
-      u.id,
-      ip,
-      loginTime,
-    ]);
+
+    let city;
+
+    if (!config.ipip.enable || ip.includes(':')) {
+      city = 'Unknown';
+    } else {
+      const c = new City(config.ipip.dbPath);
+      const i = c.findInfo(ip, 'CN');
+      city = this.parseCity(i);
+    }
+
+    await db.query(
+      'insert into user_ip (uid,ip,location,time) values(?,?,?,?)',
+      [u.id, ip, city, loginTime],
+    );
 
     return {
       ip,

@@ -3,14 +3,15 @@ import { ref } from 'vue'
 import { indexStore } from '@/stores'
 import { getUserLoginLogsApi } from '@/apis/user'
 import _ from 'lodash'
-import type { LoginIP } from '@/types'
+import type { LoginIP, SortItem } from '@/types'
 
 const { showMsg } = indexStore()
 
 const headers = ref([
-  { key: 'id', title: 'ID' },
+  { key: 'id', title: 'ID', order: 'desc' },
   { key: 'uid', title: '用户 ID' },
   { key: 'ip', title: 'IP 地址' },
+  { key: 'location', title: '位置' },
   { key: 'time', title: '登录时间' }
 ])
 
@@ -19,7 +20,8 @@ const totalItems = ref(10)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const search = ref('')
-const _sortBy = ref<Array<{ key: string; order: string }>>([{ key: 'id', order: 'asc' }])
+const _sortBy = ref<SortItem[]>([{ key: 'id', order: 'desc' }])
+// const _sortBy = ref<Array<{ key: string; order: string }>>([{ key: 'id', order: 'desc' }])
 const loading = ref(false)
 
 // 获取数据
@@ -31,7 +33,7 @@ const loadItems = _.throttle(
   }: {
     page: number
     itemsPerPage: number
-    sortBy: Array<{ key: string; order: string }>
+    sortBy: SortItem[]
   }) => {
     try {
       loading.value = true
@@ -96,6 +98,7 @@ const refreshItems = () =>
     <v-card class="mt-5" variant="outlined">
       <v-card-text>
         <v-data-table-server
+          v-model:sort-by="_sortBy"
           v-model:items-per-page="itemsPerPage"
           :headers="headers"
           :items-length="totalItems"

@@ -17,5 +17,6 @@ export interface LoginIP {
   id: number;
   uid: number;
   ip: string;
+  location: string;
   time: Date;
 }
