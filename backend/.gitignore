@@ -35,3 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 yarn.lock
 config.json
+
+ipipfree.ipdb
