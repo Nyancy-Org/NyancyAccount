@@ -4,7 +4,7 @@ import { indexStore } from '@/stores'
 import _ from 'lodash'
 import { getUserLoginLogsApi } from '@/apis/user'
 import type { LoginIP, SortItem } from '@/types'
-import { useDisplay } from 'Vuetify'
+import { useDisplay } from 'vuetify'
 
 const open = ref(false)
 const openDialog = () => {

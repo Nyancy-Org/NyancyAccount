@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { indexStore } from '@/stores'
-import { useDisplay } from 'Vuetify'
+import { useDisplay } from 'vuetify'
 
 const { isLogin } = indexStore()
 const { xs } = useDisplay()
