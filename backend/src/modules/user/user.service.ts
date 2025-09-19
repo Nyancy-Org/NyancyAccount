@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { db } from 'src/Service/mysql';
+import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import type { UserInfo, UpdateType, LoginIP } from './user.interface';
 import {
@@ -24,7 +24,7 @@ import type {
   AuthenticatorDevice,
   RegistrationResponseJSON,
 } from '@simplewebauthn/types';
-import config from 'src/Service/config';
+import config from 'src/services/config';
 
 @Injectable()
 export class UserService {

@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 import { logger } from './Utils/log';
-import config from './Service/config';
+import config from './services/config';
 
 import { GlobalHeaders } from './middlewares/protocol';
 import { GlobalExceptionFilter } from './middlewares/exceptionFilter';

@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { db } from 'src/Service/mysql';
+import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import { timeUuid } from 'src/Utils/uuid';
 import { logger } from 'src/Utils/log';
@@ -22,7 +22,7 @@ import type {
   AuthenticatorDevice,
   AuthenticationResponseJSON,
 } from '@simplewebauthn/types';
-import config from 'src/Service/config';
+import config from 'src/services/config';
 import { City } from 'ipip-ipdb';
 import useragent from 'express-useragent';
 

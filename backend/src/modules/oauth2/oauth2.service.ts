@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { db } from 'src/Service/mysql';
+import { db } from 'src/services/mysql';
 import {
   isSafeData,
   objIsEmpty,

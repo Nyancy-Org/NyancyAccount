@@ -1,5 +1,5 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
-import { db } from 'src/Service/mysql';
+import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import type { LoginIP, UserInfo } from './user.interface';
 import { UserService } from './user.service';

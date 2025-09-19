@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { logger } from 'src/Utils/log';
-import { db } from 'src/Service/mysql';
-import config from 'src/Service/config';
+import { db } from 'src/services/mysql';
+import config from 'src/services/config';
 
 // 全局跨域中间件
 export function GlobalHeaders(req: Request, res: Response, next: NextFunction) {

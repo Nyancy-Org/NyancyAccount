@@ -8,7 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService as AuthServices } from './auth.service';
-import { MailerService as MailerServices } from 'src/Service/mailer';
+import { MailerService as MailerServices } from 'src/services/mailer';
 import { RateLimit } from 'nestjs-rate-limiter';
 import type { LoginForm, RegForm } from './auth.interface';
 import type { Request } from 'express';
