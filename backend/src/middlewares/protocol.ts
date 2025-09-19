@@ -5,7 +5,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { logger } from 'src/Utils/log';
+import { logger } from 'src/utils/log';
 import { db } from 'src/services/mysql';
 import config from 'src/services/config';
 

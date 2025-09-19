@@ -3,7 +3,7 @@ import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import type { LoginIP, UserInfo } from './user.interface';
 import { UserService } from './user.service';
-import { validateSearchQuery } from 'src/Utils';
+import { validateSearchQuery } from 'src/utils';
 
 @Injectable()
 export class UserAdminService extends UserService {

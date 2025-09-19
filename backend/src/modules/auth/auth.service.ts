@@ -1,12 +1,12 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
-import { timeUuid } from 'src/Utils/uuid';
-import { logger } from 'src/Utils/log';
+import { timeUuid } from 'src/utils/uuid';
+import { logger } from 'src/utils/log';
 import type { LoginForm, RegForm } from './auth.interface';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
-import { base64ToUint8Array, emailTemplate, isEmail } from 'src/Utils';
+import { base64ToUint8Array, emailTemplate, isEmail } from 'src/utils';
 import type { Request } from 'express';
 import {
   generateAuthenticationOptions,

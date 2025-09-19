@@ -1,6 +1,6 @@
 // 读取配置文件
 import fs from 'fs-extra';
-import { logger } from '../Utils/log';
+import { logger } from '../utils/log';
 
 const AppConfig = {
   httpPort: 1239,

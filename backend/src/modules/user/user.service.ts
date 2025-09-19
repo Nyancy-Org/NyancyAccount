@@ -8,7 +8,7 @@ import {
   uint8ArrayToBase64,
   validatePassword,
   validateSearchQuery,
-} from 'src/Utils';
+} from 'src/utils';
 import { AuthService as AuthServices } from 'src/modules/auth/auth.service';
 import {
   // Registration

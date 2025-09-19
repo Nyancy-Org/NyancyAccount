@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-import { logger } from './Utils/log';
+import { logger } from './utils/log';
 import config from './services/config';
 
 import { GlobalHeaders } from './middlewares/protocol';

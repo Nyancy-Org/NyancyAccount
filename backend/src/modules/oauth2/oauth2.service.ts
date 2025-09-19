@@ -5,7 +5,7 @@ import {
   objIsEmpty,
   randomString,
   validateSearchQuery,
-} from 'src/Utils';
+} from 'src/utils';
 import type {
   CodeInfo,
   OauthBody,
@@ -17,7 +17,7 @@ import type {
   AdminEditOauthClient,
 } from './oauth2.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
-import { logger } from 'src/Utils/log';
+import { logger } from 'src/utils/log';
 
 @Injectable()
 export class Oauth2Service {
