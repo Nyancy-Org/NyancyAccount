@@ -16,7 +16,7 @@ import type {
   EditOauthClient,
   AdminEditOauthClient,
 } from './oauth2.interface';
-import type { UserInfo } from 'src/user/user.interface';
+import type { UserInfo } from 'src/modules/user/user.interface';
 import { logger } from 'src/Utils/log';
 
 @Injectable()

@@ -5,7 +5,7 @@ import { timeUuid } from 'src/Utils/uuid';
 import { logger } from 'src/Utils/log';
 import type { LoginForm, RegForm } from './auth.interface';
 import { MailCodeType, MailLinkType } from './auth.interface';
-import type { UserInfo } from 'src/user/user.interface';
+import type { UserInfo } from 'src/modules/user/user.interface';
 import { base64ToUint8Array, emailTemplate, isEmail } from 'src/Utils';
 import type { Request } from 'express';
 import {
