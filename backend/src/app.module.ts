@@ -13,7 +13,7 @@ import { dbConnect } from './Middleware/protocol';
 import { MainModule } from './modules/main/main.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './user/user.module';
-import { Oauth2Module } from './oauth2/oauth2.module';
+import { Oauth2Module } from './modules/oauth2/oauth2.module';
 import { SiteModule } from './site/site.module';
 
 @Module({
