@@ -14,7 +14,7 @@ import {
   Options,
 } from '@nestjs/common';
 import { Oauth2Service as Oauth2Services } from './oauth2.service';
-import { CheckAuthGuard, isAdmin } from 'src/Guard/permission';
+import { CheckAuthGuard, isAdmin } from 'src/guards/permission';
 import type {
   OauthBody,
   NewOauthClient,

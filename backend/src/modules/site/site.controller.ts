@@ -7,7 +7,7 @@ import {
   Get,
 } from '@nestjs/common';
 import { SiteService as SiteServices } from './site.service';
-import { CheckAuthGuard, isAdmin } from 'src/Guard/permission';
+import { CheckAuthGuard, isAdmin } from 'src/guards/permission';
 import { SiteOptions } from './site.interface';
 
 @Controller('site')

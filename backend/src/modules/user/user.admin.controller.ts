@@ -9,7 +9,7 @@ import {
   Get,
   Delete,
 } from '@nestjs/common';
-import { CheckAuthGuard, isAdmin } from 'src/Guard/permission';
+import { CheckAuthGuard, isAdmin } from 'src/guards/permission';
 import type { UserInfo } from './user.interface';
 import { UserController } from './user.controller';
 

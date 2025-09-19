@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UserService as UserServices } from './user.service';
 import { UserAdminService as UserAdminServices } from './user.admin.service';
-import { CheckAuthGuard } from 'src/Guard/permission';
+import { CheckAuthGuard } from 'src/guards/permission';
 import type { UpdateType } from './user.interface';
 import type { RegistrationResponseJSON } from '@simplewebauthn/types';
 
