@@ -3,7 +3,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserAdminController } from './user.admin.controller';
 import { UserAdminService } from './user.admin.service';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from 'src/modules/auth/auth.service';
 
 @Module({
   controllers: [UserController, UserAdminController],

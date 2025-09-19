@@ -9,7 +9,7 @@ import {
   validatePassword,
   validateSearchQuery,
 } from 'src/Utils';
-import { AuthService as AuthServices } from 'src/auth/auth.service';
+import { AuthService as AuthServices } from 'src/modules/auth/auth.service';
 import {
   // Registration
   generateRegistrationOptions,
