@@ -8,7 +8,7 @@ import {
 import { APP_GUARD } from '@nestjs/core';
 // 接口速率限制
 import { RateLimiterModule, RateLimiterGuard } from 'nestjs-rate-limiter';
-import { dbConnect } from './Middleware/protocol';
+import { dbConnect } from './middlewares/protocol';
 
 import { MainModule } from './modules/main/main.module';
 import { AuthModule } from './modules/auth/auth.module';
