@@ -1,8 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import { timeUuid } from 'src/utils/uuid';
-import { logger } from 'src/utils/log';
 import type { LoginForm, RegForm } from './auth.interface';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
@@ -160,7 +159,7 @@ export class AuthService {
         ],
       );
     } catch (err) {
-      logger.error(err.message);
+      Logger.error(err.message);
       throw new Error('注册失败，请联系网站管理员');
     }
 

@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import {
   isSafeData,
@@ -17,7 +17,6 @@ import type {
   AdminEditOauthClient,
 } from './oauth2.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
-import { logger } from 'src/utils/log';
 
 @Injectable()
 export class Oauth2Service {
@@ -115,7 +114,7 @@ export class Oauth2Service {
         [code, u.id, o.id, null, new Date(Date.now() + 60 * 3000)], //三分钟后过期
       );
     } catch (e) {
-      logger.error(e);
+      Logger.error(e);
 
       return {
         code: 500,
@@ -269,7 +268,7 @@ export class Oauth2Service {
         ],
       );
     } catch (e) {
-      logger.error(e);
+      Logger.error(e);
 
       return {
         code: 500,

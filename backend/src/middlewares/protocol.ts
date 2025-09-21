@@ -3,9 +3,9 @@ import {
   NestMiddleware,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { logger } from 'src/utils/log';
 import { db } from 'src/services/mysql';
 import config from 'src/services/config';
 
@@ -24,7 +24,7 @@ export function GlobalHeaders(req: Request, res: Response, next: NextFunction) {
     : config.isReverseProxy
       ? req.headers['x-real-ip']
       : req.socket.remoteAddress;
-  logger.info(`${ip} ${req.method} ${req.url}`);
+  Logger.log(`${ip} ${req.method} ${req.url}`);
   next();
 }
 
@@ -36,7 +36,7 @@ export class dbConnect implements NestMiddleware {
     try {
       conn = await db.getConnection();
     } catch (err) {
-      logger.error('数据库连接出错：' + err.message);
+      Logger.error('数据库连接出错：' + err.message);
       throw new HttpException(
         {
           msg: ':(',

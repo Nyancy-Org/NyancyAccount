@@ -1,6 +1,6 @@
 // 读取配置文件
+import { Logger } from '@nestjs/common';
 import fs from 'fs-extra';
-import { logger } from '../utils/log';
 
 const AppConfig = {
   httpPort: 1239,
@@ -37,7 +37,7 @@ export default (() => {
       fs.readFileSync('config.json', 'utf8'),
     ) as typeof AppConfig;
   } else {
-    logger.warn('未检测到配置文件，正在尝试自动创建...');
+    Logger.warn('未检测到配置文件，正在尝试自动创建...');
     fs.writeFileSync('config.json', JSON.stringify(AppConfig, null, 2));
     return JSON.parse(
       fs.readFileSync('config.json', 'utf8'),
