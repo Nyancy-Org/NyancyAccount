@@ -29,3 +29,17 @@ export class LoginDto {
   })
   password: string;
 }
+
+export class RegisterDto extends LoginDto {
+  @IsNotEmpty({ message: '验证码不能为空' })
+  @IsString({ message: '验证码不符合规范' })
+  @MaxLength(6, { message: '未知的验证码类型' })
+  code: string;
+
+  @IsNotEmpty({ message: '邮箱不能为空' })
+  @IsString({ message: '邮箱不符合规范' })
+  @Matches(EMAIL_REG, {
+    message: '邮箱不符合规范',
+  })
+  email: string;
+}
