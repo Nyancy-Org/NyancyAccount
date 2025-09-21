@@ -1,10 +1,10 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { NyaResponse } from 'src/types';
 
 @Injectable()
 export class MainService {
-  indexGet() {
+  indexGet(): Partial<NyaResponse<any>> {
     return {
-      code: 233,
       msg: '哇哦？',
       data: [
         {
@@ -17,7 +17,6 @@ export class MainService {
   }
   indexPost() {
     return {
-      code: 500,
       msg: '嗯哼？',
       data: [
         {
@@ -29,11 +28,6 @@ export class MainService {
     };
   }
   indexAll() {
-    throw new HttpException(
-      {
-        msg: 'fuck',
-      },
-      HttpStatus.METHOD_NOT_ALLOWED,
-    );
+    throw new Error('fuck');
   }
 }
