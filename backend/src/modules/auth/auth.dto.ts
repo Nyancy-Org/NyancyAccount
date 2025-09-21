@@ -6,6 +6,10 @@ import {
   MinLength,
 } from 'class-validator';
 
+export const EMAIL_REG =
+  /^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z]{2,6})$/;
+export const UNAME_REG = /^[a-zA-Z0-9_-]{4,16}$/;
+
 // 6-20位字符,允许英文字母、数字和特殊字符
 export const PWD_REG = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/;
 

@@ -2,6 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import fs from 'fs-extra';
 import Handlebars from 'handlebars';
 import mjml2html from 'mjml';
+import { EMAIL_REG, PWD_REG } from 'src/modules/auth/auth.dto';
 
 export const randomString = (length: number) => {
   const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
@@ -56,7 +57,7 @@ export async function isSafeData(body: { [propName: string]: any }) {
 
 // 校验邮箱格式
 export const isEmail = (email: string) => {
-  if (!/^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z]{2,6})$/.test(email))
+  if (!EMAIL_REG.test(email))
     throw new HttpException(
       '请输入正确的邮箱地址！',
       HttpStatus.EXPECTATION_FAILED,
@@ -65,7 +66,7 @@ export const isEmail = (email: string) => {
 };
 
 export const validatePassword = (passwd: string) => {
-  if (!/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(passwd))
+  if (!PWD_REG.test(passwd))
     throw new HttpException('密码格式不正确', HttpStatus.EXPECTATION_FAILED);
   return true;
 };

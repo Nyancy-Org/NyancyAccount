@@ -24,7 +24,7 @@ import type {
 import config from 'src/services/config';
 import { City } from 'ipip-ipdb';
 import useragent from 'express-useragent';
-import { LoginDto, PWD_REG } from './auth.dto';
+import { LoginDto, PWD_REG, UNAME_REG } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -298,9 +298,7 @@ export class AuthService {
     session['email'] = u.email;
 
     return {
-      code: HttpStatus.OK,
       msg: '登录成功',
-      time: Date.now(),
       data: {
         ...u,
         lastLoginIp: ip,
@@ -487,7 +485,7 @@ export class AuthService {
       };
     } else {
       return {
-        status: /^[a-zA-Z0-9_-]{4,16}$/.test(uname) && PWD_REG.test(passwd),
+        status: UNAME_REG.test(uname) && PWD_REG.test(passwd),
         type: 'default',
       };
     }
@@ -512,7 +510,7 @@ export class AuthService {
     isEmail(email);
 
     return (
-      /^[a-zA-Z0-9_-]{4,16}$/.test(uname) &&
+      UNAME_REG.test(uname) &&
       /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(passwd)
     );
   }
