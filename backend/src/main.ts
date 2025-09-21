@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 import { AppModule } from './app.module';
 import config from './services/config';
 import { GlobalHeaders } from './middlewares/protocol';
-import { GlobalExceptionFilter } from './middlewares/exceptionFilter';
+import { GlobalExceptionFilter } from './middlewares/http-exception.filter';
 import session from 'express-session';
 import { getLoggerService } from './utils/logger';
 
