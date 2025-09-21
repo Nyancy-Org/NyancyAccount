@@ -20,7 +20,6 @@ const AppConfig = {
       pass: '',
     },
   },
-  sessionSecret: 'YourSecretKey',
   webAuthn: {
     rpName: '网站名称',
     rpID: '网站域名，例如 example.com',
