@@ -32,9 +32,7 @@ export class AuthService {
     const a = await this.loginValidateData(body);
     if (!a.status) {
       throw new HttpException(
-        {
-          msg: '用户名或密码不符合规范',
-        },
+        '用户名或密码不符合规范',
         HttpStatus.EXPECTATION_FAILED,
       );
     }
@@ -52,9 +50,7 @@ export class AuthService {
     // 如果没有找到这个用户或者用户名密码错误
     if (r === undefined || !bcrypt.compareSync(body.password, r.password))
       throw new HttpException(
-        {
-          msg: '用户名或密码错误',
-        },
+        '用户名或密码错误',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
 
@@ -127,9 +123,7 @@ export class AuthService {
     const a = await this.regValidateData(body);
     if (!a) {
       throw new HttpException(
-        {
-          msg: '用户名或密码不符合规范',
-        },
+        '用户名或密码不符合规范',
         HttpStatus.EXPECTATION_FAILED,
       );
     }
@@ -447,9 +441,7 @@ export class AuthService {
     );
     if (!a) {
       throw new HttpException(
-        {
-          msg: '新密码不符合规范！',
-        },
+        '新密码不符合规范！',
         HttpStatus.EXPECTATION_FAILED,
       );
     }
@@ -487,12 +479,7 @@ export class AuthService {
     const passwd = body.password;
 
     if (!uname || !passwd)
-      throw new HttpException(
-        {
-          msg: '请填写表单完整',
-        },
-        HttpStatus.EXPECTATION_FAILED,
-      );
+      throw new HttpException('请填写表单完整', HttpStatus.EXPECTATION_FAILED);
 
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uname)) {
       return {
@@ -519,21 +506,12 @@ export class AuthService {
     const code = body.code;
 
     if (!uname || !passwd || !email || !code)
-      throw new HttpException(
-        {
-          msg: '请填写表单完整',
-        },
-        HttpStatus.EXPECTATION_FAILED,
-      );
+      throw new HttpException('请填写表单完整', HttpStatus.EXPECTATION_FAILED);
 
     // 判断禁止的用户名
+    // TODO: 加一个禁止的表
     if (uname === 'admin')
-      throw new HttpException(
-        {
-          msg: '禁止该用户名',
-        },
-        HttpStatus.EXPECTATION_FAILED,
-      );
+      throw new HttpException('禁止该用户名', HttpStatus.EXPECTATION_FAILED);
 
     // 邮箱格式不正确
     isEmail(email);
@@ -551,9 +529,7 @@ export class AuthService {
     );
     if (a[0].value === 'false') {
       throw new HttpException(
-        {
-          msg: '本站已关闭用户注册功能！',
-        },
+        '本站已关闭用户注册功能！',
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     } else {

@@ -42,11 +42,9 @@ import { SiteModule } from './modules/site/site.module';
       logger: true,
       customResponseSchema: (req) => {
         throw new HttpException(
-          {
-            msg: `你的操作太快了，请等待${Math.round(
-              req.msBeforeNext / 1000,
-            )}秒后重试`,
-          },
+          `你的操作太快了，请等待${Math.round(
+            req.msBeforeNext / 1000,
+          )}秒后重试`,
           HttpStatus.TOO_MANY_REQUESTS,
         );
       },

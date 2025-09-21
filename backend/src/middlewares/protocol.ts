@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestMiddleware,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { db } from 'src/services/mysql';
 import config from 'src/services/config';
@@ -37,12 +31,7 @@ export class dbConnect implements NestMiddleware {
       conn = await db.getConnection();
     } catch (err) {
       Logger.error('数据库连接出错：' + err.message);
-      throw new HttpException(
-        {
-          msg: ':(',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new Error(':(');
     } finally {
       if (conn) conn.release();
     }

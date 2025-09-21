@@ -473,20 +473,13 @@ export class UserService {
 
   // 用户名格式验证
   async validateUName(uname: string) {
-    // 判断禁止的用户名（待优化）
+    // TODO: 判断禁止的用户名（待优化）
     if (uname === 'admin')
-      throw new HttpException(
-        {
-          msg: '禁止该用户名',
-        },
-        HttpStatus.EXPECTATION_FAILED,
-      );
+      throw new HttpException('禁止该用户名', HttpStatus.EXPECTATION_FAILED);
 
     if (!/^[a-zA-Z0-9_-]{4,16}$/.test(uname))
       throw new HttpException(
-        {
-          msg: '用户名或密码不符合规范',
-        },
+        '用户名或密码不符合规范',
         HttpStatus.EXPECTATION_FAILED,
       );
 

@@ -58,9 +58,7 @@ export async function isSafeData(body: { [propName: string]: any }) {
 export const isEmail = (email: string) => {
   if (!/^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z]{2,6})$/.test(email))
     throw new HttpException(
-      {
-        msg: '请输入正确的邮箱地址！',
-      },
+      '请输入正确的邮箱地址！',
       HttpStatus.EXPECTATION_FAILED,
     );
   return true;
@@ -68,12 +66,7 @@ export const isEmail = (email: string) => {
 
 export const validatePassword = (passwd: string) => {
   if (!/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(passwd))
-    throw new HttpException(
-      {
-        msg: '密码格式不正确',
-      },
-      HttpStatus.EXPECTATION_FAILED,
-    );
+    throw new HttpException('密码格式不正确', HttpStatus.EXPECTATION_FAILED);
   return true;
 };
 
@@ -116,12 +109,7 @@ export const validateSearchQuery = (_page: string, _pageSize: string) => {
     Number(_pageSize) < -2 ||
     Number(_pageSize) === 0
   )
-    throw new HttpException(
-      {
-        msg: '参数有误',
-      },
-      HttpStatus.EXPECTATION_FAILED,
-    );
+    throw new HttpException('参数有误', HttpStatus.EXPECTATION_FAILED);
 
   return {
     page: Number(_page),
