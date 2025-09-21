@@ -51,7 +51,7 @@ defineExpose({
           label="新的用户名"
           validate-on="blur"
         ></v-text-field>
-        <small><b>注意：</b>更改后，原绑定的外部验证器将会被删除，需要重新绑定！</small>
+        <small><b>注意：</b>更改后，原绑定的PassKey将会被删除，需要重新绑定！</small>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>

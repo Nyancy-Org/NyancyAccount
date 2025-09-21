@@ -36,7 +36,7 @@ const btns = arrayFilter([
     click: () => changePwdDialog.value?.openDialog()
   },
   {
-    title: '外部验证器',
+    title: 'PassKey',
     icon: 'fingerprint',
     color: '',
     click: () => bindANDialog.value?.openDialog(),

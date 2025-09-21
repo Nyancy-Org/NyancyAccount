@@ -245,7 +245,7 @@ export class UserService {
     };
   }
 
-  // 生成 外部验证器 配置项
+  // 生成 PassKey 配置项
   async genRegOpt(session: Record<string, any>) {
     const { data: u } = await this.info_(session.uid);
 
@@ -294,7 +294,7 @@ export class UserService {
     };
   }
 
-  // 验证外部验证器
+  // 验证PassKey
   async vRegOpt(session: Record<string, any>, body: RegistrationResponseJSON) {
     const { data: u } = await this.info_(session.uid);
 
@@ -346,7 +346,7 @@ export class UserService {
     };
   }
 
-  // 删除单个外部验证器
+  // 删除单个PassKey
   async delete_wan(
     session: Record<string, any>,
     deleteAll = false,
@@ -357,7 +357,7 @@ export class UserService {
       ? JSON.parse(u.authDevice)
       : [];
 
-    if (devices.length === 0) throw new Error('未绑定任何外部验证器');
+    if (devices.length === 0) throw new Error('未绑定任何PassKey');
 
     const filterDevices = devices.filter(
       (a: any) => a.credentialID !== body.credentialID,

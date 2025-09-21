@@ -78,7 +78,7 @@ defineExpose({
 <template>
   <v-dialog v-model="open" max-width="600" persistent>
     <v-card
-      :title="info?.authDevice ? '已绑定的外部验证器' : '绑定外部验证器'"
+      :title="info?.authDevice ? '已绑定的PassKey' : '绑定PassKey'"
       variant="flat"
       :loading="cardLoading"
       :disabled="cardLoading"

@@ -119,7 +119,7 @@ defineExpose({
           </v-text-field>
           <v-otp-input v-model="formData.code" :disabled="btnLoading"></v-otp-input>
         </v-form>
-        <small><b>注意：</b>更改后，原绑定的外部验证器将会被删除，需要重新绑定！</small>
+        <small><b>注意：</b>更改后，原绑定的PassKey将会被删除，需要重新绑定！</small>
       </v-card-text>
       <v-card-actions>
         <v-btn v-if="num === 0" color="primary" :loading="eBtnLoading" @click="sendEmailCode"

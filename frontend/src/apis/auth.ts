@@ -112,7 +112,7 @@ export const resetPwdApi = async (formData: RegForm) => {
   return data
 }
 
-// 获取 外部验证器 注册参数
+// 获取 PassKey 注册参数
 export const getWebAuthnAuthOptionApi = async (formData: LoginForm) => {
   const { data }: { data: PublicKeyORes } = await axios.post(
     baseURL + '/registrationOptions?t_=' + Date.now(),
@@ -123,7 +123,7 @@ export const getWebAuthnAuthOptionApi = async (formData: LoginForm) => {
   return data
 }
 
-// 验证 外部验证器
+// 验证 PassKey
 export const verifyWebAuthnApi = async (formData: AuthenticationResponseJSON) => {
   const { data }: { data: NyaResponse } = await axios.post(
     baseURL + '/verifyRegistration?t_=' + Date.now(),

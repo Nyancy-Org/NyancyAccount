@@ -19,7 +19,7 @@ const headers = ref([
   { key: 'role', title: '权限组', width: '100px' },
   { key: 'status', title: '状态', width: '100px' },
   { key: 'regTime', title: '注册时间', width: '120px' },
-  { key: 'authDevice', title: '外部验证器', width: '130px' },
+  { key: 'authDevice', title: 'PassKey', width: '130px' },
   { key: 'operate', title: '操作', sortable: false }
 ])
 

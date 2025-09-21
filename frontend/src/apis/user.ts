@@ -32,7 +32,7 @@ export const updateUInfoApi = async (
   return data
 }
 
-// 获取 外部验证器 注册参数
+// 获取 PassKey 注册参数
 export const getWebAuthnRegOptionApi = async () => {
   const { data }: { data: PublicKeyORes } = await axios.get(
     baseURL + '/registrationOptions?t_=' + Date.now()
@@ -40,7 +40,7 @@ export const getWebAuthnRegOptionApi = async () => {
   return data
 }
 
-// 验证 外部验证器
+// 验证 PassKey
 export const verifyWebAuthnApi = async (formData: RegistrationResponseJSON) => {
   const { data }: { data: NyaResponse } = await axios.post(
     baseURL + '/verifyRegistration?t_=' + Date.now(),
@@ -49,7 +49,7 @@ export const verifyWebAuthnApi = async (formData: RegistrationResponseJSON) => {
   return data
 }
 
-// 删除 外部验证器
+// 删除 PassKey
 export const deleteWebAuthnApi = async (credentialID: string) => {
   const { data }: { data: NyaResponse } = await axios.delete(
     baseURL + '/deleteRegistration?t_=' + Date.now(),

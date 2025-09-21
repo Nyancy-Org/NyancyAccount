@@ -125,7 +125,7 @@ const getAuthOption = async () => {
               block
               @click="getAuthOption"
               :loading="wBtnLoading"
-              >使用外部验证器</v-btn
+              >使用PassKey</v-btn
             >
           </v-col>
         </v-row>
