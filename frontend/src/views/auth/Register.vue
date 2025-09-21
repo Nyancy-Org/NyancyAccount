@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
 import md5 from 'md5'
-import router from '@/router'
 import { useDisplay } from 'vuetify'
 import { indexStore } from '@/stores'
 import { RegForm } from '@/types'
