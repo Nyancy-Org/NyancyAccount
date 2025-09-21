@@ -7,6 +7,7 @@ import { GlobalHeaders } from './middlewares/protocol';
 import { GlobalExceptionFilter } from './middlewares/http-exception.filter';
 import session from 'express-session';
 import { getLoggerService } from './utils/logger';
+import { GlobalResponseInterceptor } from './interceptors/response';
 
 async function bootstrap() {
   console.log(`
@@ -35,6 +36,8 @@ async function bootstrap() {
       saveUninitialized: true,
     }),
   );
+
+  app.useGlobalInterceptors(new GlobalResponseInterceptor());
 
   app.use(GlobalHeaders);
   app.useGlobalFilters(new GlobalExceptionFilter());
