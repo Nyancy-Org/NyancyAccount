@@ -30,7 +30,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const sendBody: NyaResponse<null> = {
       code: status,
-      msg: exception?.message,
+      msg: exception.message,
       data: null,
       time: Date.now(),
       path: request.originalUrl,

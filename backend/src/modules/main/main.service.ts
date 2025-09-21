@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { NyaResponse } from 'src/types';
 
 @Injectable()
@@ -28,6 +28,7 @@ export class MainService {
     };
   }
   indexAll() {
-    throw new Error('fuck');
+    throw new HttpException('fuck', HttpStatus.METHOD_NOT_ALLOWED);
+    // throw new Error('fuck');
   }
 }
