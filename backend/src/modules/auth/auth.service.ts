@@ -24,12 +24,13 @@ import type {
 import config from 'src/services/config';
 import { City } from 'ipip-ipdb';
 import useragent from 'express-useragent';
+import { LoginDto, PWD_REG } from './auth.dto';
 
 @Injectable()
 export class AuthService {
   // 登录
-  async login(session: Record<string, any>, req: Request, body: LoginForm) {
-    const a = await this.loginValidateData(body);
+  async login(session: Record<string, any>, req: Request, body: LoginDto) {
+    const a = this.loginValidateData(body);
     if (!a.status) {
       throw new HttpException(
         '用户名或密码不符合规范',
@@ -474,25 +475,19 @@ export class AuthService {
   }
 
   // 登录表单验证，顺便判断是用户名还是邮箱登录
-  async loginValidateData(body: LoginForm) {
+  loginValidateData(body: LoginForm): { status: boolean; type: string } {
     const uname = body.username;
     const passwd = body.password;
+    const IS_EMAIL_REG = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!uname || !passwd)
-      throw new HttpException('请填写表单完整', HttpStatus.EXPECTATION_FAILED);
-
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uname)) {
+    if (IS_EMAIL_REG.test(uname)) {
       return {
-        status:
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(uname) &&
-          /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(passwd),
+        status: IS_EMAIL_REG.test(uname) && PWD_REG.test(passwd),
         type: 'email',
       };
     } else {
       return {
-        status:
-          /^[a-zA-Z0-9_-]{4,16}$/.test(uname) &&
-          /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(passwd),
+        status: /^[a-zA-Z0-9_-]{4,16}$/.test(uname) && PWD_REG.test(passwd),
         type: 'default',
       };
     }

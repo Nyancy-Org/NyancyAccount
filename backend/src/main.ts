@@ -1,5 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  BadRequestException,
+  Logger,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common';
 import { v4 } from 'uuid';
 import { AppModule } from './app.module';
 import config from './services/config';
@@ -42,6 +47,11 @@ async function bootstrap() {
       whitelist: true, // 自动剔除 DTO 中未定义的字段，如 "test"
       forbidNonWhitelisted: true, // 如果有未定义的字段，抛出错误
       transform: true,
+      exceptionFactory: (errors: ValidationError[]) => {
+        // 提取最后一个错误消息
+        const firstError = Object.values(errors[0].constraints).reverse()[0];
+        return new BadRequestException(firstError);
+      },
     }),
   );
   app.useGlobalInterceptors(new GlobalResponseInterceptor());

@@ -13,6 +13,7 @@ import { RateLimit } from 'nestjs-rate-limiter';
 import type { LoginForm, RegForm } from './auth.interface';
 import type { Request } from 'express';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types';
+import { LoginDto } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
   @HttpCode(200)
   login(
     @Session() session: Record<string, any>,
-    @Body() body: LoginForm,
+    @Body() body: LoginDto,
     @Req() req: Request,
   ) {
     return this.AuthService.login(session, req, body);
