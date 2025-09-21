@@ -112,7 +112,10 @@ const nextStep = async () => await STEP_ACTION[step.value]()
 const toUserCenter = async () => {
   btnLoading.value = true
   try {
-    await loginApi(formData.value)
+    await loginApi({
+      username: formData.value.username,
+      password: formData.value.password
+    })
     // 登录后相关操作
     window.location.href = '/user/info'
   } finally {
