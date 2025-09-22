@@ -353,9 +353,7 @@ export class AuthService {
     }
     session[type] = null;
     return {
-      code: HttpStatus.OK,
       msg: '验证码验证成功！',
-      time: Date.now(),
     };
   }
 
@@ -418,18 +416,14 @@ export class AuthService {
     await db.query('update user set verifyToken=? where id=?', [null, dc.id]);
 
     return {
-      code: HttpStatus.OK,
       msg: '邮箱验证成功！',
-      time: Date.now(),
     };
   }
 
   // 重置密码
   async resetPasswd(body: Pick<RegForm, 'password'> & Pick<RegForm, 'code'>) {
     // 先验证密码是否合法
-    const a = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{}|\\:;"'<>,.?/~`]{6,20}$/.test(
-      body.password,
-    );
+    const a = PWD_REG.test(body.password);
     if (!a) {
       throw new HttpException(
         '新密码不符合规范！',
@@ -458,9 +452,7 @@ export class AuthService {
       throw new Error('发生了未知错误，请联系网站管理员');
 
     return {
-      code: HttpStatus.OK,
       msg: '密码重置成功',
-      time: Date.now(),
     };
   }
 
