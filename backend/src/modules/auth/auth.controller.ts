@@ -1,12 +1,4 @@
-import {
-  Controller,
-  HttpCode,
-  Session,
-  Post,
-  Body,
-  HttpStatus,
-  Req,
-} from '@nestjs/common';
+import { Controller, HttpCode, Session, Post, Body, Req } from '@nestjs/common';
 import { AuthService as AuthServices } from './auth.service';
 import { MailerService as MailerServices } from 'src/services/mailer';
 import { RateLimit } from 'nestjs-rate-limiter';
@@ -85,9 +77,7 @@ export class AuthController {
     }
 
     return {
-      code: HttpStatus.OK,
       msg: '邮件发送成功',
-      time: Date.now(),
     };
   }
 
@@ -113,9 +103,7 @@ export class AuthController {
     }
 
     return {
-      code: HttpStatus.OK,
       msg: '邮件发送成功',
-      time: Date.now(),
     };
   }
 
