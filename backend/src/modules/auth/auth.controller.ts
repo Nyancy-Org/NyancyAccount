@@ -2,7 +2,7 @@ import { Controller, HttpCode, Session, Post, Body, Req } from '@nestjs/common';
 import { AuthService as AuthServices } from './auth.service';
 import { MailerService as MailerServices } from 'src/services/mailer';
 import { RateLimit } from 'nestjs-rate-limiter';
-import type { RegForm } from './auth.interface';
+// import type { RegForm } from './auth.interface';
 import type { Request } from 'express';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types';
 import { LoginDto, RegisterDto } from './auth.dto';
@@ -110,7 +110,9 @@ export class AuthController {
   // 重置密码
   @Post('reset')
   @HttpCode(200)
-  verifyEmail(@Body() body: RegForm) {
+  verifyEmail(
+    @Body() body: Pick<RegisterDto, 'password'> & Pick<RegisterDto, 'code'>,
+  ) {
     if (!body.code || body.code === 'undefined') throw new Error(':(');
     return this.AuthService.resetPasswd(body);
   }

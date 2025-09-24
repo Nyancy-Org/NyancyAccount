@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import { timeUuid } from 'src/utils/uuid';
-import type { RegForm } from './auth.interface';
+import { LoginDto, PWD_REG, RegisterDto, UNAME_REG } from './auth.dto';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
 import { base64ToUint8Array, emailTemplate, isEmail } from 'src/utils';
@@ -24,7 +24,6 @@ import type {
 import config from 'src/services/config';
 import { City } from 'ipip-ipdb';
 import useragent from 'express-useragent';
-import { LoginDto, PWD_REG, RegisterDto, UNAME_REG } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -419,15 +418,17 @@ export class AuthService {
   }
 
   // 重置密码
-  async resetPasswd(body: Pick<RegForm, 'password'> & Pick<RegForm, 'code'>) {
-    // 先验证密码是否合法
-    const a = PWD_REG.test(body.password);
-    if (!a) {
-      throw new HttpException(
-        '新密码不符合规范！',
-        HttpStatus.EXPECTATION_FAILED,
-      );
-    }
+  async resetPasswd(
+    body: Pick<RegisterDto, 'password'> & Pick<RegisterDto, 'code'>,
+  ) {
+    // // 先验证密码是否合法
+    // const a = PWD_REG.test(body.password);
+    // if (!a) {
+    //   throw new HttpException(
+    //     '新密码不符合规范！',
+    //     HttpStatus.EXPECTATION_FAILED,
+    //   );
+    // }
 
     // 获取被重置密码的邮箱
     const [dc]: { email: string }[] = await db.query(
