@@ -2,7 +2,7 @@ import { Controller, HttpCode, Session, Post, Body, Req } from '@nestjs/common';
 import { AuthService as AuthServices } from './auth.service';
 import { MailerService as MailerServices } from 'src/services/mailer';
 import { RateLimit } from 'nestjs-rate-limiter';
-import type { LoginForm, RegForm } from './auth.interface';
+import type { RegForm } from './auth.interface';
 import type { Request } from 'express';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/types';
 import { LoginDto, RegisterDto } from './auth.dto';
@@ -118,7 +118,7 @@ export class AuthController {
   // 生成 WebAuthn 配置项
   @Post('registrationOptions')
   @HttpCode(200)
-  genAuthOpt(@Session() session: Record<string, any>, @Body() body: LoginForm) {
+  genAuthOpt(@Session() session: Record<string, any>, @Body() body: LoginDto) {
     return this.AuthService.genAuthOpt(session, body);
   }
 

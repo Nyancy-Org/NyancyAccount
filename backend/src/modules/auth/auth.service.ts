@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import { timeUuid } from 'src/utils/uuid';
-import type { LoginForm, RegForm } from './auth.interface';
+import type { RegForm } from './auth.interface';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
 import { base64ToUint8Array, emailTemplate, isEmail } from 'src/utils';
@@ -180,7 +180,7 @@ export class AuthService {
   }
 
   // 生成 PASSKEY 配置项
-  async genAuthOpt(session: Record<string, any>, body: LoginForm) {
+  async genAuthOpt(session: Record<string, any>, body: LoginDto) {
     const u = await this.hasUser(body.username);
 
     const devices: AuthenticatorDevice[] = u.authDevice
@@ -203,9 +203,7 @@ export class AuthService {
     session['_uname'] = u.username;
 
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: options,
     };
   }
@@ -457,7 +455,7 @@ export class AuthService {
   }
 
   // 登录表单验证，顺便判断是用户名还是邮箱登录
-  loginValidateData(body: LoginForm): { status: boolean; type: string } {
+  loginValidateData(body: LoginDto): { status: boolean; type: string } {
     const uname = body.username;
     const passwd = body.password;
     const IS_EMAIL_REG = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
