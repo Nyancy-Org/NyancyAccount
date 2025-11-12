@@ -2,7 +2,13 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import { timeUuid } from 'src/utils/uuid';
-import { LoginDto, PWD_REG, RegisterDto, UNAME_REG } from './auth.dto';
+import {
+  LoginDto,
+  UsernameDto,
+  PWD_REG,
+  RegisterDto,
+  UNAME_REG,
+} from './auth.dto';
 import { MailCodeType, MailLinkType } from './auth.interface';
 import type { UserInfo } from 'src/modules/user/user.interface';
 import { base64ToUint8Array, emailTemplate, isEmail } from 'src/utils';
@@ -179,7 +185,7 @@ export class AuthService {
   }
 
   // 生成 PASSKEY 配置项
-  async genAuthOpt(session: Record<string, any>, body: LoginDto) {
+  async genAuthOpt(session: Record<string, any>, body: UsernameDto) {
     const u = await this.hasUser(body.username);
 
     const devices: AuthenticatorDevice[] = u.authDevice
