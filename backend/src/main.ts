@@ -13,6 +13,7 @@ import { GlobalExceptionFilter } from './interceptors/http-exception.filter';
 import session from 'express-session';
 import { getLoggerService } from './utils/logger';
 import { GlobalResponseInterceptor } from './interceptors/response';
+import { GLOBAL_PREFIX } from './types/const';
 
 async function bootstrap() {
   console.log(`
@@ -56,7 +57,7 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new GlobalResponseInterceptor());
   app.useGlobalFilters(new GlobalExceptionFilter());
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(GLOBAL_PREFIX);
 
   await app.listen(config.httpPort);
   Logger.log(`服务已启动：${await app.getUrl()}`);
