@@ -28,8 +28,8 @@ import type {
   AuthenticationResponseJSON,
 } from '@simplewebauthn/types';
 import config from 'src/services/config';
-import { City } from 'ipip-ipdb';
 import useragent from 'express-useragent';
+import { Ip2RegionService } from 'src/services/ip2region';
 
 @Injectable()
 export class AuthService {
@@ -528,21 +528,13 @@ export class AuthService {
         : req.socket.remoteAddress;
     const loginTime = new Date();
 
-    let city;
-
-    if (!config.ipip.enable || ip.includes(':')) {
-      city = 'Unknown';
-    } else {
-      const c = new City(config.ipip.dbPath);
-      const i = c.findInfo(ip, 'CN');
-      city = this.parseCity(i);
-    }
+    const region = Ip2RegionService.search(String(ip));
     const ua = useragent.parse(req.headers['user-agent']);
     const device = `${ua.os} / ${ua.browser} ${ua.version}`;
 
     await db.query(
       'insert into user_ip (uid,ip,location,device,time) values(?,?,?,?,?)',
-      [u.id, ip, city, device, loginTime],
+      [u.id, ip, region, device, loginTime],
     );
 
     return {

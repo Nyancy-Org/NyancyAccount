@@ -43,7 +43,6 @@
     "express-useragent": "^1.0.15",
     "fs-extra": "^11.2.0",
     "handlebars": "^4.7.8",
-    "ipip-ipdb": "^0.6.0",
     "log4js": "^6.9.1",
     "mariadb": "^3.2.3",
     "mjml": "^4.15.3",
@@ -55,6 +54,7 @@
     "passport": "^0.7.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "ts-ip2region2": "^1.2.0",
     "uuid": "^9.0.1",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
