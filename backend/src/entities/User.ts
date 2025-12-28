@@ -20,15 +20,15 @@ export class User {
   @Property({ nullable: true })
   email?: string;
 
-  @Property({ length: 60, nullable: true })
+  @Property({ length: 60, nullable: true, fieldName: 'regTime' })
   regTime?: string;
 
   @Property({ nullable: true })
   apikey?: string;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'verifyToken' })
   verifyToken?: string;
 
-  @Property({ type: 'text', nullable: true })
+  @Property({ type: 'text', nullable: true, fieldName: 'authDevice' })
   authDevice?: string;
 }

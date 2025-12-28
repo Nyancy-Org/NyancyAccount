@@ -5,7 +5,7 @@ export class Site {
   @PrimaryKey()
   id!: number;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'optionName' })
   optionName?: string;
 
   @Property({ type: 'text', nullable: true })
@@ -14,6 +14,6 @@ export class Site {
   @Property({ default: '', nullable: true })
   value?: string;
 
-  @Property({ onUpdate: () => new Date() })
+  @Property({ onUpdate: () => new Date(), fieldName: 'updatedAt' })
   updatedAt: Date = new Date();
 }

@@ -5,15 +5,15 @@ export class OauthAuthCode {
   @PrimaryKey({ length: 100 })
   id!: string;
 
-  @Property()
+  @Property({ fieldName: 'userId' })
   userId!: number;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'clientId' })
   clientId?: number;
 
   @Property({ type: 'text', nullable: true })
   scopes?: string;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'expiredAt' })
   expiredAt?: Date;
 }

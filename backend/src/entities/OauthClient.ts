@@ -5,7 +5,7 @@ export class OauthClient {
   @PrimaryKey()
   id!: number;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'userId' })
   userId?: number;
 
   @Property({ default: '' })
@@ -17,9 +17,9 @@ export class OauthClient {
   @Property({ type: 'text' })
   redirect!: string;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'createdAt' })
   createdAt?: Date;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'updatedAt' })
   updatedAt?: Date;
 }

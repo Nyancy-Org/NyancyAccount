@@ -1,7 +1,11 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { db } from 'src/services/mysql';
+import { EntityManager } from '@mikro-orm/core';
+import { User } from '@/entities/User';
+import { UserIp } from '@/entities/UserIp';
+import { Site } from '@/entities/Site';
+import { DailyStatistic } from '@/entities/DailyStatistic';
 import bcrypt from 'bcryptjs';
-import { timeUuid } from 'src/utils/uuid';
+import { timeUuid } from '@/utils/uuid';
 import {
   LoginDto,
   UsernameDto,
@@ -10,8 +14,7 @@ import {
   UNAME_REG,
 } from './auth.dto';
 import { MailCodeType, MailLinkType } from './auth.interface';
-import type { UserInfo } from 'src/modules/user/user.interface';
-import { base64ToUint8Array, emailTemplate, isEmail } from 'src/utils';
+import { base64ToUint8Array, emailTemplate, isEmail } from '@/utils';
 import type { Request } from 'express';
 import {
   generateAuthenticationOptions,
@@ -27,12 +30,14 @@ import type {
   AuthenticatorDevice,
   AuthenticationResponseJSON,
 } from '@simplewebauthn/types';
-import config from 'src/services/config';
+import config from '@/services/config';
 import useragent from 'express-useragent';
-import { Ip2RegionService } from 'src/services/ip2region';
+import { Ip2RegionService } from '@/services/ip2region';
 
 @Injectable()
 export class AuthService {
+  constructor(private readonly em: EntityManager) {}
+
   // 登录
   async login(session: Record<string, any>, req: Request, body: LoginDto) {
     const a = this.loginValidateData(body);
@@ -42,19 +47,15 @@ export class AuthService {
         HttpStatus.EXPECTATION_FAILED,
       );
     }
-    let r: UserInfo;
+    let r: User;
     if (a.type === 'default') {
-      [r] = await db.query('select * from user where binary username=?', [
-        body.username,
-      ]);
+      r = await this.em.findOne(User, { username: body.username });
     } else {
-      [r] = await db.query('select * from user where binary email=?', [
-        body.username,
-      ]);
+      r = await this.em.findOne(User, { email: body.username });
     }
 
     // 如果没有找到这个用户或者用户名密码错误
-    if (r === undefined || !bcrypt.compareSync(body.password, r.password))
+    if (!r || !bcrypt.compareSync(body.password, r.password))
       throw new HttpException(
         '用户名或密码错误',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -69,13 +70,10 @@ export class AuthService {
     isEmail(body.email);
 
     // 查询邮箱是否被占用
-    const e: UserInfo[] = await db.query(
-      'select * from user where binary email=?',
-      [body.email],
-    );
+    const e = await this.em.findOne(User, { email: body.email });
 
     // 邮箱已存在在
-    if (e[0] != undefined) throw new Error('该邮箱已被注册！');
+    if (e) throw new Error('该邮箱已被注册！');
 
     // 邮箱可用
     return {
@@ -85,11 +83,8 @@ export class AuthService {
 
   // 检查用户名可用性
   async checkUserName(body: { username: string }) {
-    const [r]: UserInfo[] = await db.query(
-      'select * from user where binary username=?',
-      [body.username],
-    );
-    if (r != undefined) throw new Error('该用户名已被占用！');
+    const r = await this.em.findOne(User, { username: body.username });
+    if (r) throw new Error('该用户名已被占用！');
 
     return {
       msg: '恭喜，该用户名可用~',
@@ -98,19 +93,15 @@ export class AuthService {
 
   // 本不应该出现在这里
   private async hasUser(usernameOrEmail: string) {
-    let r: UserInfo;
+    let r: User;
+
+    // 只要没有 @ 和空格就行
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(usernameOrEmail)) {
       // 是邮箱
-      [r] = await db.query(
-        'select * from user where binary email=?',
-        `${usernameOrEmail}`,
-      );
+      r = await this.em.findOne(User, { email: usernameOrEmail });
     } else {
       // 用户名
-      [r] = await db.query(
-        'select * from user where binary username=?',
-        `${usernameOrEmail}`,
-      );
+      r = await this.em.findOne(User, { username: usernameOrEmail });
     }
     if (!r) throw new Error('用户不存在');
     return r;
@@ -119,7 +110,12 @@ export class AuthService {
   // 注册
   async register(session: Record<string, any>, body: RegisterDto) {
     // 检查是否允许注册
-    await this.allowReg();
+    try {
+      await this.allowReg();
+    } catch (err) {
+      Logger.error(err.message);
+      throw new Error('注册失败，请联系网站管理员');
+    }
 
     // 检查传进来的数据是否合法
     const a = await this.regValidateData(body);
@@ -141,38 +137,40 @@ export class AuthService {
 
     // 开始注册
     // 插入新用户
-    let i;
     try {
-      i = await db.query(
-        'insert into user (username,password,email,status,role,regTime) values (?,?,?,?,?,?)',
-        [
-          body.username,
-          bcrypt.hashSync(body.password, 10),
-          body.email,
-          0,
-          'default',
-          Date.now(),
-        ],
-      );
+      const newUser = this.em.create(User, {
+        username: body.username,
+        password: bcrypt.hashSync(body.password, 10),
+        email: body.email,
+        status: 0,
+        role: 'default',
+        regTime: Date.now().toString(),
+      });
+      await this.em.persist(newUser).flush();
     } catch (err) {
       Logger.error(err.message);
       throw new Error('注册失败，请联系网站管理员');
     }
 
-    if (i.affectedRows === 1) {
-      // 写入统计数据
-      const formattedDate = new Date().toISOString().split('T')[0];
-      await db.query(
-        'INSERT INTO daily_statistics (date, count) VALUES (?, 1) ON DUPLICATE KEY UPDATE count = count + 1',
-        [formattedDate],
-      );
-
-      return {
-        msg: '好耶，你注册成功了~',
-      };
+    // 写入统计数据
+    const formattedDate = new Date().toISOString().split('T')[0];
+    const dailyStat = await this.em.findOne(DailyStatistic, {
+      date: formattedDate,
+    });
+    if (dailyStat) {
+      dailyStat.count = (dailyStat.count || 0) + 1;
     } else {
-      throw new Error('注册失败，请联系网站管理员');
+      const newStat = this.em.create(DailyStatistic, {
+        date: formattedDate,
+        count: 1,
+      });
+      this.em.persist(newStat);
     }
+    await this.em.flush();
+
+    return {
+      msg: '好耶，你注册成功了~',
+    };
   }
 
   // 登出
@@ -270,7 +268,7 @@ export class AuthService {
     return await this.loginInfo(session, req, u);
   }
 
-  async loginInfo(session: Record<string, any>, req: Request, u: UserInfo) {
+  async loginInfo(session: Record<string, any>, req: Request, u: User) {
     // 如果被封了
     if (u.status == -1)
       throw new Error('你已被封禁，禁止登录。详情请联系管理员');
@@ -360,6 +358,7 @@ export class AuthService {
     };
   }
 
+  // TODO: 请求限制
   // 创建验证邮箱验证地址
   async createVerifyEmail(receiver: string, type: string) {
     // 验证验证码类型
@@ -370,20 +369,14 @@ export class AuthService {
     isEmail(receiver);
 
     // 判断这个邮箱是否被注册
-    const [u]: UserInfo[] = await db.query(
-      'select * from user where binary email=?',
-      [receiver],
-    );
+    const u = await this.em.findOne(User, { email: receiver });
     if (!u) throw new Error('该邮箱未注册');
 
     // 如果有，那就生成验证链接，以及把uuid存入数据库后面进行比对
     const t_uuid = timeUuid();
 
-    const r = await db.query('update user set verifyToken=? where id=?', [
-      t_uuid,
-      u.id,
-    ]);
-    if (r.affectedRows !== 1) throw new Error('恭喜，数据库没了');
+    u.verifyToken = t_uuid;
+    await this.em.flush();
 
     const email = {
       to: receiver,
@@ -396,10 +389,7 @@ export class AuthService {
   // 验证邮箱地址（适用于忘记密码）
   async verifyEmailLink(body: { code: string }) {
     // 首先判断和数据库里面的是否相符
-    const [dc] = await db.query(
-      'select id from user where binary verifyToken=?',
-      body.code,
-    );
+    const dc = await this.em.findOne(User, { verifyToken: body.code });
     if (!dc) throw new Error('验证链接已过期或不存在！');
 
     // 取出code里面的时间
@@ -411,12 +401,14 @@ export class AuthService {
     // 算出已经过去了10分钟没有
     const d = Math.floor(Math.abs(date2 - date1) / 60000);
     if (d > 10) {
-      await db.query('update user set verifyToken=? where id=?', [null, dc.id]);
+      dc.verifyToken = null;
+      await this.em.flush();
       throw new Error('验证链接已过期！');
     }
 
     // 没有？那就是验证成功了
-    await db.query('update user set verifyToken=? where id=?', [null, dc.id]);
+    dc.verifyToken = null;
+    await this.em.flush();
 
     return {
       msg: '邮箱验证成功！',
@@ -427,34 +419,17 @@ export class AuthService {
   async resetPasswd(
     body: Pick<RegisterDto, 'password'> & Pick<RegisterDto, 'code'>,
   ) {
-    // // 先验证密码是否合法
-    // const a = PWD_REG.test(body.password);
-    // if (!a) {
-    //   throw new HttpException(
-    //     '新密码不符合规范！',
-    //     HttpStatus.EXPECTATION_FAILED,
-    //   );
-    // }
-
     // 获取被重置密码的邮箱
-    const [dc]: { email: string }[] = await db.query(
-      'select email from user where binary verifyToken=?',
-      body.code,
-    );
+    const dc = await this.em.findOne(User, { verifyToken: body.code });
     if (!dc) throw new Error('验证链接已过期或不存在！');
-    const thisEmail = dc.email;
 
     // 验证重置地址是否过期
     await this.verifyEmailLink(body);
 
     // OK，开始更新密码
-    const r = await db.query('update user set password=? where email=?', [
-      bcrypt.hashSync(body.password, 10),
-      thisEmail,
-    ]);
-
-    if (r.affectedRows !== 1)
-      throw new Error('发生了未知错误，请联系网站管理员');
+    // 由于 verifyEmailLink 已经把 verifyToken 清空了，所以这里直接更新密码即可
+    dc.password = bcrypt.hashSync(body.password, 10);
+    await this.em.flush();
 
     return {
       msg: '密码重置成功',
@@ -462,7 +437,10 @@ export class AuthService {
   }
 
   // 登录表单验证，顺便判断是用户名还是邮箱登录
-  loginValidateData(body: LoginDto): { status: boolean; type: string } {
+  loginValidateData(body: LoginDto): {
+    status: boolean;
+    type: 'email' | 'default';
+  } {
     const uname = body.username;
     const passwd = body.password;
     const IS_EMAIL_REG = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -495,10 +473,9 @@ export class AuthService {
 
   // 是否允许注册
   async allowReg() {
-    const a = await db.query(
-      'select * from site where binary optionName = "allowReg"',
-    );
-    if (a[0].value === 'false') {
+    const a = await this.em.findOne(Site, { optionName: 'allowReg' });
+
+    if (a && a.value === 'false') {
       throw new HttpException(
         '本站已关闭用户注册功能！',
         HttpStatus.SERVICE_UNAVAILABLE,
@@ -520,7 +497,7 @@ export class AuthService {
   }
 
   // 记录登录IP
-  async recordLoginIP(req: Request, u: UserInfo) {
+  async recordLoginIP(req: Request, u: User) {
     const ip = config.isCdn
       ? (req.headers['x-forwarded-for'] as string).split(',')[0]
       : config.isReverseProxy
@@ -532,10 +509,14 @@ export class AuthService {
     const ua = useragent.parse(req.headers['user-agent']);
     const device = `${ua.os} / ${ua.browser} ${ua.version}`;
 
-    await db.query(
-      'insert into user_ip (uid,ip,location,device,time) values(?,?,?,?,?)',
-      [u.id, ip, region, device, loginTime],
-    );
+    const userIp = this.em.create(UserIp, {
+      uid: u.id,
+      ip: String(ip),
+      location: region,
+      device: device,
+      time: loginTime,
+    });
+    await this.em.persist(userIp).flush();
 
     return {
       ip,

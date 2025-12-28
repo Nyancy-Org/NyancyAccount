@@ -8,6 +8,6 @@ export class OauthRefreshToken {
   @Property({ length: 100 })
   access_token_id!: string;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, fieldName: 'expiredAt' })
   expiredAt?: Date;
 }
