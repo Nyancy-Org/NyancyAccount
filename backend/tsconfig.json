@@ -17,13 +17,13 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "esModuleInterop": true,
+    "esModuleInterop": true
   },
   "include": [
-    "env.d.ts", 
-    "src/**/*", 
-    "src/**/*.ts", 
-    "src/**/*.d.ts", 
-    "./*.d.ts",
-  ],
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "./*.d.ts"
+  ]
 }

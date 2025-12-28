@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { db } from 'src/services/mysql';
+import { EntityManager } from '@mikro-orm/core';
+import { Site } from 'src/entities/Site';
+import { User } from 'src/entities/User';
+import { OauthClient } from 'src/entities/OauthClient';
+import { DailyStatistic } from 'src/entities/DailyStatistic';
 import { SiteOptions } from './site.interface';
+
 @Injectable()
 export class SiteService {
+  constructor(private readonly em: EntityManager) {}
+
   // 获取所有站点配置
   async options() {
-    const r: SiteOptions[] = await db.query('select * from site');
+    const r = await this.em.find(Site, {});
     return {
       code: 200,
       msg: '获取成功',
@@ -17,14 +24,17 @@ export class SiteService {
   // 更新配置信息
   async update_(body: SiteOptions) {
     // 更新数据
-    let r;
-    r = await db.query(
-      'UPDATE site SET note=?, value=?,updatedAt=?  where id=?',
-      [body.note, body.value, new Date(), body.id],
-    );
-    if (r.affectedRows !== 1)
+    const site = await this.em.findOne(Site, { id: body.id });
+    if (!site) {
       throw new Error('发生了未知错误，请联系网站管理员');
-    r = null;
+    }
+
+    site.note = body.note;
+    site.value = body.value;
+    // updatedAt will be updated automatically by onUpdate hook in entity
+
+    await this.em.flush();
+
     return {
       code: 200,
       msg: '更新成功',
@@ -34,20 +44,19 @@ export class SiteService {
 
   // 获取统计数据
   async getStatistic() {
-    const r: { source: string; count: number }[] = await db.query(`
-      SELECT 'oauth_clients' as source, COUNT(*) as count FROM oauth_clients
-      UNION
-      SELECT 'user' as source, COUNT(*) as count FROM user
-    `);
+    const oauthClientsCount = await this.em.count(OauthClient);
+    const userCount = await this.em.count(User);
 
-    const dS: { date: Date; count: number }[] = await db.query(
-      'SELECT * FROM daily_statistics ORDER BY date DESC LIMIT 7',
+    const dS = await this.em.find(
+      DailyStatistic,
+      {},
+      { orderBy: { date: 'DESC' }, limit: 7 },
     );
 
-    const transformedResult = dS.reduce((acc, entry) => {
-      acc.push({ date: entry.date, count: entry.count });
-      return acc;
-    }, []);
+    const transformedResult = dS.map((entry) => ({
+      date: entry.date,
+      count: entry.count,
+    }));
 
     // 按照日期升序排序
     transformedResult.sort((a, b) => {
@@ -58,7 +67,7 @@ export class SiteService {
 
     const dailyRegStatistics = transformedResult.reduce(
       (acc, entry) => {
-        acc.date.push(entry.date.toLocaleDateString());
+        acc.date.push(new Date(entry.date).toLocaleDateString());
         acc.count.push(entry.count);
         return acc;
       },
@@ -66,18 +75,10 @@ export class SiteService {
     );
 
     const statistics = {
-      oauth_clients: '',
-      user: '',
+      oauth_clients: oauthClientsCount.toString(),
+      user: userCount.toString(),
       dailyRegStatistics,
     };
-
-    r.forEach((row) => {
-      if (row.source === 'oauth_clients') {
-        statistics.oauth_clients = row.count.toString();
-      } else if (row.source === 'user') {
-        statistics.user = row.count.toString();
-      }
-    });
 
     return {
       status: true,
