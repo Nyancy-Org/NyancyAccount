@@ -1,29 +1,24 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { db } from 'src/services/mysql';
+import { db } from '@/services/mysql';
+import { objIsEmpty, randomString } from '@/utils';
 import {
-  isSafeData,
-  objIsEmpty,
-  randomString,
-  validateSearchQuery,
-} from 'src/utils';
-import type {
-  CodeInfo,
-  OauthBody,
-  OauthClientInfo,
-  AccessTokenInfo,
-  // RefreshTokenInfo,
-  NewOauthClient,
-  EditOauthClient,
-  AdminEditOauthClient,
-} from './oauth2.interface';
-import type { UserInfo } from 'src/modules/user/user.interface';
+  OauthBodyDto,
+  NewOauthClientDto,
+  EditOauthClientDto,
+  AdminEditOauthClientDto,
+  OauthClientIdDto,
+} from './oauth2.dto';
+import type { UserInfo } from '@/modules/user/user.interface';
+import { OauthClient } from '@/entities/OauthClient';
+import { OauthAuthCode } from '@/entities/OauthAuthCode';
+import { OauthAccessToken } from '@/entities/OauthAccessToken';
 
 @Injectable()
 export class Oauth2Service {
   // 获取应用信息
   async clientInfo(clientId: string, isInternal = false) {
     // 从数据库中查询
-    const o: OauthClientInfo[] = await db.query(
+    const o: OauthClient[] = await db.query(
       `select * from oauth_clients where id=?`,
       [clientId],
     );
@@ -39,7 +34,6 @@ export class Oauth2Service {
     }
 
     return {
-      code: 200,
       msg: '获取成功',
       data: o[0],
     };
@@ -54,15 +48,15 @@ export class Oauth2Service {
     scope: string, // 权限细分，懒得做
     state: string,
   ) {
-    if (!client_id)
-      throw new HttpException('请填写客户端ID', HttpStatus.EXPECTATION_FAILED);
-    if (!redirect_uri)
-      throw new HttpException('请填写回调地址', HttpStatus.EXPECTATION_FAILED);
-    if (response_type !== 'code')
-      throw new HttpException(
-        '不支持的响应类型',
-        HttpStatus.EXPECTATION_FAILED,
-      );
+    // if (!client_id)
+    //   throw new HttpException('请填写客户端ID', HttpStatus.EXPECTATION_FAILED);
+    // if (!redirect_uri)
+    //   throw new HttpException('请填写回调地址', HttpStatus.EXPECTATION_FAILED);
+    // if (response_type !== 'code')
+    //   throw new HttpException(
+    //     '不支持的响应类型',
+    //     HttpStatus.EXPECTATION_FAILED,
+    //   );
 
     const { data: o } = await this.clientInfo(client_id, true);
 
@@ -75,7 +69,7 @@ export class Oauth2Service {
     ]);
 
     // 判断该用户是否存在 code
-    const ac: CodeInfo[] = await db.query(
+    const ac: OauthAuthCode[] = await db.query(
       'select * from oauth_auth_codes where userId=?',
       [u.id],
     );
@@ -110,7 +104,6 @@ export class Oauth2Service {
     // 返回授权code
     if (i.affectedRows === 1) {
       return {
-        code: 200,
         msg: '获取成功',
         data: {
           state,
@@ -123,31 +116,31 @@ export class Oauth2Service {
   }
 
   // 验证code,返回token
-  async getToken(session: Record<string, any>, body: OauthBody) {
-    if (!body.client_id)
-      throw new HttpException('请填写客户端ID', HttpStatus.EXPECTATION_FAILED);
-    if (!body.client_secret)
-      throw new HttpException(
-        '请填写客户端密钥',
-        HttpStatus.EXPECTATION_FAILED,
-      );
-    if (!body.redirect_uri)
-      throw new HttpException('请填写回调地址', HttpStatus.EXPECTATION_FAILED);
-    if (body.grant_type !== 'authorization_code')
-      throw new HttpException(
-        '不支持的数据类型',
-        HttpStatus.EXPECTATION_FAILED,
-      );
+  async getToken(session: Record<string, any>, body: OauthBodyDto) {
+    // if (!body.client_id)
+    //   throw new HttpException('请填写客户端ID', HttpStatus.EXPECTATION_FAILED);
+    // if (!body.client_secret)
+    //   throw new HttpException(
+    //     '请填写客户端密钥',
+    //     HttpStatus.EXPECTATION_FAILED,
+    //   );
+    // if (!body.redirect_uri)
+    //   throw new HttpException('请填写回调地址', HttpStatus.EXPECTATION_FAILED);
+    // if (body.grant_type !== 'authorization_code')
+    //   throw new HttpException(
+    //     '不支持的数据类型',
+    //     HttpStatus.EXPECTATION_FAILED,
+    //   );
     // TODO: refresh_token
     // if (body.grant_type !== 'refresh_token') {
     // }
 
-    if (!body.code)
-      throw new HttpException('无效的 Code', HttpStatus.EXPECTATION_FAILED);
-    await isSafeData(body);
+    // if (!body.code)
+    //   throw new HttpException('无效的 Code', HttpStatus.EXPECTATION_FAILED);
+    // await isSafeData(body);
 
     // 数据库比对client是否存在
-    const [oc]: OauthClientInfo[] = await db.query(
+    const [oc]: OauthClient[] = await db.query(
       `select * from oauth_clients where id=?`,
       [body.client_id],
     );
@@ -160,7 +153,7 @@ export class Oauth2Service {
       throw new Error('重定向 Url 地址错误');
 
     // 检查code是否存在
-    const ac: CodeInfo[] = await db.query(
+    const ac: OauthAuthCode[] = await db.query(
       'select * from oauth_auth_codes where binary id=?',
       [body.code],
     );
@@ -269,7 +262,7 @@ export class Oauth2Service {
     }
 
     // 检查 accessToken是否过期
-    const [act]: AccessTokenInfo[] = await db.query(
+    const [act]: OauthAccessToken[] = await db.query(
       'select * from oauth_access_tokens where binary id=?',
       [accessToken],
     );
@@ -309,9 +302,7 @@ export class Oauth2Service {
     delete r[0].apikey;
     delete r[0].authDevice;
     return {
-      code: 200,
       msg: '获取成功',
-      time: Date.now(),
       data: r[0],
     };
   }
@@ -322,36 +313,34 @@ export class Oauth2Service {
   // 获取自己创建的oauth2应用
   async myClients(session: Record<string, any>) {
     // 根据id查找应用
-    const c: OauthClientInfo[] = await db.query(
+    const c: OauthClient[] = await db.query(
       'select * from oauth_clients where userId=?',
       [session['uid']],
     );
 
     return {
-      code: 200,
       msg: '获取成功',
-      time: Date.now(),
       data: c,
     };
   }
 
   // 新建一个oauth2应用
-  async createClient(session: Record<string, any>, body: NewOauthClient) {
-    // 检查表单是否为空
-    if (!body.name)
-      throw new HttpException('请填写应用名', HttpStatus.EXPECTATION_FAILED);
-    if (body.name.length > 32)
-      throw new HttpException('应用名过长！', HttpStatus.EXPECTATION_FAILED);
-    if (!body.redirect)
-      throw new HttpException('请填写回调Url', HttpStatus.EXPECTATION_FAILED);
-    if (body.redirect.length > 2333)
-      throw new HttpException(
-        '重定向地址过长！',
-        HttpStatus.EXPECTATION_FAILED,
-      );
+  async createClient(session: Record<string, any>, body: NewOauthClientDto) {
+    // // 检查表单是否为空
+    // if (!body.name)
+    //   throw new HttpException('请填写应用名', HttpStatus.EXPECTATION_FAILED);
+    // if (body.name.length > 32)
+    //   throw new HttpException('应用名过长！', HttpStatus.EXPECTATION_FAILED);
+    // if (!body.redirect)
+    //   throw new HttpException('请填写回调Url', HttpStatus.EXPECTATION_FAILED);
+    // if (body.redirect.length > 2333)
+    //   throw new HttpException(
+    //     '重定向地址过长！',
+    //     HttpStatus.EXPECTATION_FAILED,
+    //   );
 
     // 验证数据安全性
-    await isSafeData(body);
+    // await isSafeData(body);
 
     // 获取用户ID
     const uid = session['uid'];
@@ -371,7 +360,6 @@ export class Oauth2Service {
       );
     } catch (e) {
       return {
-        status: false,
         code: 500,
         msg: e.message,
         time: Date.now(),
@@ -380,9 +368,7 @@ export class Oauth2Service {
 
     if (i.affectedRows === 1) {
       return {
-        code: 200,
         msg: '添加成功',
-        time: Date.now(),
       };
     } else {
       throw new Error('添加失败，可能数据库炸了');
@@ -390,27 +376,27 @@ export class Oauth2Service {
   }
 
   // 编辑自己的oauth2应用
-  async editMyClient(session: Record<string, any>, body: EditOauthClient) {
-    // 检查表单是否为空
-    if (!body.id)
-      throw new HttpException('ID 不能为空', HttpStatus.EXPECTATION_FAILED);
-    if (String(body.id).length > 10)
-      throw new HttpException('ID 过长！', HttpStatus.EXPECTATION_FAILED);
-    if (!body.name)
-      throw new HttpException('请填写应用名', HttpStatus.EXPECTATION_FAILED);
-    if (body.name.length > 32)
-      throw new HttpException('应用名过长！', HttpStatus.EXPECTATION_FAILED);
+  async editMyClient(session: Record<string, any>, body: EditOauthClientDto) {
+    // // 检查表单是否为空
+    // if (!body.id)
+    //   throw new HttpException('ID 不能为空', HttpStatus.EXPECTATION_FAILED);
+    // if (String(body.id).length > 10)
+    //   throw new HttpException('ID 过长！', HttpStatus.EXPECTATION_FAILED);
+    // if (!body.name)
+    //   throw new HttpException('请填写应用名', HttpStatus.EXPECTATION_FAILED);
+    // if (body.name.length > 32)
+    //   throw new HttpException('应用名过长！', HttpStatus.EXPECTATION_FAILED);
 
-    if (!body.redirect)
-      throw new HttpException('请填写回调Url', HttpStatus.EXPECTATION_FAILED);
-    if (body.redirect.length > 2333)
-      throw new HttpException(
-        '重定向地址过长！',
-        HttpStatus.EXPECTATION_FAILED,
-      );
+    // if (!body.redirect)
+    //   throw new HttpException('请填写回调Url', HttpStatus.EXPECTATION_FAILED);
+    // if (body.redirect.length > 2333)
+    //   throw new HttpException(
+    //     '重定向地址过长！',
+    //     HttpStatus.EXPECTATION_FAILED,
+    //   );
 
-    // 验证数据安全性
-    await isSafeData(body);
+    // // 验证数据安全性
+    // await isSafeData(body);
 
     // 获取用户ID
     const uid = session['uid'];
@@ -431,20 +417,18 @@ export class Oauth2Service {
     );
     if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
     return {
-      code: 200,
       msg: '更新成功',
-      time: Date.now(),
     };
   }
 
   // 删除自己的oauth2应用
-  async delMyClient(session: Record<string, any>, body: { id: number }) {
+  async delMyClient(session: Record<string, any>, body: OauthClientIdDto) {
     // 检查表单是否为空
-    if (!body.id)
-      throw new HttpException('ID 不能为空', HttpStatus.EXPECTATION_FAILED);
+    // if (!body.id)
+    //   throw new HttpException('ID 不能为空', HttpStatus.EXPECTATION_FAILED);
 
     // 验证数据安全性
-    await isSafeData(body);
+    // await isSafeData(body);
 
     // 获取用户ID
     const uid = session['uid'];
@@ -462,9 +446,7 @@ export class Oauth2Service {
     const d = await db.query('delete from oauth_clients where id=?', body.id);
     if (d.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
     return {
-      code: 200,
       msg: '删除成功',
-      time: Date.now(),
     };
   }
 
@@ -473,13 +455,13 @@ export class Oauth2Service {
    */
   // 获取所有oauth2应用
   async allClients(
-    page_: string,
-    pageSize_: string,
-    sortBy: string,
-    sortDesc: string,
-    search: string,
+    page: number,
+    pageSize: number,
+    sortBy: keyof OauthClient,
+    sortDesc?: boolean,
+    search?: string,
   ) {
-    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+    // const { page, pageSize } = validateSearchQuery(page_, pageSize_);
 
     let totalCount = await db.query(
       'SELECT COUNT(*) as count FROM oauth_clients',
@@ -488,9 +470,7 @@ export class Oauth2Service {
     if (pageSize == -1) {
       const r = await db.query('select * from oauth_clients');
       return {
-        code: 200,
         msg: '获取成功',
-        time: Date.now(),
         data: {
           totalCount: Number(totalCount[0].count),
           totalPages: 1,
@@ -502,7 +482,7 @@ export class Oauth2Service {
     let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
-    const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
+    const sortOrder = sortDesc ? 'DESC' : 'ASC';
 
     // 根据什么排序
     sortBy = sortBy ? sortBy : 'id';
@@ -531,9 +511,7 @@ export class Oauth2Service {
 
     const r = await db.query(query);
     return {
-      code: 200,
       msg: '获取成功',
-      time: Date.now(),
       data: {
         totalCount: Number(totalCount[0].count),
         totalPages: totalPages,
@@ -543,7 +521,7 @@ export class Oauth2Service {
   }
 
   // 编辑指定oauth2应用
-  async editClient(body: AdminEditOauthClient) {
+  async editClient(body: AdminEditOauthClientDto) {
     if (objIsEmpty(body))
       throw new HttpException('请填写表单完整', HttpStatus.EXPECTATION_FAILED);
     const r = await db.query(
@@ -552,29 +530,25 @@ export class Oauth2Service {
     );
     if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
     return {
-      code: 200,
       msg: '更新成功',
-      time: Date.now(),
     };
   }
 
   // 删除指定的oauth2应用
-  async deleteClient(body: { id: number }) {
+  async deleteClient(body: OauthClientIdDto) {
     // 检查表单是否为空
-    if (!body.id)
-      throw new HttpException('ID 不能为空', HttpStatus.EXPECTATION_FAILED);
+    // if (!body.id)
+    //   throw new HttpException('ID 不能为空', HttpStatus.EXPECTATION_FAILED);
 
     const d = await db.query('delete from oauth_clients where id=?', body.id);
     if (d.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
     return {
-      code: 200,
       msg: '删除成功',
-      time: Date.now(),
     };
   }
 
   // 重置客户端密钥
-  async resetSecret(session: Record<string, any>, id: string) {
+  async resetSecret(session: Record<string, any>, id: number) {
     // 获取用户ID
     const uid = session['uid'];
 
@@ -594,9 +568,7 @@ export class Oauth2Service {
     ]);
     if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
     return {
-      code: 200,
       msg: '更新成功',
-      time: Date.now(),
     };
   }
 }

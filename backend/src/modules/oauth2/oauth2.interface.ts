@@ -1,26 +1,6 @@
-export interface OauthBody {
-  grant_type: string;
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
-  code: string;
-}
-
-export interface NewOauthClient {
+export interface OauthClientInfo {
   name: string;
   redirect: string;
-}
-
-export interface AdminEditOauthClient extends EditOauthClient {
-  secret: string;
-  userId: number;
-}
-
-export interface EditOauthClient extends NewOauthClient {
-  id: number;
-}
-
-export interface OauthClientInfo extends NewOauthClient {
   id: number;
   userId: number;
   secret: string;
