@@ -19,8 +19,9 @@ export class OauthBodyDto {
   grant_type: string;
 
   @IsNotEmpty({ message: '请填写客户端ID' })
-  @IsString({ message: ERR_UNSUPPORTED_DATA_TYPE })
-  client_id: string;
+  @IsInt({ message: ERR_UNSUPPORTED_DATA_TYPE })
+  @Type(() => Number)
+  client_id: number;
 
   @IsNotEmpty({ message: '请填写客户端密钥' })
   @IsString({ message: ERR_UNSUPPORTED_DATA_TYPE })

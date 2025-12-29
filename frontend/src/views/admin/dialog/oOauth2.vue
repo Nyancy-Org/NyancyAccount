@@ -34,6 +34,8 @@ const handleOk = async () => {
     const { valid } = await form.value.validate()
     if (!valid) return
     btnLoading.value = true
+    // todo:  userId is number
+    formData.value.userId = Number(formData.value.userId)
     const { msg } = await updateOAuth2AppApi(formData.value)
     showMsg(msg, 'green')
     emit('update')
@@ -64,6 +66,7 @@ defineExpose({
             clearable
             label="所属用户ID"
             density="compact"
+            type="number"
             :disabled="btnLoading"
           >
           </v-text-field>
