@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { Site } from 'src/entities/Site';
 import { User } from 'src/entities/User';
-import { OauthClient } from 'src/entities/OauthClient';
+import { OauthClient } from '@/entities/OauthClient';
 import { DailyStatistic } from 'src/entities/DailyStatistic';
 import { SiteOptions } from './site.interface';
 
