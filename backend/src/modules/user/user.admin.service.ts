@@ -9,13 +9,13 @@ import { validateSearchQuery } from 'src/utils';
 export class UserAdminService extends UserService {
   // 用户列表
   async list(
-    page_: string,
-    pageSize_: string,
+    page: number,
+    pageSize: number,
     sortBy: string,
-    sortDesc: string,
+    sortDesc: boolean,
     search: string,
   ) {
-    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+    // const { page, pageSize } = validateSearchQuery(page_, pageSize_);
 
     let totalCount = await db.query('SELECT COUNT(*) as count FROM user');
     if (pageSize == -1) {
@@ -35,7 +35,7 @@ export class UserAdminService extends UserService {
     let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
-    const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
+    const sortOrder = sortDesc ? 'DESC' : 'ASC';
 
     // 根据什么排序
     sortBy = sortBy ? sortBy : 'id';
