@@ -7,7 +7,6 @@ import {
   isEmail,
   uint8ArrayToBase64,
   validatePassword,
-  validateSearchQuery,
 } from 'src/utils';
 import { AuthService as AuthServices } from 'src/modules/auth/auth.service';
 import {
@@ -20,11 +19,17 @@ import type {
   VerifiedRegistrationResponse,
   VerifyRegistrationResponseOpts,
 } from '@simplewebauthn/server';
-import type {
-  AuthenticatorDevice,
-  RegistrationResponseJSON,
-} from '@simplewebauthn/types';
+import type { AuthenticatorDevice } from '@simplewebauthn/types';
 import config from 'src/services/config';
+import {
+  DeleteWanDto,
+  LoginLogDto,
+  UpdateApikeyDto,
+  UpdateEmailDto,
+  UpdateNameDto,
+  UpdatePasswordDto,
+  VerifyRegistrationDto,
+} from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -55,48 +60,25 @@ export class UserService {
 
     // 然后再返回
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: r,
     };
   }
 
   // 根据更新类型来更新用户信息
-  async update(
-    session: Record<string, any>,
-    type: UpdateType,
-    body: { [propName: string]: unknown },
-  ) {
+  async update(session: Record<string, any>, type: UpdateType, body: any) {
     switch (type) {
       case 'name': {
-        return await this.updateName(
-          session,
-          body as Pick<UserInfo, 'username'>,
-        );
+        return await this.updateName(session, body as UpdateNameDto);
       }
       case 'email': {
-        return await this.updateEmail(
-          session,
-          body as Pick<UserInfo, 'email'> & { code: string },
-        );
+        return await this.updateEmail(session, body as UpdateEmailDto);
       }
       case 'password': {
-        return await this.updatePassword(
-          session,
-          body as {
-            password: {
-              old: string;
-              new: string;
-            };
-          },
-        );
+        return await this.updatePassword(session, body as UpdatePasswordDto);
       }
       case 'apikey': {
-        return await this.updateApikey(
-          session,
-          body as Pick<UserInfo, 'apikey'>,
-        );
+        return await this.updateApikey(session, body as UpdateApikeyDto);
       }
       default: {
         throw new Error('未知的类型');
@@ -105,10 +87,7 @@ export class UserService {
   }
 
   // 更新用户名
-  async updateName(
-    session: Record<string, any>,
-    body: Pick<UserInfo, 'username'>,
-  ) {
+  async updateName(session: Record<string, any>, body: UpdateNameDto) {
     const [s] = await db.query(
       'select * from user where binary email=?',
       session.email,
@@ -130,20 +109,12 @@ export class UserService {
 
     await this.delete_wan(session, true);
     return {
-      code: HttpStatus.OK,
       msg: '更新用户名成功',
-      time: Date.now(),
     };
   }
 
   // 更新邮箱
-  async updateEmail(
-    session: Record<string, any>,
-    body: {
-      email: string;
-      code: string;
-    },
-  ) {
+  async updateEmail(session: Record<string, any>, body: UpdateEmailDto) {
     // 验证邮箱格式
     isEmail(body.email);
 
@@ -172,22 +143,12 @@ export class UserService {
     session['email'] = body.email;
     await this.delete_wan(session, true);
     return {
-      code: HttpStatus.OK,
       msg: '更新邮箱成功',
-      time: Date.now(),
     };
   }
 
   // 更新密码
-  async updatePassword(
-    session: Record<string, any>,
-    body: {
-      password: {
-        old: string;
-        new: string;
-      };
-    },
-  ) {
+  async updatePassword(session: Record<string, any>, body: UpdatePasswordDto) {
     const [s] = await db.query('select * from user where id=?', session.uid);
     const compareResult = bcrypt.compareSync(body.password.old, s.password);
     if (!compareResult) throw new Error('原密码错误');
@@ -200,17 +161,12 @@ export class UserService {
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
     return {
-      code: HttpStatus.OK,
       msg: '更新密码成功',
-      time: Date.now(),
     };
   }
 
   // 更新 Apikey
-  async updateApikey(
-    session: Record<string, any>,
-    body: Pick<UserInfo, 'apikey'>,
-  ) {
+  async updateApikey(session: Record<string, any>, body: UpdateApikeyDto) {
     if (body.apikey === 'true') {
       let apikey;
       let isUnique = false;
@@ -239,9 +195,7 @@ export class UserService {
         throw new Error('发生了未知错误，请联系网站管理员');
     }
     return {
-      code: HttpStatus.OK,
       msg: '更新 Apikey 成功',
-      time: Date.now(),
     };
   }
 
@@ -287,15 +241,13 @@ export class UserService {
     session['NyaChallenge'] = options.challenge;
 
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: options,
     };
   }
 
   // 验证PassKey
-  async vRegOpt(session: Record<string, any>, body: RegistrationResponseJSON) {
+  async vRegOpt(session: Record<string, any>, body: VerifyRegistrationDto) {
     const { data: u } = await this.info_(session.uid);
 
     let devices: AuthenticatorDevice[] = [];
@@ -333,15 +285,13 @@ export class UserService {
         JSON.stringify(devices),
         session.uid,
       ]);
-      if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
+      if (r.affectedRows !== 1) throw new Error('芜湖，数据库好像没了？！');
     }
 
     session['NyaChallenge'] = undefined;
 
     return {
-      code: HttpStatus.OK,
       msg: '验证成功',
-      time: Date.now(),
       data: { verified },
     };
   }
@@ -350,7 +300,7 @@ export class UserService {
   async delete_wan(
     session: Record<string, any>,
     deleteAll = false,
-    body?: { credentialID: string },
+    body?: DeleteWanDto,
   ) {
     const { data: u } = await this.info_(session.uid);
     const devices: AuthenticatorDevice[] = u.authDevice
@@ -359,9 +309,12 @@ export class UserService {
 
     if (devices.length === 0) throw new Error('未绑定任何PassKey');
 
-    const filterDevices = devices.filter(
-      (a: any) => a.credentialID !== body.credentialID,
-    );
+    let filterDevices;
+    if (body) {
+      filterDevices = devices.filter(
+        (a: any) => a.credentialID !== body.credentialID,
+      );
+    }
 
     const r = await db.query('update user set authDevice=? where id=?', [
       deleteAll
@@ -371,25 +324,20 @@ export class UserService {
           : JSON.stringify(filterDevices),
       session.uid,
     ]);
-    if (r.affectedRows !== 1) throw new Error('恭喜，你数据库没了');
+    if (r.affectedRows !== 1) throw new Error('芜湖，数据库好像没了？！');
 
     return {
-      code: HttpStatus.OK,
       msg: '删除成功',
-      time: Date.now(),
     };
   }
 
   // 登录日志
-  async loginLog(
-    session: Record<string, any>,
-    page_: string,
-    pageSize_: string,
-    sortBy: string,
-    sortDesc: string,
-    search: string,
-  ) {
-    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+  async loginLog(session: Record<string, any>, queryDto: LoginLogDto) {
+    const { page, pageSize, sortBy, sortDesc, search } = queryDto;
+
+    if (page <= 0 || pageSize < -1 || pageSize === 0) {
+      throw new HttpException('参数有误', HttpStatus.EXPECTATION_FAILED);
+    }
 
     let totalCount = await db.query(
       'SELECT COUNT(*) as count FROM user_ip where uid=?',
@@ -402,9 +350,7 @@ export class UserService {
         [session['uid']],
       );
       return {
-        code: HttpStatus.OK,
         msg: '获取成功',
-        time: Date.now(),
         data: {
           totalCount: Number(totalCount[0].count),
           totalPages: 1,
@@ -416,10 +362,10 @@ export class UserService {
     let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
-    const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
+    const sortOrder = sortDesc ? 'DESC' : 'ASC';
 
     // 根据什么排序
-    sortBy = sortBy ? sortBy : 'id';
+    const sortByKey = sortBy ? sortBy : 'id';
 
     // 查询语句
     let query = `SELECT id, ip, location, device, time FROM user_ip`;
@@ -438,7 +384,7 @@ export class UserService {
     const offset = (page - 1) * pageSize;
 
     // 构建排序条件
-    query += ` ORDER BY ${sortBy} ${sortOrder}`;
+    query += ` ORDER BY ${sortByKey} ${sortOrder}`;
 
     // 添加翻页限制
     query += ` LIMIT ${pageSize} OFFSET ${offset}`;
@@ -446,9 +392,7 @@ export class UserService {
     const r: Omit<LoginIP, 'uid'> = await db.query(query);
 
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: {
         totalCount: Number(totalCount[0].count),
         totalPages,
@@ -464,9 +408,7 @@ export class UserService {
       `${uid}`,
     );
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: r,
     };
   }
