@@ -1,9 +1,13 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { db } from 'src/services/mysql';
 import bcrypt from 'bcryptjs';
 import type { LoginIP, UserInfo } from './user.interface';
 import { UserService } from './user.service';
-import { validateSearchQuery } from 'src/utils';
+import {
+  DeleteUserAdminDto,
+  LoginLogDto,
+  UpdateUserAdminDto,
+} from './user.dto';
 
 @Injectable()
 export class UserAdminService extends UserService {
@@ -21,9 +25,7 @@ export class UserAdminService extends UserService {
     if (pageSize == -1) {
       const r: UserInfo[] = await db.query('select * from user');
       return {
-        code: HttpStatus.OK,
         msg: '获取成功',
-        time: Date.now(),
         data: {
           totalCount: Number(totalCount[0].count),
           totalPages: 1,
@@ -62,9 +64,7 @@ export class UserAdminService extends UserService {
 
     const r = await db.query(query);
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: {
         totalCount: Number(totalCount[0].count),
         totalPages: totalPages,
@@ -74,7 +74,7 @@ export class UserAdminService extends UserService {
   }
 
   // 更新指定用户信息
-  async update_(body: UserInfo) {
+  async update_(body: UpdateUserAdminDto) {
     // 验证用户名合法性
     const [n]: UserInfo[] = await db.query(
       'select * from user where id=?',
@@ -146,42 +146,30 @@ export class UserAdminService extends UserService {
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
     return {
-      code: HttpStatus.OK,
       msg: '更新成功',
-      time: Date.now(),
     };
   }
 
   // 删除用户
-  async delete(body: UserInfo) {
+  async delete(body: DeleteUserAdminDto) {
     const r = await db.query('delete from user where id=?', body.id);
     if (r.affectedRows !== 1)
       throw new Error('发生了未知错误，请联系网站管理员');
     return {
-      code: HttpStatus.OK,
       msg: '删除成功',
-      time: Date.now(),
     };
   }
 
   // 登录日志
-  async adminLoginLog(
-    page_: string,
-    pageSize_: string,
-    sortBy: string,
-    sortDesc: string,
-    search: string,
-  ) {
-    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+  async adminLoginLog(q: LoginLogDto) {
+    const { page, pageSize, sortBy, sortDesc, search } = q;
 
     let totalCount = await db.query('SELECT COUNT(*) as count FROM user_ip ');
 
     if (pageSize == -1) {
       const r: LoginIP[] = await db.query('select * FROM user_ip ');
       return {
-        code: HttpStatus.OK,
         msg: '获取成功',
-        time: Date.now(),
         data: {
           totalCount: Number(totalCount[0].count),
           totalPages: 1,
@@ -193,17 +181,17 @@ export class UserAdminService extends UserService {
     let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
 
     // 排序方式
-    const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
+    const sortOrder = sortDesc ? 'DESC' : 'ASC';
 
     // 根据什么排序
-    sortBy = sortBy ? sortBy : 'id';
+    const sortByKey = sortBy ? sortBy : 'id';
 
     // 查询语句
     let query = `SELECT * FROM user_ip`;
 
     // 构建搜索条件
     if (search) {
-      const s = ` WHERE id LIKE '%${search}%' OR uid LIKE '%${search}%' OR ip LIKE '%${search}%' OR location LIKE '%${search}%' OR device LIKE '%${search}%' OR time LIKE '%${search}%'`;
+      const s = ` WHERE id LIKE '%${search}%' OR ip LIKE '%${search}%' OR location LIKE '%${search}%' OR device LIKE '%${search}%' OR time LIKE '%${search}%'`;
       query += s;
       totalCount = await db.query(`SELECT COUNT(*) as count FROM user_ip${s}`);
       totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
@@ -213,7 +201,7 @@ export class UserAdminService extends UserService {
     const offset = (page - 1) * pageSize;
 
     // 构建排序条件
-    query += ` ORDER BY ${sortBy} ${sortOrder}`;
+    query += ` ORDER BY ${sortByKey} ${sortOrder}`;
 
     // 添加翻页限制
     query += ` LIMIT ${pageSize} OFFSET ${offset}`;
@@ -221,12 +209,10 @@ export class UserAdminService extends UserService {
     const r = await db.query(query);
 
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: {
         totalCount: Number(totalCount[0].count),
-        totalPages: totalPages,
+        totalPages,
         records: r,
       },
     };
