@@ -51,7 +51,7 @@ export class NewOauthClientDto {
   name: string;
 
   @IsNotEmpty({ message: '请填写回调地址' })
-  @MaxLength(32, { message: '回调地址过长！' })
+  @MaxLength(2333, { message: '回调地址过长！' })
   @IsString({ message: ERR_UNSUPPORTED_DATA_TYPE })
   redirect: string;
 }
