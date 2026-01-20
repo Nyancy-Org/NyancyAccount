@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import type { UpdateType } from './user.interface';
 import {
   base64ToUint8Array,
+  escapeWildcards,
   isEmail,
   uint8ArrayToBase64,
   validatePassword,
@@ -343,10 +344,11 @@ export class UserService {
 
     const where: any = { uid: session['uid'] };
     if (search) {
+      const escapedSearch = escapeWildcards(search);
       where['$or'] = [
-        { ip: { $like: `%${search}%` } },
-        { location: { $like: `%${search}%` } },
-        { device: { $like: `%${search}%` } },
+        { ip: { $like: `%${escapedSearch}%` } },
+        { location: { $like: `%${escapedSearch}%` } },
+        { device: { $like: `%${escapedSearch}%` } },
       ];
     }
 
