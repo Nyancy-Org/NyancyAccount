@@ -5,7 +5,7 @@ import { UserIp } from '@/entities/UserIp';
 import { Site } from '@/entities/Site';
 import { DailyStatistic } from '@/entities/DailyStatistic';
 import bcrypt from 'bcryptjs';
-import { timeUuid } from '@/utils/uuid';
+import { timeUuid } from '@/Utils/uuid';
 import {
   LoginDto,
   UsernameDto,
@@ -14,7 +14,7 @@ import {
   UNAME_REG,
 } from './auth.dto';
 import { MailCodeType, MailLinkType } from './auth.interface';
-import { base64ToUint8Array, emailTemplate, isEmail } from '@/utils';
+import { base64ToUint8Array, emailTemplate, isEmail } from '@/Utils';
 import type { Request } from 'express';
 import {
   generateAuthenticationOptions,

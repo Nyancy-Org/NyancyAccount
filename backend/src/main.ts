@@ -11,7 +11,7 @@ import config from './services/config';
 import { GlobalHeaders } from './middlewares/protocol';
 import { GlobalExceptionFilter } from './interceptors/http-exception.filter';
 import session from 'express-session';
-import { getLoggerService } from './utils/logger';
+import { getLoggerService } from './Utils/logger';
 import { GlobalResponseInterceptor } from './interceptors/response';
 import { GLOBAL_PREFIX } from './types/const';
 

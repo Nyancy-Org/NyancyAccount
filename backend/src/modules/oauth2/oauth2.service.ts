@@ -6,7 +6,7 @@ import {
   wrap,
   serialize,
 } from '@mikro-orm/core';
-import { randomString } from '@/utils';
+import { randomString, escapeLikeWildcards } from '@/Utils';
 import {
   OauthBodyDto,
   NewOauthClientDto,
@@ -413,10 +413,11 @@ export class Oauth2Service {
     // 构建搜索条件
     const where: any = {};
     if (search) {
+      const escapedSearch = escapeLikeWildcards(search);
       where.$or = [
-        { name: { $like: `%${search}%` } },
-        { secret: { $like: `%${search}%` } },
-        { redirect: { $like: `%${search}%` } },
+        { name: { $like: `%${escapedSearch}%` } },
+        { secret: { $like: `%${escapedSearch}%` } },
+        { redirect: { $like: `%${escapedSearch}%` } },
       ];
 
       // 如果搜索内容是数字，添加id和userId搜索

@@ -7,6 +7,7 @@ import {
   LoginLogDto,
   UpdateUserAdminDto,
 } from './user.dto';
+import { escapeLikeWildcards } from 'src/Utils';
 
 @Injectable()
 export class UserAdminService extends UserService {
@@ -20,11 +21,12 @@ export class UserAdminService extends UserService {
   ) {
     const where: any = {};
     if (search) {
+      const escapedSearch = escapeLikeWildcards(search);
       where['$or'] = [
-        { username: { $like: `%${search}%` } },
-        { role: { $like: `%${search}%` } },
-        { email: { $like: `%${search}%` } },
-        { apikey: { $like: `%${search}%` } },
+        { username: { $like: `%${escapedSearch}%` } },
+        { role: { $like: `%${escapedSearch}%` } },
+        { email: { $like: `%${escapedSearch}%` } },
+        { apikey: { $like: `%${escapedSearch}%` } },
       ];
       if (!isNaN(Number(search))) {
         where['$or'].push({ id: Number(search) });
@@ -127,10 +129,11 @@ export class UserAdminService extends UserService {
 
     const where: any = {};
     if (search) {
+      const escapedSearch = escapeLikeWildcards(search);
       where['$or'] = [
-        { ip: { $like: `%${search}%` } },
-        { location: { $like: `%${search}%` } },
-        { device: { $like: `%${search}%` } },
+        { ip: { $like: `%${escapedSearch}%` } },
+        { location: { $like: `%${escapedSearch}%` } },
+        { device: { $like: `%${escapedSearch}%` } },
       ];
     }
 
