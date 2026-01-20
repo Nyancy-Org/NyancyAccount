@@ -122,5 +122,6 @@ export const validateSearchQuery = (_page: string, _pageSize: string) => {
 export const escapeLikeWildcards = (searchTerm: string): string => {
   if (!searchTerm) return searchTerm;
   // 转义 % 和 _ 字符，这些是SQL LIKE语句中的通配符
-  return searchTerm.replace(/[%_]/g, '\\$&');
+  // 在MariaDB/MySQL中，使用反斜杠进行转义
+  return searchTerm.replace(/[%_\\]/g, '\\$&');
 };
