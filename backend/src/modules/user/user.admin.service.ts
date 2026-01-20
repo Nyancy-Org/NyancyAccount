@@ -1,233 +1,172 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { db } from 'src/services/mysql';
+import { Injectable } from '@nestjs/common';
+import { QueryOrder } from '@mikro-orm/core';
 import bcrypt from 'bcryptjs';
-import type { LoginIP, UserInfo } from './user.interface';
 import { UserService } from './user.service';
-import { validateSearchQuery } from 'src/utils';
+import {
+  DeleteUserAdminDto,
+  LoginLogDto,
+  UpdateUserAdminDto,
+} from './user.dto';
+import { escapeWildcards } from '@/utils';
 
 @Injectable()
 export class UserAdminService extends UserService {
   // 用户列表
   async list(
-    page_: string,
-    pageSize_: string,
+    page: number,
+    pageSize: number,
     sortBy: string,
-    sortDesc: string,
+    sortDesc: boolean,
     search: string,
   ) {
-    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+    const where: any = {};
+    if (search) {
+      const escapedSearch = escapeWildcards(search);
+      where['$or'] = [
+        { username: { $like: `%${escapedSearch}%` } },
+        { role: { $like: `%${escapedSearch}%` } },
+        { email: { $like: `%${escapedSearch}%` } },
+        { apikey: { $like: `%${escapedSearch}%` } },
+      ];
+      if (!isNaN(Number(search))) {
+        where['$or'].push({ id: Number(search) });
+        where['$or'].push({ status: Number(search) });
+      }
+    }
 
-    let totalCount = await db.query('SELECT COUNT(*) as count FROM user');
+    const orderBy = {
+      [sortBy || 'id']: sortDesc ? QueryOrder.DESC : QueryOrder.ASC,
+    };
+
     if (pageSize == -1) {
-      const r: UserInfo[] = await db.query('select * from user');
+      const [users, count] = await this.userRepository.findAndCount(where, {
+        orderBy,
+      });
       return {
-        code: HttpStatus.OK,
         msg: '获取成功',
-        time: Date.now(),
         data: {
-          totalCount: Number(totalCount[0].count),
+          totalCount: count,
           totalPages: 1,
-          users: r,
+          users,
         },
       };
     }
 
-    let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
+    const [users, count] = await this.userRepository.findAndCount(where, {
+      orderBy,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    });
 
-    // 排序方式
-    const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
-
-    // 根据什么排序
-    sortBy = sortBy ? sortBy : 'id';
-
-    // 查询语句
-    let query = `SELECT * FROM user`;
-
-    // 构建搜索条件
-    if (search) {
-      const s = ` WHERE id LIKE '%${search}%' OR username LIKE '%${search}%' OR status LIKE '%${search}%' OR role LIKE '%${search}%' OR email LIKE '%${search}%' OR apikey LIKE '%${search}%'`;
-      query += s;
-      totalCount = await db.query(`SELECT COUNT(*) as count FROM user${s}`);
-      totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
-    }
-
-    if (totalPages !== 0 && page > totalPages) throw new Error('超出页数');
-    const offset = (page - 1) * pageSize;
-
-    // 构建排序条件
-    query += ` ORDER BY ${sortBy} ${sortOrder}`;
-
-    // 添加翻页限制
-    query += ` LIMIT ${pageSize} OFFSET ${offset}`;
-
-    const r = await db.query(query);
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: {
-        totalCount: Number(totalCount[0].count),
-        totalPages: totalPages,
-        users: r,
+        totalCount: count,
+        totalPages: Math.ceil(count / pageSize),
+        users,
       },
     };
   }
 
   // 更新指定用户信息
-  async update_(body: UserInfo) {
-    // 验证用户名合法性
-    const [n]: UserInfo[] = await db.query(
-      'select * from user where id=?',
-      body.id,
-    );
-    const nn: UserInfo[] = await db.query(
-      'select * from user where binary username=?',
-      body.username,
-    );
-    if (nn.length !== 0) {
-      if (n.username !== nn[0].username) {
-        await this.validateUName(body.username);
-        if (nn.length >= 1) {
-          throw new Error('该用户名已被占用，请换一个新的');
-        }
-      }
+  async update_(body: UpdateUserAdminDto) {
+    const user = await this.userRepository.findOne({ id: body.id });
+    if (!user) throw new Error('User not found');
+
+    if (user.username !== body.username) {
+      await this.validateUName(body.username);
+      const existing = await this.userRepository.findOne({
+        username: body.username,
+      });
+      if (existing) throw new Error('该用户名已被占用，请换一个新的');
     }
 
-    // 用户名合法性验证通过
-
-    // 验证密码合法性
-    /*
-    没有传passwd？ {
-      Yes, Sir! 没穿 {
-        那就 传进来的passwd = 数据库中的password
-      } 传了{
-        传进来的passwd = 数据库中的password 吗？ {
-          是(没有更改密码) {
-            传进来的passwd = 数据库中的password
-          } 不然(那就是新密码咯) {
-            body.password = bcrypt.hashSync(body.password, 10)
-          }
-        }
-      }
+    if (body.password && body.password !== user.password) {
+      user.password = bcrypt.hashSync(body.password, 10);
     }
-    */
-    !body.password
-      ? (body.password = n.password)
-      : body.password !== n.password
-        ? (body.password = bcrypt.hashSync(body.password, 10))
-        : (body.password = n.password);
 
-    // 判断APIKEY状态
-    let apikey: string;
     if (body.apikey === 'true') {
+      let apikey;
       let isUnique = false;
       while (!isUnique) {
         apikey = this.createApiKey(32);
-        const existingUser = await db.query(
-          'select * from user where binary apikey=?',
-          [apikey],
-        );
-        if (existingUser.length === 0) {
+        const existingUser = await this.userRepository.findOne({ apikey });
+        if (!existingUser) {
           isUnique = true;
         }
       }
+      user.apikey = apikey;
     } else if (body.apikey === 'false') {
-      apikey = 'undefined';
-    } else {
-      apikey = n.apikey;
+      user.apikey = 'undefined';
     }
-    // APIKEY生成完毕
 
-    // MariaDB中不支持将整个对象作为参数传递给 SET 子句。（划掉，懒得改了）
-    const sql = `UPDATE user SET username = "${body.username}", password = "${body.password}", email = "${body.email}", status = "${body.status}", role = "${body.role}", apikey="${apikey}" where id=${body.id}`;
+    user.username = body.username;
+    user.email = body.email;
+    user.status = Number(body.status);
+    user.role = body.role;
 
-    // 更新用户数据
-    const r = await db.query(sql);
-    if (r.affectedRows !== 1)
-      throw new Error('发生了未知错误，请联系网站管理员');
+    await this.em.flush();
+
     return {
-      code: HttpStatus.OK,
       msg: '更新成功',
-      time: Date.now(),
     };
   }
 
   // 删除用户
-  async delete(body: UserInfo) {
-    const r = await db.query('delete from user where id=?', body.id);
-    if (r.affectedRows !== 1)
-      throw new Error('发生了未知错误，请联系网站管理员');
+  async delete(body: DeleteUserAdminDto) {
+    const user = await this.userRepository.findOne({ id: body.id });
+    if (user) {
+      await this.em.removeAndFlush(user);
+    }
     return {
-      code: HttpStatus.OK,
       msg: '删除成功',
-      time: Date.now(),
     };
   }
 
   // 登录日志
-  async adminLoginLog(
-    page_: string,
-    pageSize_: string,
-    sortBy: string,
-    sortDesc: string,
-    search: string,
-  ) {
-    const { page, pageSize } = validateSearchQuery(page_, pageSize_);
+  async adminLoginLog(q: LoginLogDto) {
+    const { page, pageSize, sortBy, sortDesc, search } = q;
 
-    let totalCount = await db.query('SELECT COUNT(*) as count FROM user_ip ');
+    const where: any = {};
+    if (search) {
+      const escapedSearch = escapeWildcards(search);
+      where['$or'] = [
+        { ip: { $like: `%${escapedSearch}%` } },
+        { location: { $like: `%${escapedSearch}%` } },
+        { device: { $like: `%${escapedSearch}%` } },
+      ];
+    }
+
+    const orderBy = {
+      [sortBy || 'id']: sortDesc ? QueryOrder.DESC : QueryOrder.ASC,
+    };
 
     if (pageSize == -1) {
-      const r: LoginIP[] = await db.query('select * FROM user_ip ');
+      const [records, count] = await this.userIpRepository.findAndCount(where, {
+        orderBy,
+      });
       return {
-        code: HttpStatus.OK,
         msg: '获取成功',
-        time: Date.now(),
         data: {
-          totalCount: Number(totalCount[0].count),
+          totalCount: count,
           totalPages: 1,
-          records: r,
+          records,
         },
       };
     }
 
-    let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
-
-    // 排序方式
-    const sortOrder = sortDesc === 'true' ? 'DESC' : 'ASC';
-
-    // 根据什么排序
-    sortBy = sortBy ? sortBy : 'id';
-
-    // 查询语句
-    let query = `SELECT * FROM user_ip`;
-
-    // 构建搜索条件
-    if (search) {
-      const s = ` WHERE id LIKE '%${search}%' OR uid LIKE '%${search}%' OR ip LIKE '%${search}%' OR location LIKE '%${search}%' OR device LIKE '%${search}%' OR time LIKE '%${search}%'`;
-      query += s;
-      totalCount = await db.query(`SELECT COUNT(*) as count FROM user_ip${s}`);
-      totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
-    }
-
-    if (totalPages !== 0 && page > totalPages) throw new Error('超出页数');
-    const offset = (page - 1) * pageSize;
-
-    // 构建排序条件
-    query += ` ORDER BY ${sortBy} ${sortOrder}`;
-
-    // 添加翻页限制
-    query += ` LIMIT ${pageSize} OFFSET ${offset}`;
-
-    const r = await db.query(query);
+    const [records, count] = await this.userIpRepository.findAndCount(where, {
+      orderBy,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    });
 
     return {
-      code: HttpStatus.OK,
       msg: '获取成功',
-      time: Date.now(),
       data: {
-        totalCount: Number(totalCount[0].count),
-        totalPages: totalPages,
-        records: r,
+        totalCount: count,
+        totalPages: Math.ceil(count / pageSize),
+        records,
       },
     };
   }

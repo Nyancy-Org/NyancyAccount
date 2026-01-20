@@ -70,15 +70,16 @@ export class AuthController {
     );
 
     try {
-      // await new Promise((resolve) => setTimeout(resolve, 10000));
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+      // console.log(email.to);
       await this.MailerService.sendVerificationEmail(email);
+
+      return {
+        msg: '邮件发送成功',
+      };
     } catch (err) {
       throw new Error(err.message);
     }
-
-    return {
-      msg: '邮件发送成功',
-    };
   }
 
   // 发送邮箱验证地址
@@ -97,14 +98,16 @@ export class AuthController {
     );
 
     try {
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+      // console.log(email.to);
       await this.MailerService.sendVerificationEmail(email);
+
+      return {
+        msg: '邮件发送成功',
+      };
     } catch (err) {
       throw new Error(err.message);
     }
-
-    return {
-      msg: '邮件发送成功',
-    };
   }
 
   // 重置密码

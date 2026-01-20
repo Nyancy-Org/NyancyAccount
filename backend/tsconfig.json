@@ -18,12 +18,15 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
-    "env.d.ts", 
-    "src/**/*", 
-    "src/**/*.ts", 
-    "src/**/*.d.ts", 
-    "./*.d.ts",
-  ],
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "./*.d.ts"
+  ]
 }

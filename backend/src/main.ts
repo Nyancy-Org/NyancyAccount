@@ -46,7 +46,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // 自动剔除 DTO 中未定义的字段，如 "test"
-      forbidNonWhitelisted: true, // 如果有未定义的字段，抛出错误
+      forbidNonWhitelisted: false, // 如果有未定义的字段，抛出错误
       transform: true,
       exceptionFactory: (errors: ValidationError[]) => {
         // 提取最后一个错误消息

@@ -15,7 +15,7 @@ import { UserService as UserServices } from './user.service';
 import { UserAdminService as UserAdminServices } from './user.admin.service';
 import { CheckAuthGuard } from 'src/guards/permission';
 import type { UpdateType } from './user.interface';
-import type { RegistrationResponseJSON } from '@simplewebauthn/types';
+import { DeleteWanDto, LoginLogDto, VerifyRegistrationDto } from './user.dto';
 
 @Controller('user')
 @UseGuards(CheckAuthGuard)
@@ -38,7 +38,7 @@ export class UserController {
   update(
     @Session() session: Record<string, any>,
     @Param('type') type: UpdateType,
-    @Body() body: { [propName: string]: unknown },
+    @Body() body: any,
   ) {
     return this.UserService.update(session, type, body);
   }
@@ -55,7 +55,7 @@ export class UserController {
   @HttpCode(200)
   vRegOpt(
     @Session() session: Record<string, any>,
-    @Body() body: RegistrationResponseJSON,
+    @Body() body: VerifyRegistrationDto,
   ) {
     return this.UserService.vRegOpt(session, body);
   }
@@ -65,7 +65,7 @@ export class UserController {
   @HttpCode(200)
   delete_wan(
     @Session() session: Record<string, any>,
-    @Body() body: { credentialID: string },
+    @Body() body: DeleteWanDto,
   ) {
     return this.UserService.delete_wan(session, false, body);
   }
@@ -75,19 +75,8 @@ export class UserController {
   @HttpCode(200)
   loginLog(
     @Session() session: Record<string, any>,
-    @Query('page') page = '1',
-    @Query('pageSize') pageSize = '10',
-    @Query('sortBy') sortBy: string,
-    @Query('sortDesc') sortDesc: string,
-    @Query('search') search: string,
+    @Query() query: LoginLogDto,
   ) {
-    return this.UserService.loginLog(
-      session,
-      page,
-      pageSize,
-      sortBy,
-      sortDesc,
-      search,
-    );
+    return this.UserService.loginLog(session, query);
   }
 }

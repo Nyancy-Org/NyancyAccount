@@ -10,8 +10,13 @@ import {
   Delete,
 } from '@nestjs/common';
 import { CheckAuthGuard, isAdmin } from 'src/guards/permission';
-import type { UserInfo } from './user.interface';
 import { UserController } from './user.controller';
+import {
+  DeleteUserAdminDto,
+  LoginLogDto,
+  UpdateUserAdminDto,
+  UserListDto,
+} from './user.dto';
 
 @Controller('user')
 @UseGuards(CheckAuthGuard)
@@ -27,46 +32,34 @@ export class UserAdminController extends UserController {
   // 用户列表
   @Get('list')
   @HttpCode(200)
-  list(
-    @Query('page') page = '1',
-    @Query('pageSize') pageSize = '10',
-    @Query('sortBy') sortBy: string,
-    @Query('sortDesc') sortDesc: string,
-    @Query('search') search: string,
-  ) {
-    return this.UserAdminService.list(page, pageSize, sortBy, sortDesc, search);
+  list(@Query() query: UserListDto) {
+    return this.UserAdminService.list(
+      query.page,
+      query.pageSize,
+      query.sortBy,
+      query.sortDesc,
+      query.search,
+    );
   }
 
   // 更新指定用户信息
   @Put('')
   @HttpCode(200)
-  update_(@Body() body: UserInfo) {
+  update_(@Body() body: UpdateUserAdminDto) {
     return this.UserAdminService.update_(body);
   }
 
   // 删除用户
   @Delete('')
   @HttpCode(200)
-  delete(@Body() body: UserInfo) {
+  delete(@Body() body: DeleteUserAdminDto) {
     return this.UserAdminService.delete(body);
   }
 
   // 所有用户登录日志
   @Get('admin/loginLogs')
   @HttpCode(200)
-  _loginLog(
-    @Query('page') page = '1',
-    @Query('pageSize') pageSize = '10',
-    @Query('sortBy') sortBy: string,
-    @Query('sortDesc') sortDesc: string,
-    @Query('search') search: string,
-  ) {
-    return this.UserAdminService.adminLoginLog(
-      page,
-      pageSize,
-      sortBy,
-      sortDesc,
-      search,
-    );
+  _loginLog(@Query() query: LoginLogDto) {
+    return this.UserAdminService.adminLoginLog(query);
   }
 }

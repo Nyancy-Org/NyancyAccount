@@ -12,15 +12,19 @@ import {
   Get,
   Delete,
   Options,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { Oauth2Service as Oauth2Services } from './oauth2.service';
 import { CheckAuthGuard, isAdmin } from 'src/guards/permission';
-import type {
-  OauthBody,
-  NewOauthClient,
-  EditOauthClient,
-  AdminEditOauthClient,
-} from './oauth2.interface';
+import {
+  OauthBodyDto,
+  NewOauthClientDto,
+  OauthClientIdDto,
+  AdminEditOauthClientDto,
+  AuthorizeDto,
+  GetClientsDto,
+  EditOauthClientDto,
+} from './oauth2.dto';
 
 @Controller('oauth2')
 export class Oauth2Controller {
@@ -34,18 +38,15 @@ export class Oauth2Controller {
     return await this.Oauth2Service.clientInfo(clientId);
   }
 
-  // 获取授权 Code
+  // 生成授权 Code
   @Post('authorize')
   @UseGuards(CheckAuthGuard)
   @HttpCode(200)
   async authorize(
     @Session() session: Record<string, any>,
-    @Query('client_id') client_id: string,
-    @Query('redirect_uri') redirect_uri: string,
-    @Query('response_type') response_type: string,
-    @Query('scope') scope: string,
-    @Query('state') state: string,
+    @Query() query: AuthorizeDto,
   ) {
+    const { client_id, redirect_uri, response_type, scope, state } = query;
     return await this.Oauth2Service.authorize(
       session,
       client_id,
@@ -61,7 +62,7 @@ export class Oauth2Controller {
   @HttpCode(200)
   async getToken(
     @Session() session: Record<string, any>,
-    @Body() body: OauthBody,
+    @Body() body: OauthBodyDto,
   ) {
     return await this.Oauth2Service.getToken(session, body);
   }
@@ -71,7 +72,6 @@ export class Oauth2Controller {
   @HttpCode(200)
   return200() {
     return {
-      code: 200,
       msg: 'ok',
     };
   }
@@ -81,7 +81,7 @@ export class Oauth2Controller {
   async getUserInfo(
     @Session() session: Record<string, any>,
     @Headers('authorization') authorization: string,
-    // @Body() body: OauthBody,
+    // @Body() body: OauthBodyDto,
   ) {
     return await this.Oauth2Service.userInfo(session, authorization);
   }
@@ -103,7 +103,7 @@ export class Oauth2Controller {
   @HttpCode(200)
   async createClient(
     @Session() session: Record<string, any>,
-    @Body() body: NewOauthClient,
+    @Body() body: NewOauthClientDto,
   ) {
     return await this.Oauth2Service.createClient(session, body);
   }
@@ -114,7 +114,7 @@ export class Oauth2Controller {
   @HttpCode(200)
   async editClient(
     @Session() session: Record<string, any>,
-    @Body() body: EditOauthClient,
+    @Body() body: EditOauthClientDto,
   ) {
     return await this.Oauth2Service.editMyClient(session, body);
   }
@@ -125,7 +125,7 @@ export class Oauth2Controller {
   @HttpCode(200)
   async delClient(
     @Session() session: Record<string, any>,
-    @Body() body: { id: number },
+    @Body() body: OauthClientIdDto,
   ) {
     return await this.Oauth2Service.delMyClient(session, body);
   }
@@ -136,9 +136,9 @@ export class Oauth2Controller {
   @HttpCode(200)
   async resetKey(
     @Session() session: Record<string, any>,
-    @Param() params: { id: string },
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    return await this.Oauth2Service.resetSecret(session, params.id);
+    return await this.Oauth2Service.resetSecret(session, id);
   }
 
   /**
@@ -149,19 +149,13 @@ export class Oauth2Controller {
   @UseGuards(CheckAuthGuard)
   @UseGuards(isAdmin)
   @HttpCode(200)
-  async clients(
-    @Query('page') page = '1',
-    @Query('pageSize') pageSize = '10',
-    @Query('sortBy') sortBy: string,
-    @Query('sortDesc') sortDesc: string,
-    @Query('search') search: string,
-  ) {
+  async clients(@Query() query: GetClientsDto) {
     return await this.Oauth2Service.allClients(
-      page,
-      pageSize,
-      sortBy,
-      sortDesc,
-      search,
+      query.page,
+      query.pageSize,
+      query.sortBy,
+      query.sortDesc,
+      query.search,
     );
   }
 
@@ -170,7 +164,7 @@ export class Oauth2Controller {
   @UseGuards(CheckAuthGuard)
   @UseGuards(isAdmin)
   @HttpCode(200)
-  async _editClient(@Body() body: AdminEditOauthClient) {
+  async _editClient(@Body() body: AdminEditOauthClientDto) {
     return await this.Oauth2Service.editClient(body);
   }
 
@@ -179,7 +173,7 @@ export class Oauth2Controller {
   @UseGuards(CheckAuthGuard)
   @UseGuards(isAdmin)
   @HttpCode(200)
-  async _delClient(@Body() body: { id: number }) {
+  async _delClient(@Body() body: OauthClientIdDto) {
     return await this.Oauth2Service.deleteClient(body);
   }
 }

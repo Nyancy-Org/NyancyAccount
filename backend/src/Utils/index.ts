@@ -117,3 +117,10 @@ export const validateSearchQuery = (_page: string, _pageSize: string) => {
     pageSize: Number(_pageSize),
   };
 };
+
+// 转义SQL的通配符以防止SQL注入
+export const escapeWildcards = (searchTerm: string): string => {
+  if (!searchTerm) return searchTerm;
+  // 转义 % 和 _ 字符
+  return searchTerm.replace(/[%_]/g, '\\$&');
+};

@@ -6,6 +6,10 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { MariaDbDriver } from '@mikro-orm/mariadb';
+import AppConfig from './services/config';
+
 // 接口速率限制
 import { RateLimiterModule, RateLimiterGuard } from 'nestjs-rate-limiter';
 import { dbConnect } from './middlewares/protocol';
@@ -18,6 +22,17 @@ import { SiteModule } from './modules/site/site.module';
 
 @Module({
   imports: [
+    MikroOrmModule.forRoot({
+      entities: ['../dist/entities/*.js'],
+      entitiesTs: ['./entities/*.ts'],
+      autoLoadEntities: true,
+      dbName: AppConfig.database.database,
+      host: AppConfig.database.host,
+      user: AppConfig.database.user,
+      password: AppConfig.database.password,
+      port: 3306,
+      driver: MariaDbDriver,
+    }),
     RateLimiterModule.register({
       for: 'Express',
       type: 'Memory',
