@@ -14,9 +14,7 @@ export class SiteService {
   async options() {
     const r = await this.em.find(Site, {});
     return {
-      code: 200,
       msg: '获取成功',
-      time: Date.now(),
       data: r,
     };
   }
@@ -36,9 +34,7 @@ export class SiteService {
     await this.em.flush();
 
     return {
-      code: 200,
       msg: '更新成功',
-      time: Date.now(),
     };
   }
 
@@ -81,10 +77,7 @@ export class SiteService {
     };
 
     return {
-      status: true,
-      code: 200,
       msg: '获取成功',
-      time: Date.now(),
       data: statistics,
     };
   }
