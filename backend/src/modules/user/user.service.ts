@@ -1,7 +1,10 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { db } from 'src/services/mysql';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository, QueryOrder, EntityManager } from '@mikro-orm/core';
+import { User } from 'src/entities/User';
+import { UserIp } from 'src/entities/UserIp';
 import bcrypt from 'bcryptjs';
-import type { UserInfo, UpdateType, LoginIP } from './user.interface';
+import type { UpdateType } from './user.interface';
 import {
   base64ToUint8Array,
   isEmail,
@@ -33,21 +36,35 @@ import {
 
 @Injectable()
 export class UserService {
-  constructor(readonly AuthService: AuthServices) {}
+  constructor(
+    readonly AuthService: AuthServices,
+    @InjectRepository(User)
+    readonly userRepository: EntityRepository<User>,
+    @InjectRepository(UserIp)
+    readonly userIpRepository: EntityRepository<UserIp>,
+    protected readonly em: EntityManager,
+  ) {}
 
   // 获取当前用户信息
   async info(session: Record<string, any>) {
-    const [r]: (UserInfo & {
+    const user = await this.userRepository.findOne({ id: session.uid });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const lastLoginIp = await this.userIpRepository.findOne(
+      { uid: session.uid },
+      { orderBy: { time: QueryOrder.DESC } },
+    );
+
+    const r: User & {
       lastLoginTime: Date;
       lastLoginIp: string;
-    })[] = await db.query(
-      `SELECT user.*, user_ip.ip as lastLoginIp, user_ip.time as lastLoginTime
-        FROM user 
-        INNER JOIN user_ip ON user.id = user_ip.uid
-        WHERE user.id = ?
-  	    ORDER BY user_ip.time DESC`,
-      [session.uid],
-    );
+    } = {
+      ...user,
+      lastLoginIp: lastLoginIp?.ip,
+      lastLoginTime: lastLoginIp?.time,
+    };
 
     // 删除敏感信息
     delete r.password;
@@ -88,26 +105,20 @@ export class UserService {
 
   // 更新用户名
   async updateName(session: Record<string, any>, body: UpdateNameDto) {
-    const [s] = await db.query(
-      'select * from user where binary email=?',
-      session.email,
-    );
+    const s = await this.userRepository.findOne({ email: session.email });
+    if (!s) throw new Error('User not found');
+
     if (s.username === body.username)
       throw new Error('与原用户名相符，无需更改');
     await this.validateUName(body.username as string);
-    const n = await db.query(
-      'select * from user where binary username=?',
-      body.username,
-    );
-    if (n.length >= 1) throw new Error('该用户名已被占用，请换一个新的');
-    const r = await db.query('update user set username=? where id=?', [
-      body.username,
-      session.uid,
-    ]);
-    if (r.affectedRows !== 1)
-      throw new Error('发生了未知错误，请联系网站管理员');
+    const n = await this.userRepository.findOne({ username: body.username });
+
+    if (n) throw new Error('该用户名已被占用，请换一个新的');
+    s.username = body.username;
 
     await this.delete_wan(session, true);
+
+    await this.em.flush();
     return {
       msg: '更新用户名成功',
     };
@@ -128,17 +139,14 @@ export class UserService {
       'changeEmail',
     );
 
-    const n = await db.query(
-      'select * from user where binary email=?',
-      body.email,
-    );
-    if (n.length >= 1) throw new Error('该邮箱已被其他用户绑定，请换一个新的');
-    const r = await db.query('update user set email=? where id=?', [
-      body.email,
-      session.uid,
-    ]);
-    if (r.affectedRows !== 1)
-      throw new Error('发生了未知错误，请联系网站管理员');
+    const n = await this.userRepository.findOne({ email: body.email });
+    if (n) throw new Error('该邮箱已被其他用户绑定，请换一个新的');
+
+    const user = await this.userRepository.findOne({ id: session.uid });
+    if (!user) throw new Error('User not found');
+
+    user.email = body.email;
+    await this.em.flush();
 
     session['email'] = body.email;
     await this.delete_wan(session, true);
@@ -149,17 +157,18 @@ export class UserService {
 
   // 更新密码
   async updatePassword(session: Record<string, any>, body: UpdatePasswordDto) {
-    const [s] = await db.query('select * from user where id=?', session.uid);
+    const s = await this.userRepository.findOne({ id: session.uid });
+    if (!s) throw new Error('User not found');
+
+    if (!s.password) throw new Error('未设置密码');
     const compareResult = bcrypt.compareSync(body.password.old, s.password);
     if (!compareResult) throw new Error('原密码错误');
     validatePassword(body.password.new);
     body.password.new = bcrypt.hashSync(body.password.new, 10);
-    const r = await db.query('update user set password=? where id=?', [
-      body.password.new,
-      session.uid,
-    ]);
-    if (r.affectedRows !== 1)
-      throw new Error('发生了未知错误，请联系网站管理员');
+
+    s.password = body.password.new;
+    await this.em.flush();
+
     return {
       msg: '更新密码成功',
     };
@@ -167,33 +176,25 @@ export class UserService {
 
   // 更新 Apikey
   async updateApikey(session: Record<string, any>, body: UpdateApikeyDto) {
+    const user = await this.userRepository.findOne({ id: session.uid });
+    if (!user) throw new Error('User not found');
+
     if (body.apikey === 'true') {
       let apikey;
       let isUnique = false;
       while (!isUnique) {
         apikey = this.createApiKey(32);
-        const existingUser = await db.query(
-          'select * from user where binary apikey=?',
-          [apikey],
-        );
-        if (existingUser.length === 0) {
+        const existingUser = await this.userRepository.findOne({ apikey });
+        if (!existingUser) {
           isUnique = true;
         }
       }
-      const r = await db.query('update user set apikey=? where id=?', [
-        apikey,
-        session.uid,
-      ]);
-      if (r.affectedRows !== 1)
-        throw new Error('发生了未知错误，请联系网站管理员');
+      user.apikey = apikey;
     } else {
-      const r = await db.query(
-        'update user set apikey="undefined" where id=?',
-        [session.uid],
-      );
-      if (r.affectedRows !== 1)
-        throw new Error('发生了未知错误，请联系网站管理员');
+      user.apikey = 'undefined';
     }
+    await this.em.flush();
+
     return {
       msg: '更新 Apikey 成功',
     };
@@ -281,11 +282,11 @@ export class UserService {
         transports: body.response.transports,
       };
       devices.push(newDevice);
-      const r = await db.query('update user set authDevice=? where id=?', [
-        JSON.stringify(devices),
-        session.uid,
-      ]);
-      if (r.affectedRows !== 1) throw new Error('芜湖，数据库好像没了？！');
+
+      const user = await this.userRepository.findOne({ id: session.uid });
+      if (!user) throw new Error('User not found');
+      user.authDevice = JSON.stringify(devices);
+      await this.em.flush();
     }
 
     session['NyaChallenge'] = undefined;
@@ -307,7 +308,8 @@ export class UserService {
       ? JSON.parse(u.authDevice)
       : [];
 
-    if (devices.length === 0) throw new Error('未绑定任何PassKey');
+    if (!deleteAll && devices.length === 0)
+      throw new Error('未绑定任何PassKey');
 
     let filterDevices;
     if (body) {
@@ -316,15 +318,15 @@ export class UserService {
       );
     }
 
-    const r = await db.query('update user set authDevice=? where id=?', [
-      deleteAll
-        ? null
-        : filterDevices.length === 0
-          ? null
-          : JSON.stringify(filterDevices),
-      session.uid,
-    ]);
-    if (r.affectedRows !== 1) throw new Error('芜湖，数据库好像没了？！');
+    const user = await this.userRepository.findOne({ id: session.uid });
+    if (!user) throw new Error('User not found');
+
+    user.authDevice = deleteAll
+      ? undefined
+      : filterDevices.length === 0
+        ? undefined
+        : JSON.stringify(filterDevices);
+    await this.em.flush();
 
     return {
       msg: '删除成功',
@@ -339,74 +341,52 @@ export class UserService {
       throw new HttpException('参数有误', HttpStatus.EXPECTATION_FAILED);
     }
 
-    let totalCount = await db.query(
-      'SELECT COUNT(*) as count FROM user_ip where uid=?',
-      [session['uid']],
-    );
+    const where: any = { uid: session['uid'] };
+    if (search) {
+      where['$or'] = [
+        { ip: { $like: `%${search}%` } },
+        { location: { $like: `%${search}%` } },
+        { device: { $like: `%${search}%` } },
+      ];
+    }
+
+    const orderBy = {
+      [sortBy || 'id']: sortDesc ? QueryOrder.DESC : QueryOrder.ASC,
+    };
 
     if (pageSize == -1) {
-      const r: Omit<LoginIP, 'uid'>[] = await db.query(
-        'select id, ip, location, device, time FROM user_ip where uid=?',
-        [session['uid']],
-      );
+      const [records, count] = await this.userIpRepository.findAndCount(where, {
+        orderBy,
+      });
       return {
         msg: '获取成功',
         data: {
-          totalCount: Number(totalCount[0].count),
+          totalCount: count,
           totalPages: 1,
-          records: r,
+          records,
         },
       };
     }
 
-    let totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
-
-    // 排序方式
-    const sortOrder = sortDesc ? 'DESC' : 'ASC';
-
-    // 根据什么排序
-    const sortByKey = sortBy ? sortBy : 'id';
-
-    // 查询语句
-    let query = `SELECT id, ip, location, device, time FROM user_ip`;
-
-    // 构建搜索条件
-    if (search) {
-      const s = ` WHERE id LIKE '%${search}%' OR ip LIKE '%${search}%' OR location LIKE '%${search}%' OR device LIKE '%${search}%' OR time LIKE '%${search}%'`;
-      query += s;
-      totalCount = await db.query(`SELECT COUNT(*) as count FROM user_ip${s}`);
-      totalPages = Math.ceil(Number(totalCount[0].count) / pageSize);
-    } else {
-      query += ` WHERE uid = '${session['uid']}'`;
-    }
-
-    if (totalPages !== 0 && page > totalPages) throw new Error('超出页数');
-    const offset = (page - 1) * pageSize;
-
-    // 构建排序条件
-    query += ` ORDER BY ${sortByKey} ${sortOrder}`;
-
-    // 添加翻页限制
-    query += ` LIMIT ${pageSize} OFFSET ${offset}`;
-
-    const r: Omit<LoginIP, 'uid'> = await db.query(query);
+    const [records, count] = await this.userIpRepository.findAndCount(where, {
+      orderBy,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    });
 
     return {
       msg: '获取成功',
       data: {
-        totalCount: Number(totalCount[0].count),
-        totalPages,
-        records: r,
+        totalCount: count,
+        totalPages: Math.ceil(count / pageSize),
+        records,
       },
     };
   }
 
   // （管理员接口）根据UID获取用户信息
   async info_(uid: string) {
-    const [r]: UserInfo[] = await db.query(
-      'select * from user where id=?',
-      `${uid}`,
-    );
+    const r = await this.userRepository.findOne({ id: Number(uid) });
     return {
       msg: '获取成功',
       data: r,
